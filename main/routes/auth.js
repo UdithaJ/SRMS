@@ -6,7 +6,7 @@ const router = express.Router();
 // Register user
 router.post('/register', async (req, res) => {
   try {
-    const { firstName, lastName, userName, referenceNo, password } = req.body;
+    const { firstName, lastName, userName, userRole, referenceNo, password } = req.body;
 
     // Check if userName exists
     const existingUserName = await User.findOne({ userName });
@@ -20,7 +20,7 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Reference number already exists' });
     }
 
-    const newUser = new User({ firstName, lastName, userName, referenceNo, password });
+    const newUser = new User({ firstName, lastName, userName, userRole, referenceNo, password });
     await newUser.save();
 
     res.json({ message: 'User registered successfully' });

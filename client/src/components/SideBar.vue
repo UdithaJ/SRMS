@@ -4,7 +4,7 @@
       <li><RouterLink to="/app/dashboard">Dashboard</RouterLink></li>
       <li v-if="isAdmin"><RouterLink to="/app/users">Users</RouterLink></li>
       <li><RouterLink to="/app/inquiries">Inquiries</RouterLink></li>
-      <li><RouterLink to="/app/sections">Sections</RouterLink></li>
+      <li v-if="isAdmin"><RouterLink to="/app/sections">Sections</RouterLink></li>
       <li>
         <button @click="logout" class="logout-btn">Logout</button>
       </li>
@@ -25,7 +25,7 @@ userStore.loadUser();
 // Check if the user has the 'admin' role
 
 const isAdmin = computed(() => userStore.userRole == 'admin')
-console.error(userStore);
+
 
 // Logout function
 const logout = () => {
