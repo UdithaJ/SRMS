@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-app-bar app color="primary" dense dark :clipped-left="display.mdAndUp">
+    <v-app-bar app color="cyan-darken-4" class="app-bar-gradient" dense dark :clipped-left="display.mdAndUp">
       <v-app-bar-nav-icon @click="drawer = !drawer" aria-label="Toggle navigation" />
       <v-toolbar-title class="ml-2">SRMS</v-toolbar-title>
       <v-spacer />
@@ -114,4 +114,13 @@ const logout = () => { userStore.logout(); router.push({ name: 'login' }) }
 .text-no-wrap { white-space: nowrap; }
 .sidebar-avatar { width: 112px; height: 112px; }
 .sidebar-avatar .v-image__image { width: 112px !important; height: 112px !important; object-fit: cover; border-radius: 50%; }
+.app-bar-gradient {
+  background-image: linear-gradient(to right, #021229 0%, #1976D2 100%) !important;
+  background-repeat: no-repeat;
+}
+.app-bar-gradient .v-toolbar-title,
+.app-bar-gradient .v-btn,
+.app-bar-gradient .v-icon {
+  color: #fff !important;
+}
 </style>
