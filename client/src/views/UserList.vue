@@ -18,7 +18,7 @@
             <td>{{ item.lastName }}</td>
             <td>{{ item.userName }}</td>
             <td>{{ item.referenceNo }}</td>
-            <td>{{ item.userRole }}</td>
+            <td>{{ getRoleLabel(item.userRole) }}</td>
             <td>{{ item.userRole === 'section staff' ? getSectionName(item.section) : '-' }}</td>
             <td class="text-right">
               <v-btn size="x-small" icon small @click="openEditModal(item)">
@@ -86,6 +86,17 @@ const modalUser = ref({
 })
 const modalMessage = ref('')
 const modalError = ref(false)
+
+// role labels mapping for display
+const roleLabels = {
+  admin: 'Admin',
+  reporter: 'Reporter',
+  'section staff': 'Section Staff',
+  ads: 'ADS',
+  ds: 'DS'
+}
+
+const getRoleLabel = (role) => roleLabels[role] || role || '-'
 
 // Fetch all users
 const fetchUsers = async () => {

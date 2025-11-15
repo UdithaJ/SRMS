@@ -16,7 +16,7 @@
         </v-col>
 
         <v-col cols="12" sm="6">
-          <v-select :items="roles" label="User Role" v-model="userRole"></v-select>
+          <v-select :items="roles" item-title="label" item-value="value" label="User Role" v-model="userRole"></v-select>
         </v-col>
 
         <v-col cols="12" sm="6" v-if="userRole === 'section staff'">
@@ -46,7 +46,13 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue','role-change'])
 
-const roles = ['admin','reporter','section staff']
+const roles = [
+  { value: 'admin', label: 'Admin' },
+  { value: 'reporter', label: 'Reporter' },
+  { value: 'section staff', label: 'Section Staff' },
+  { value: 'ads', label: 'ADS' },
+  { value: 'ds', label: 'DS' }
+]
 
 const firstName = computed({
   get: () => props.modelValue.firstName || '',

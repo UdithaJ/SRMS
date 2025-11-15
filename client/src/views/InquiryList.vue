@@ -109,6 +109,7 @@
                   :items="['Pending','Approved','Rejected']"
                   label="Acknowledgement"
                   v-model="modalInquiry.acknowledgement"
+                  :disabled="!canAcknowledge"
                 ></v-select>
               </v-col>
               <v-col cols="12">
@@ -146,6 +147,7 @@
 <script>
 import axios from 'axios'
 import { ref, onMounted, computed } from 'vue'
+import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'InquiryList',
@@ -178,6 +180,13 @@ export default {
       title,
       value
     }));
+
+    // current user store to check role for acknowledgement permission
+    const userStore = useUserStore();
+    const canAcknowledge = computed(() => {
+      const role = userStore.userRole || '';
+      return role === 'ads' || role === 'ds';
+    });
 
     const tableHeaders = [
       { title: 'ID', value: 'inquiryId' },
@@ -321,7 +330,8 @@ export default {
       openAddModal, openEditModal, fetchInquiries, loading, error,
       sections, selectedSectionId, filteredRequirements, onSectionChange,
       modalInquiry, showModal, isEditMode, modalMessage, modalError,
-      addInquiry, updateInquiry, closeModal, usersWithFullName, statusItems
+      addInquiry, updateInquiry, closeModal, usersWithFullName, statusItems,
+      canAcknowledge
     }
   }
 }

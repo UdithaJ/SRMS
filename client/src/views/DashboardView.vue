@@ -44,7 +44,7 @@
 
           <!-- Chart Section -->
           <v-row class="mt-6">
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="4">
               <v-card elevation="2" class="pa-4">
                 <v-card-title>Inquiries - Monthly</v-card-title>
                 <v-card-text>
@@ -55,12 +55,23 @@
               </v-card>
             </v-col>
 
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="4">
               <v-card elevation="2" class="pa-4">
                 <v-card-title>Inquiries by Status</v-card-title>
                 <v-card-text>
                   <v-responsive  max-width="400" max-height="400">
                     <canvas ref="inquiryStatusPie"></canvas>
+                  </v-responsive>
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <v-col cols="12" md="4">
+              <v-card elevation="2" class="pa-4">
+                <v-card-title>Average Rating</v-card-title>
+                <v-card-text>
+                  <v-responsive max-width="300" max-height="180">
+                    <canvas ref="ratingGauge"></canvas>
                   </v-responsive>
                 </v-card-text>
               </v-card>
@@ -97,6 +108,10 @@ let chartInstance = null;
 const inquiryStatusPie = ref(null);
 let pieChartInstance = null;
 
+// Rating gauge
+const ratingGauge = ref(null);
+let gaugeChartInstance = null;
+
 const fetchUsersCount = async () => {
   try {
     const res = await axios.get('http://127.0.0.1:3000/api/auth/users');
@@ -113,10 +128,80 @@ const fetchInquiriesCount = async () => {
     inquiriesCount.value = res.data.length;
     buildInquiryChart(res.data);
     buildInquiryStatusPie(res.data);
+    buildRatingGauge(res.data);
   } catch (err) {
     console.error('Failed to fetch inquiries count:', err);
     inquiriesCount.value = 0;
   }
+};
+
+const buildRatingGauge = (inquiries) => {
+  if (!ratingGauge.value) return;
+
+  // Compute average rating: sum of all inquiry ratings divided by total inquiries
+  // Ratings are on a 1-10 scale. Missing ratings count as 0 in the total.
+  const totalInquiries = inquiries.length || 0;
+  const sumRatings = inquiries.reduce((s, i) => s + (Number(i.rating) || 0), 0);
+  const avg = totalInquiries ? (sumRatings / totalInquiries) : 0;
+
+  // Convert average (0-10) to percentage 0-100
+  const percent = Math.max(0, Math.min(100, (avg / 10) * 100));
+
+  const data = [percent, 100 - percent];
+
+  if (gaugeChartInstance) gaugeChartInstance.destroy();
+
+  gaugeChartInstance = new Chart(ratingGauge.value, {
+    type: 'doughnut',
+    data: {
+      labels: ['Average', 'Remaining'],
+      datasets: [{
+        data,
+        backgroundColor: ['#66BB6A', '#e0e0e0'],
+        hoverBackgroundColor: ['#66BB6A', '#e0e0e0'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      rotation: Math.PI,
+      circumference: Math.PI,
+      cutout: '70%',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      }
+    },
+    plugins: [{
+      id: 'gauge-needle',
+      afterDraw(chart) {
+        const { ctx, chartArea: { width, height }, _metasets } = chart;
+        const centerX = chart.getDatasetMeta(0).data[0].x;
+        const centerY = chart.getDatasetMeta(0).data[0].y;
+
+        // angle from PI to 2PI
+        const angle = Math.PI + (Math.PI * (percent / 100));
+
+        // draw needle
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.moveTo(-6, 0);
+        ctx.lineTo(0, - (Math.min(width, height) / 2) + 20);
+        ctx.lineTo(6, 0);
+        ctx.fillStyle = '#424242';
+        ctx.fill();
+        ctx.restore();
+
+        // center text - show avg to one decimal on 10-point scale
+        ctx.font = '600 16px sans-serif';
+        ctx.fillStyle = '#212121';
+        ctx.textAlign = 'center';
+        ctx.fillText((avg).toFixed(1) + ' / 10', centerX, centerY + 20);
+      }
+    }]
+  });
 };
 
 const buildInquiryStatusPie = (inquiries) => {
