@@ -1,36 +1,132 @@
 <template>
   <nav>
-    <ul class="menu">
-      <li><RouterLink to="/app/dashboard">Dashboard</RouterLink></li>
-      <li v-if="isAdmin"><RouterLink to="/app/users">Users</RouterLink></li>
-      <li><RouterLink to="/app/inquiries">Inquiries</RouterLink></li>
-      <li v-if="isAdmin"><RouterLink to="/app/sections">Sections</RouterLink></li>
-      <li>
-        <button @click="logout" class="logout-btn">Logout</button>
-      </li>
-    </ul>
+    <v-app-bar app color="primary" dense dark :clipped-left="display.mdAndUp">
+      <v-app-bar-nav-icon @click="drawer = !drawer" aria-label="Toggle navigation" />
+      <v-toolbar-title class="ml-2">SRMS</v-toolbar-title>
+      <v-spacer />
+      <!-- collapse toggle only on desktop -->
+      <v-btn icon @click.stop="toggleMini" v-if="display.mdAndUp" :title="mini ? 'Expand' : 'Collapse'">
+        <v-icon>{{ mini ? 'mdi-chevron-right' : 'mdi-chevron-left' }}</v-icon>
+      </v-btn>
+      <v-btn icon @click="logout" title="Logout">
+        <v-icon>mdi-logout</v-icon>
+      </v-btn>
+    </v-app-bar>
+
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+      :permanent="display.mdAndUp"
+      :temporary="!display.mdAndUp"
+      :mini-variant="display.mdAndUp ? mini : false"
+      width="240"
+      mini-variant-width="72"
+      elevation="2"
+    >
+      <v-list dense nav>
+        <v-list-item two-line class="pt-4 pb-4">
+          <v-list-item-avatar size="40">
+            <v-img src="/favicon.ico" />
+          </v-list-item-avatar>
+          <v-list-item-content v-if="!mini">
+            <v-list-item-title class="white--text">{{ userName || 'User' }}</v-list-item-title>
+            <v-list-item-subtitle class="white--text">{{ userStore.userRole || '' }}</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-divider class="my-2" />
+
+        <v-list-item @click="navigate('/app/dashboard')">
+          <v-list-item-icon>
+            <v-icon>mdi-view-dashboard</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title v-if="!mini">Dashboard</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item v-if="isAdmin" @click="navigate('/app/users')">
+          <v-list-item-icon>
+            <v-icon>mdi-account-multiple</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title v-if="!mini">Users</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item @click="navigate('/app/inquiries')">
+          <v-list-item-icon>
+            <v-icon>mdi-file-document-outline</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title v-if="!mini">Inquiries</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item v-if="isAdmin" @click="navigate('/app/sections')">
+          <v-list-item-icon>
+            <v-icon>mdi-format-list-bulleted</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title v-if="!mini">Sections</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
   </nav>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDisplay } from 'vuetify'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
-const userStore = useUserStore();
+const display = useDisplay()
+const userStore = useUserStore()
 
-userStore.loadUser();
+// load persisted user (if any)
+userStore.loadUser()
 
-// Check if the user has the 'admin' role
+// drawer open/close
+const drawer = ref(false)
 
-const isAdmin = computed(() => userStore.userRole == 'admin')
+// mini (collapsed) state persisted in localStorage
+const mini = ref(false)
+try {
+  const saved = window.localStorage.getItem('sidebarMini')
+  mini.value = saved === 'true'
+} catch (e) {
+  mini.value = false
+}
 
+onMounted(() => {
+  // open drawer on desktop by default
+  if (display.mdAndUp) drawer.value = true
+})
 
-// Logout function
+watch(() => display.mdAndUp, (val) => {
+  if (val) drawer.value = true
+  else drawer.value = false
+})
+
+watch(mini, (val) => {
+  try { window.localStorage.setItem('sidebarMini', val ? 'true' : 'false') } catch (e) {}
+})
+
+const toggleMini = () => {
+  mini.value = !mini.value
+}
+
+const isAdmin = computed(() => userStore.userRole === 'admin')
+
+const userName = computed(() => {
+  // user store currently exposes userId and userRole; use userId as fallback
+  return userStore.userId || ''
+})
+
+const navigate = (path) => {
+  router.push(path)
+  if (!display.mdAndUp) drawer.value = false
+}
+
 const logout = () => {
-userStore.logout();
- router.push({ name: 'login' })}
+  userStore.logout()
+  router.push({ name: 'login' })
+}
 </script>
 
 <style>

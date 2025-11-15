@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pa-4">
+  <v-container fluid class="pa-4">
     <!-- Card Wrapper -->
     <v-card max-width="1200" outlined elevation="2">
       <!-- Toolbar Header -->
