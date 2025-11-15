@@ -1,27 +1,3 @@
-// import { defineStore } from 'pinia'
-
-// export const useUserStore = defineStore('user', {
-//   state: () => ({
-//     role: null,
-//     username: null
-//   }),
-
-//   actions: {
-//     setRole(role) {
-//       this.role = role
-//     },
-//     setUser(name) {
-//       this.username = name
-//     },
-//     logout() {
-//     this.roles = []
-//     this.token = ''
-//     this.user = null
-// }
-//   }
-
-// })
-
 
 // stores/user.js
 import { defineStore } from 'pinia';
@@ -30,13 +6,15 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     userId: null,
     userRole: null,
+    userFullName: null,
   }),
   actions: {
     async setUser(user) {
       this.userId = user.id;
       this.userRole = user.userRole;
+      this.userFullName = user.firstName + ' ' + user.lastName;
 
-      await window.electronStore.set('user', { userId: this.userId, userRole: this.userRole });
+      await window.electronStore.set('user', { userId: this.userId, userRole: this.userRole, userFullName: this.userFullName });
     },
 
     async loadUser() {
@@ -44,6 +22,7 @@ export const useUserStore = defineStore('user', {
       if (data) {
         this.userId = data.userId;
         this.userRole = data.userRole;
+        this.userFullName = data.userFullName;
       }
     },
 

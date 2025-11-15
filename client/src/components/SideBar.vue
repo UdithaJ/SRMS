@@ -4,7 +4,6 @@
       <v-app-bar-nav-icon @click="drawer = !drawer" aria-label="Toggle navigation" />
       <v-toolbar-title class="ml-2">SRMS</v-toolbar-title>
       <v-spacer />
-      <!-- collapse toggle only on desktop -->
       <v-btn icon @click.stop="toggleMini" v-if="display.mdAndUp" :title="mini ? 'Expand' : 'Collapse'">
         <v-icon>{{ mini ? 'mdi-chevron-right' : 'mdi-chevron-left' }}</v-icon>
       </v-btn>
@@ -26,7 +25,7 @@
       <v-list dense nav>
         <v-list-item two-line class="pt-4 pb-4">
           <v-list-item-avatar size="40">
-            <v-img src="/favicon.ico" />
+            <v-img :src="userImg" />
           </v-list-item-avatar>
           <v-list-item-content v-if="!mini">
             <v-list-item-title class="white--text">{{ userName || 'User' }}</v-list-item-title>
@@ -73,86 +72,35 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useUserStore } from '@/stores/user'
+import userImg from '@/assets/user.png'
 
 const router = useRouter()
 const display = useDisplay()
 const userStore = useUserStore()
 
-// load persisted user (if any)
 userStore.loadUser()
 
-// drawer open/close
 const drawer = ref(false)
-
-// mini (collapsed) state persisted in localStorage
 const mini = ref(false)
-try {
-  const saved = window.localStorage.getItem('sidebarMini')
-  mini.value = saved === 'true'
-} catch (e) {
-  mini.value = false
-}
+try { const saved = window.localStorage.getItem('sidebarMini'); mini.value = saved === 'true' } catch (e) { mini.value = false }
 
-onMounted(() => {
-  // open drawer on desktop by default
-  if (display.mdAndUp) drawer.value = true
-})
+onMounted(() => { if (display.mdAndUp) drawer.value = true })
+watch(() => display.mdAndUp, (val) => { drawer.value = !!val })
+watch(mini, (val) => { try { window.localStorage.setItem('sidebarMini', val ? 'true' : 'false') } catch (e) {} })
 
-watch(() => display.mdAndUp, (val) => {
-  if (val) drawer.value = true
-  else drawer.value = false
-})
-
-watch(mini, (val) => {
-  try { window.localStorage.setItem('sidebarMini', val ? 'true' : 'false') } catch (e) {}
-})
-
-const toggleMini = () => {
-  mini.value = !mini.value
-}
-
+const toggleMini = () => { mini.value = !mini.value }
 const isAdmin = computed(() => userStore.userRole === 'admin')
-
-const userName = computed(() => {
-  // user store currently exposes userId and userRole; use userId as fallback
-  return userStore.userId || ''
-})
-
-const navigate = (path) => {
-  router.push(path)
-  if (!display.mdAndUp) drawer.value = false
-}
-
-const logout = () => {
-  userStore.logout()
-  router.push({ name: 'login' })
-}
+const userName = computed(() => userStore.userFullName || userStore.userId || '')
+const navigate = (path) => { router.push(path); if (!display.mdAndUp) drawer.value = false }
+const logout = () => { userStore.logout(); router.push({ name: 'login' }) }
 </script>
 
-<style>
-.menu {
-  list-style: none;
-  padding: 0;
-}
-.menu li {
-  margin-bottom: 15px;
-}
-.menu a {
-  color: white;
-  text-decoration: none;
-}
-.menu a.router-link-active {
-  font-weight: bold;
-}
-.logout-btn {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font-size: 1em;
-  padding: 0;
-}
-.logout-btn:hover {
-  text-decoration: underline;
-}
+<style scoped>
+.menu { list-style: none; padding: 0; }
+.menu li { margin-bottom: 15px; }
+.menu a { color: white; text-decoration: none; }
+.menu a.router-link-active { font-weight: bold; }
+.logout-btn { background: none; border: none; color: white; cursor: pointer; font-size: 1em; padding: 0 }
+.logout-btn:hover { text-decoration: underline }
 </style>
+          const display = useDisplay()

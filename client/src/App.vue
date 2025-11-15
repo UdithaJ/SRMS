@@ -1,11 +1,17 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
+import { computed } from 'vue'
 import SideBar from '@/components/SideBar.vue'
+
+const route = useRoute()
+
+// show sidebar only for app routes (e.g. /app/*)
+const showSidebar = computed(() => route.path.startsWith('/app'))
 </script>
 
 <template>
   <v-app>
-    <SideBar />
+    <SideBar v-if="showSidebar" />
     <v-main>
       <RouterView />
     </v-main>
