@@ -12,6 +12,7 @@
     <v-navigation-drawer
       v-model="drawer"
       app
+      class="drawer-gradient"
       :permanent="display.mdAndUp"
       :temporary="!display.mdAndUp"
       width="240"
@@ -121,6 +122,15 @@ const logout = () => { userStore.logout(); router.push({ name: 'login' }) }
 .app-bar-gradient .v-toolbar-title,
 .app-bar-gradient .v-btn,
 .app-bar-gradient .v-icon {
+  color: #fff !important;
+}
+.drawer-gradient {
+  background-image: linear-gradient(to bottom, #021229 0%, #1976D2 100%) !important;
+  background-repeat: no-repeat;
+}
+.drawer-gradient .v-list-item-title,
+.drawer-gradient .v-list-item-subtitle,
+.drawer-gradient .v-icon {
   color: #fff !important;
 }
 </style>
