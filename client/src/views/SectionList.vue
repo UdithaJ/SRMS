@@ -1,111 +1,121 @@
 <template>
-  <div class="section-list">
-    <h2>Sections</h2>
-    <div class="actions">
-      <button @click="openAddModal">Add Section</button>
-      <button @click="fetchSections">Refresh List</button>
-    </div>
+  <v-container class="pa-4">
+    <v-card max-width="1200" outlined elevation="2">
+      <v-toolbar flat color="cyan lighten-4">
+        <v-toolbar-title>Sections</v-toolbar-title>
+        <v-spacer />
+        <v-btn color="primary" @click="openAddModal">Add Section</v-btn>
+        <v-btn color="secondary" @click="fetchSections">Refresh</v-btn>
+      </v-toolbar>
 
-    <p v-if="loading">Loading sections...</p>
-    <p v-if="error" class="error">{{ error }}</p>
+      <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
+      <v-alert v-if="error" type="error">{{ error }}</v-alert>
 
-    <table v-if="sections.length" border="1" cellpadding="8">
-      <thead>
-        <tr>
-          <th>Section ID</th>
-          <th>Name</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="section in sections" :key="section._id">
-          <td>{{ section.sectionId }}</td>
-          <td>{{ section.name }}</td>
-          <td>
-            <button @click="openEditModal(section)">Edit</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <v-data-table
+        :headers="tableHeaders"
+        :items="sections"
+        :items-per-page="10"
+        class="elevation-1"
+        dense
+      >
+        <template #item="{ item }">
+          <tr>
+            <td>{{ item.sectionId }}</td>
+            <td>{{ item.name }}</td>
+            <td class="text-right">
+              <v-btn size="x-small" icon small @click="openEditModal(item)">
+                <v-icon size="small">mdi-pencil</v-icon>
+              </v-btn>
+            </td>
+          </tr>
+        </template>
 
-    <p v-else>No sections found.</p>
+        <template v-slot:no-data>
+          <v-alert type="info">No sections found.</v-alert>
+        </template>
+      </v-data-table>
+    </v-card>
 
-    <!-- MODAL -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal">
-        <h3>{{ isEditMode ? 'Edit Section' : 'Add Section' }}</h3>
+    <!-- Add/Edit Dialog -->
+    <v-dialog v-model="showModal" max-width="800px">
+      <v-card>
+        <v-card-title>{{ isEditMode ? 'Edit Section' : 'Add Section' }}</v-card-title>
+        <v-card-text>
+          <v-form @submit.prevent="isEditMode ? updateSection() : addSection()">
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="Section ID"
+                  v-model="modalSection.sectionId"
+                  :disabled="isEditMode"
+                  required
+                ></v-text-field>
+              </v-col>
 
-        <!-- SECTION FORM -->
-        <form @submit.prevent="isEditMode ? updateSection() : addSection()">
-          <div>
-            <label for="sectionId">Section ID:</label>
-            <input type="text" v-model="modalSection.sectionId" id="sectionId" :disabled="isEditMode" required />
+              <v-col cols="12" sm="6">
+                <v-text-field label="Name" v-model="modalSection.name" required></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="mt-2">
+              {{ modalMessage }}
+            </v-alert>
+          </v-form>
+
+          <!-- Requirements section (edit mode only) -->
+          <div v-if="isEditMode" class="requirements-box">
+            <h4>Requirements for this Section</h4>
+
+            <div class="requirements-scroll">
+              <v-data-table :headers="reqHeaders" :items="requirements" dense hide-default-footer>
+              <template #item="{ item }">
+                <tr>
+                  <td>{{ item.name }}</td>
+                  <td class="text-right">
+                    <v-btn size="x-small" icon small @click="startEditRequirement(item)">
+                      <v-icon size="small">mdi-pencil</v-icon>
+                    </v-btn>
+                    <v-btn size="x-small" icon small @click="deleteRequirement(item._id)">
+                      <v-icon size="small">mdi-delete</v-icon>
+                    </v-btn>
+                  </td>
+                </tr>
+              </template>
+
+              <template v-slot:no-data>
+                <v-alert type="info">No requirements found.</v-alert>
+              </template>
+              </v-data-table>
+            </div>
+
+            <v-row class="mt-3" align="center">
+              <v-col cols="12" sm="8">
+                <v-text-field label="Requirement Name" v-model="reqForm.name"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="4">
+                <v-btn color="primary" @click="editingRequirement ? updateRequirement() : addRequirement()">
+                  {{ editingRequirement ? 'Update' : 'Add' }}
+                </v-btn>
+                <v-btn v-if="editingRequirement" text @click="cancelRequirementEdit">Cancel</v-btn>
+              </v-col>
+            </v-row>
+
+            <v-alert v-if="reqMessage" :type="reqError ? 'error' : 'success'" class="mt-2">
+              {{ reqMessage }}
+            </v-alert>
           </div>
+        </v-card-text>
 
-          <div>
-            <label for="name">Name:</label>
-            <input type="text" v-model="modalSection.name" id="name" required />
-          </div>
-
-          <div class="modal-actions">
-            <button type="submit">{{ isEditMode ? 'Save' : 'Add' }}</button>
-            <button type="button" @click="closeModal">Cancel</button>
-          </div>
-        </form>
-
-        <p v-if="modalMessage" :class="{ error: modalError, success: !modalError }">
-          {{ modalMessage }}
-        </p>
-
-        <!-- REQUIREMENTS MANAGEMENT → EDIT MODE ONLY -->
-        <div v-if="isEditMode" class="requirements-box">
-          <h4>Requirements for this Section</h4>
-
-          <!-- Requirement List -->
-          <table v-if="requirements.length" border="1" cellpadding="6">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="req in requirements" :key="req._id">
-                <td>{{ req.name }}</td>
-                <td>
-                  <button @click="startEditRequirement(req)">Edit</button>
-                  <button @click="deleteRequirement(req._id)">Delete</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p v-else>No requirements found.</p>
-
-          <!-- Add/Edit Requirement Form -->
-          <div class="req-form">
-            <h4>{{ editingRequirement ? 'Edit Requirement' : 'Add New Requirement' }}</h4>
-
-            <input
-              type="text"
-              v-model="reqForm.name"
-              placeholder="Requirement Name"
-            />
-
-            <button @click="editingRequirement ? updateRequirement() : addRequirement()">
-              {{ editingRequirement ? 'Update' : 'Add' }}
-            </button>
-
-            <button v-if="editingRequirement" @click="cancelRequirementEdit">Cancel</button>
-          </div>
-
-          <p v-if="reqMessage" :class="{ error: reqError, success: !reqError }">
-            {{ reqMessage }}
-          </p>
-        </div>
-
-      </div>
-    </div>
-  </div>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="primary" @click="isEditMode ? updateSection() : addSection()">
+            {{ isEditMode ? 'Save' : 'Add' }}
+          </v-btn>
+          <v-btn color="secondary" @click="closeModal">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-container>
 </template>
 
 <script>
@@ -118,6 +128,18 @@ export default {
     const sections = ref([]);
     const loading = ref(false);
     const error = ref('');
+
+    // table headers for sections
+    const tableHeaders = [
+      { text: 'Section ID', value: 'sectionId' },
+      { text: 'Name', value: 'name' },
+      { text: 'Actions', value: 'actions', sortable: false }
+    ];
+
+    const reqHeaders = [
+      { text: 'Name', value: 'name' },
+      { text: 'Actions', value: 'actions', sortable: false }
+    ];
 
     const showModal = ref(false);
     const isEditMode = ref(false);
@@ -271,6 +293,8 @@ export default {
     onMounted(fetchSections);
 
     return {
+      tableHeaders,
+      reqHeaders,
       sections,
       loading,
       error,
@@ -304,25 +328,14 @@ export default {
 
 <style scoped>
 /* same styling as original */
-.section-list { max-width: 600px; margin: 0 auto; }
-.modal-overlay {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: flex; align-items: center; justify-content: center;
-}
-.modal {
-  background: white; padding: 1.5rem; border-radius: 8px; width: 450px;
-}
+.section-list { max-width: 100%; }
 .requirements-box {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  border-top: 1px solid #ddd;
-}
-.req-form {
   margin-top: 1rem;
-  display: flex;
-  gap: 8px;
+}
+
+.requirements-scroll {
+  max-height: 220px;
+  overflow-y: auto;
 }
 .error { color: red; }
 .success { color: green; }

@@ -1,5 +1,5 @@
 <template>
-  <v-container style="width: 80%;">
+  <v-container>
     <v-row>
       <v-col cols="12">
         <v-sheet elevation="1" class="pa-4">
@@ -44,12 +44,23 @@
 
           <!-- Chart Section -->
           <v-row class="mt-6">
-            <v-col cols="12">
+            <v-col cols="12" md="6">
               <v-card elevation="2" class="pa-4">
-                <v-card-title>Inquiries Overview</v-card-title>
+                <v-card-title>Inquiries - Monthly</v-card-title>
                 <v-card-text>
                   <v-responsive  max-width="600" max-height="400">
                     <canvas ref="inquiryChart"></canvas>
+                  </v-responsive>
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-card elevation="2" class="pa-4">
+                <v-card-title>Inquiries by Status</v-card-title>
+                <v-card-text>
+                  <v-responsive  max-width="400" max-height="400">
+                    <canvas ref="inquiryStatusPie"></canvas>
                   </v-responsive>
                 </v-card-text>
               </v-card>
@@ -71,8 +82,20 @@ const usersCount = ref(0);
 const inquiriesCount = ref(0);
 const sectionsCount = ref(0);
 
+// Map of status id -> friendly name (used for the status pie chart)
+const statusOptions = {
+  '1': 'Processing',
+  '2': 'Work Done',
+  '3': 'Can Not Done - Legal Issue',
+  '4': 'Can Not Done - Document Issue'
+};
+
 const inquiryChart = ref(null);
 let chartInstance = null;
+
+// Pie chart for inquiry status
+const inquiryStatusPie = ref(null);
+let pieChartInstance = null;
 
 const fetchUsersCount = async () => {
   try {
@@ -89,10 +112,50 @@ const fetchInquiriesCount = async () => {
     const res = await axios.get('http://127.0.0.1:3000/api/inquiries');
     inquiriesCount.value = res.data.length;
     buildInquiryChart(res.data);
+    buildInquiryStatusPie(res.data);
   } catch (err) {
     console.error('Failed to fetch inquiries count:', err);
     inquiriesCount.value = 0;
   }
+};
+
+const buildInquiryStatusPie = (inquiries) => {
+  if (!inquiryStatusPie.value) return;
+
+  const counts = {};
+  inquiries.forEach((inq) => {
+    const statusKey = String(inq.status ?? 'unknown');
+    counts[statusKey] = (counts[statusKey] || 0) + 1;
+  });
+
+  const labels = Object.keys(counts).map(k => {
+    if (statusOptions[k]) return statusOptions[k]
+    if (k === 'unknown') return 'Unknown'
+    return k
+  });
+  const data = Object.values(counts);
+
+  if (pieChartInstance) pieChartInstance.destroy();
+
+  pieChartInstance = new Chart(inquiryStatusPie.value, {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: [
+          '#42A5F5', '#66BB6A', '#FFA726', '#EF5350', '#AB47BC', '#26C6DA'
+        ],
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
 };
 
 const fetchSectionsCount = async () => {

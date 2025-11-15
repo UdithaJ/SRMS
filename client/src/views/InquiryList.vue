@@ -1,7 +1,7 @@
 <template>
   <v-container class="pa-4">
     <!-- Card Wrapper -->
-    <v-card max-width="1000" outlined elevation="2">
+    <v-card max-width="1200" outlined elevation="2">
       <!-- Toolbar Header -->
       <v-toolbar flat color="cyan lighten-4">
         <v-toolbar-title>Inquiries</v-toolbar-title>

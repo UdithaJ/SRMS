@@ -1,111 +1,76 @@
 <template>
-  <div class="user-list">
-    <h2>Users</h2>
-    <div class="actions">
-      <button @click="openAddModal">Add User</button>
-      <button @click="fetchUsers">Refresh List</button>
-    </div>
+  <v-container class="pa-4">
+    <v-card max-width="1200" outlined elevation="2">
+      <v-toolbar flat color="cyan lighten-4">
+        <v-toolbar-title>Users</v-toolbar-title>
+        <v-spacer />
+        <v-btn color="primary" @click="openAddModal">Add User</v-btn>
+        <v-btn color="secondary" @click="fetchUsers">Refresh</v-btn>
+      </v-toolbar>
 
-    <p v-if="loading">Loading users...</p>
-    <p v-if="error" class="error">{{ error }}</p>
+      <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
+      <v-alert v-if="error" type="error">{{ error }}</v-alert>
 
-    <table v-if="users.length" border="1" cellpadding="8">
-      <thead>
-        <tr>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>User Name</th>
-          <th>Reference No</th>
-          <th>User Role</th>
-          <th>Section</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="user in users" :key="user._id">
-          <td>{{ user.firstName }}</td>
-          <td>{{ user.lastName }}</td>
-          <td>{{ user.userName }}</td>
-          <td>{{ user.referenceNo }}</td>
-          <td>{{ user.userRole }}</td>
-          <td>{{ user.userRole === 'section staff' ? getSectionName(user.section) : '-' }}</td>
-          <td>
-            <button @click="openEditModal(user)">Edit</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <v-data-table :headers="tableHeaders" :items="users" dense class="elevation-1">
+        <template #item="{ item }">
+          <tr>
+            <td>{{ item.firstName }}</td>
+            <td>{{ item.lastName }}</td>
+            <td>{{ item.userName }}</td>
+            <td>{{ item.referenceNo }}</td>
+            <td>{{ item.userRole }}</td>
+            <td>{{ item.userRole === 'section staff' ? getSectionName(item.section) : '-' }}</td>
+            <td class="text-right">
+              <v-btn size="x-small" icon small @click="openEditModal(item)">
+                <v-icon size="small">mdi-pencil</v-icon>
+              </v-btn>
+            </td>
+          </tr>
+        </template>
 
-    <p v-else>No users found.</p>
+        <template #no-data>
+          <v-alert type="info">No users found.</v-alert>
+        </template>
+      </v-data-table>
+    </v-card>
 
-    <!-- Modal -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal">
-        <h3>{{ isEditMode ? 'Edit User' : 'Add User' }}</h3>
-        <form @submit.prevent="isEditMode ? updateUser() : addUser()">
-          <div>
-            <label>First Name:</label>
-            <input type="text" v-model="modalUser.firstName" required />
-          </div>
-          <div>
-            <label>Last Name:</label>
-            <input type="text" v-model="modalUser.lastName" required />
-          </div>
-          <div>
-            <label>User Name:</label>
-            <input type="text" v-model="modalUser.userName" required />
-          </div>
-          <div>
-            <label>Reference No:</label>
-            <input type="text" v-model="modalUser.referenceNo" required />
-          </div>
-          <div>
-            <label>User Role:</label>
-            <select v-model="modalUser.userRole" required @change="onRoleChange">
-              <option value="" disabled>Select role</option>
-              <option value="admin">Admin</option>
-              <option value="reporter">Reporter</option>
-              <option value="section staff">Section Staff</option>
-            </select>
-          </div>
+    <v-dialog v-model="showModal" max-width="700px">
+      <v-card>
+        <v-card-title>{{ isEditMode ? 'Edit User' : 'Add User' }}</v-card-title>
+        <v-card-text>
+          <UserForm v-model="modalUser" :is-edit-mode="isEditMode" :sections="sections" :modal-message="modalMessage" :modal-error="modalError" @role-change="onRoleChange" />
+        </v-card-text>
 
-          <!-- Section dropdown visible only if role is 'section staff' -->
-          <div v-if="modalUser.userRole === 'section staff'">
-            <label>Section:</label>
-            <select v-model="modalUser.section" required>
-              <option value="" disabled>Select section</option>
-              <option v-for="sec in sections" :key="sec._id" :value="sec._id">{{ sec.name }}</option>
-            </select>
-          </div>
-
-          <div>
-            <label>Password:</label>
-            <input
-              type="password"
-              v-model="modalUser.password"
-              :placeholder="isEditMode ? 'Leave blank to keep current password' : ''"
-              :required="!isEditMode"
-            />
-          </div>
-          <div class="modal-actions">
-            <button type="submit">{{ isEditMode ? 'Save' : 'Add' }}</button>
-            <button type="button" @click="closeModal">Cancel</button>
-          </div>
-        </form>
-        <p v-if="modalMessage" :class="{ error: modalError, success: !modalError }">{{ modalMessage }}</p>
-      </div>
-    </div>
-  </div>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="primary" @click="isEditMode ? updateUser() : addUser()">{{ isEditMode ? 'Save' : 'Add' }}</v-btn>
+          <v-btn color="secondary" @click="closeModal">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-container>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import UserForm from '../components/UserForm.vue'
 
 const users = ref([])
 const sections = ref([]) // store the sections list
 const loading = ref(false)
 const error = ref('')
+
+// table headers for Vuetify v-data-table
+const tableHeaders = [
+  { title: 'First Name', value: 'firstName' },
+  { title: 'Last Name', value: 'lastName' },
+  { title: 'User Name', value: 'userName' },
+  { title: 'Reference No', value: 'referenceNo' },
+  { title: 'User Role', value: 'userRole' },
+  { title: 'Section', value: 'section' },
+  { title: 'Actions', value: 'actions', sortable: false }
+]
 
 const showModal = ref(false)
 const isEditMode = ref(false)
@@ -223,52 +188,10 @@ onMounted(() => {
   fetchUsers()
   fetchSections()
 })
+
 </script>
 
 <style scoped>
-.user-list {
-  max-width: 700px;
-  margin: 0 auto;
-}
-.actions {
-  margin-bottom: 1rem;
-}
-.error {
-  color: red;
-}
-.success {
-  color: green;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-th {
-  background-color: #f4f4f4;
-}
-/* Modal styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.modal {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  width: 450px;
-}
-.modal-actions {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
+.error { color: red; }
+.success { color: green; }
 </style>
