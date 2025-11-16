@@ -60,6 +60,29 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Change password
+router.post('/change-password', async (req, res) => {
+  try {
+    const { userId, currentPassword, newPassword } = req.body;
+    if (!userId || !currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const matches = await user.comparePassword(currentPassword);
+    if (!matches) return res.status(400).json({ message: 'Current password is incorrect' });
+
+    user.password = newPassword; // pre-save hook will hash
+    await user.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Get all users
 router.get('/users', async (req, res) => {
   try {

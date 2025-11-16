@@ -20,9 +20,14 @@
     >
       <v-list dense nav>
         <v-list-item class="pt-6 pb-4 d-flex flex-column align-center">
-          <v-list-item-avatar size="88" class="sidebar-avatar">
+          <v-list-item-avatar size="112" class="sidebar-avatar">
             <v-img :src="userImg" />
           </v-list-item-avatar>
+          <div class="mt-2">
+            <v-btn icon size="small" variant="text" title="Change password" @click="pwdDialog = true">
+              <v-icon>mdi-lock-reset</v-icon>
+            </v-btn>
+          </div>
           <v-list-item-content class="text-center mt-2">
             <v-list-item-title class="white--text">{{ userName || 'User' }}</v-list-item-title>
             <v-list-item-subtitle class="white--text">{{ userStore.userRole || '' }}</v-list-item-subtitle>
@@ -76,6 +81,50 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
+    <!-- Change Password Dialog -->
+    <v-dialog v-model="pwdDialog" persistent max-width="520">
+      <v-card>
+        <v-card-title>Change Password</v-card-title>
+        <v-card-text>
+          <v-form ref="pwdFormRef" @submit.prevent="handleChangePassword">
+            <v-text-field
+              v-model="currentPwd"
+              :type="showCurr ? 'text' : 'password'"
+              label="Current password"
+              :append-icon="showCurr ? 'mdi-eye-off' : 'mdi-eye'"
+              @click:append="showCurr = !showCurr"
+              class="mb-3"
+              hide-details="auto"
+              required
+            />
+            <v-text-field
+              v-model="newPwd"
+              :type="showNew ? 'text' : 'password'"
+              label="New password"
+              :append-icon="showNew ? 'mdi-eye-off' : 'mdi-eye'"
+              @click:append="showNew = !showNew"
+              class="mb-3"
+              hide-details="auto"
+              required
+            />
+            <v-text-field
+              v-model="confirmPwd"
+              :type="showNew ? 'text' : 'password'"
+              label="Confirm new password"
+              class="mb-1"
+              hide-details="auto"
+              required
+            />
+          </v-form>
+          <v-alert v-if="pwdMessage" :type="pwdMessageType" density="compact" class="mt-2">{{ pwdMessage }}</v-alert>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="closePwdDialog">Cancel</v-btn>
+          <v-btn color="primary" :loading="pwdLoading" @click="handleChangePassword">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </nav>
 </template>
 
@@ -85,6 +134,7 @@ import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useUserStore } from '@/stores/user'
 import userImg from '@/assets/user.png'
+import { changePassword } from '@/api/auth'
 
 const router = useRouter()
 const display = useDisplay()
@@ -101,6 +151,52 @@ const isAdmin = computed(() => userStore.userRole === 'admin')
 const userName = computed(() => userStore.userFullName || userStore.userId || '')
 const navigate = (path) => { router.push(path); if (!display.mdAndUp) drawer.value = false }
 const logout = () => { userStore.logout(); router.push({ name: 'login' }) }
+
+// Change Password state and handlers
+const pwdDialog = ref(false)
+const pwdFormRef = ref(null)
+const currentPwd = ref('')
+const newPwd = ref('')
+const confirmPwd = ref('')
+const showCurr = ref(false)
+const showNew = ref(false)
+const pwdLoading = ref(false)
+const pwdMessage = ref('')
+const pwdMessageType = ref('info')
+
+const closePwdDialog = () => {
+  pwdDialog.value = false
+  currentPwd.value = ''
+  newPwd.value = ''
+  confirmPwd.value = ''
+  pwdMessage.value = ''
+}
+
+const handleChangePassword = async () => {
+  pwdMessage.value = ''
+  if (!currentPwd.value || !newPwd.value || !confirmPwd.value) {
+    pwdMessageType.value = 'error'
+    pwdMessage.value = 'Please fill all fields'
+    return
+  }
+  if (newPwd.value !== confirmPwd.value) {
+    pwdMessageType.value = 'error'
+    pwdMessage.value = 'New passwords do not match'
+    return
+  }
+  try {
+    pwdLoading.value = true
+    await changePassword(userStore.userId, currentPwd.value, newPwd.value)
+    pwdMessageType.value = 'success'
+    pwdMessage.value = 'Password changed successfully'
+    setTimeout(() => { closePwdDialog() }, 900)
+  } catch (err) {
+    pwdMessageType.value = 'error'
+    pwdMessage.value = err?.response?.data?.message || 'Failed to change password'
+  } finally {
+    pwdLoading.value = false
+  }
+}
 </script>
 
 <style scoped>
