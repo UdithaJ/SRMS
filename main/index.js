@@ -51,7 +51,7 @@ const createWindow = () => {
     },
   });
 
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 
   // Load Vue dev server in development
   if (process.env.NODE_ENV === 'development') {

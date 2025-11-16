@@ -24,6 +24,7 @@ export const useUserStore = defineStore('user', {
         this.userRole = data.userRole;
         this.userFullName = data.userFullName;
       }
+      return data;
     },
 
     logout() {
