@@ -70,7 +70,7 @@
               <v-card elevation="2" class="pa-4">
                 <v-card-title>Average Rating</v-card-title>
                 <v-card-text>
-                  <v-responsive max-width="300" max-height="180">
+                  <v-responsive max-width="300" max-height="260">
                     <canvas ref="ratingGauge"></canvas>
                   </v-responsive>
                 </v-card-text>
@@ -141,69 +141,169 @@ const buildRatingGauge = (inquiries) => {
   if (!ratingGauge.value) return;
 
   // Compute average rating ONLY for "Work Done" inquiries (status id = 2)
-  // Ratings are on a 1-10 scale. Missing ratings count as 0 in the total.
+  // Ratings are on a 1-10 scale.
   const workDone = Array.isArray(inquiries)
     ? inquiries.filter(i => Number(i?.status) === 2)
     : [];
   const totalInquiries = workDone.length || 0;
   const sumRatings = workDone.reduce((s, i) => s + (Number(i.rating) || 0), 0);
+  
+  // Calculate average rating (0-10 scale)
   const avg = totalInquiries ? (sumRatings / totalInquiries) : 0;
+  
+  // Convert to percentage (0-100): multiply by 10 since max rating is 10
+  const percent = Math.max(0, Math.min(100, avg * 10));
 
-  // Convert average (0-10) to percentage 0-100
-  const percent = Math.max(0, Math.min(100, (avg / 10) * 100));
-
-  const data = [percent, 100 - percent];
+  console.log('Rating Gauge Debug:', { 
+    workDoneCount: totalInquiries, 
+    sumRatings, 
+    avg, 
+    percent 
+  });
 
   if (gaugeChartInstance) gaugeChartInstance.destroy();
 
   gaugeChartInstance = new Chart(ratingGauge.value, {
     type: 'doughnut',
     data: {
-      labels: ['Average', 'Remaining'],
+      labels: ['Rating'],
       datasets: [{
-        data,
-        backgroundColor: ['#66BB6A', '#e0e0e0'],
-        hoverBackgroundColor: ['#66BB6A', '#e0e0e0'],
+        data: [percent, 100 - percent], // Store rating value in data
+        backgroundColor: ['transparent', 'transparent'],
         borderWidth: 0
       }]
     },
     options: {
-      rotation: Math.PI,
+      rotation: -Math.PI,
       circumference: Math.PI,
-      cutout: '70%',
+      cutout: '75%',
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: false }
+        legend: { display: false },
+        tooltip: { enabled: false }
       }
     },
     plugins: [{
-      id: 'gauge-needle',
+      id: 'speedometer',
       afterDraw(chart) {
-        const { ctx, chartArea: { width, height }, _metasets } = chart;
-        const centerX = chart.getDatasetMeta(0).data[0].x;
-        const centerY = chart.getDatasetMeta(0).data[0].y;
+        // Get the rating value from the chart data
+        const ratingPercent = chart.data.datasets[0].data[0] || 0;
+        console.log('Needle Debug - ratingPercent:', ratingPercent);
+        
+        const { ctx, chartArea: { width, height } } = chart;
+        const centerX = width / 2;
+        const centerY = height;
+        const radius = Math.min(width, height * 2) / 2 - 20;
+        
+        console.log('Canvas dimensions:', { width, height, centerX, centerY, radius });
 
-        // angle from PI to 2PI
-        const angle = Math.PI + (Math.PI * (percent / 100));
+        // Draw colored arc segments (speedometer bands)
+        const segments = [
+          { start: 0, end: 0.33, color: '#EF5350' },   // Red: 0-33
+          { start: 0.33, end: 0.66, color: '#FFA726' }, // Orange: 33-66
+          { start: 0.66, end: 1, color: '#66BB6A' }     // Green: 66-100
+        ];
 
-        // draw needle
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(angle);
-        ctx.beginPath();
-        ctx.moveTo(-6, 0);
-        ctx.lineTo(0, - (Math.min(width, height) / 2) + 20);
-        ctx.lineTo(6, 0);
+        segments.forEach(seg => {
+          const startAngle = Math.PI + (Math.PI * seg.start);
+          const endAngle = Math.PI + (Math.PI * seg.end);
+          
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+          ctx.lineWidth = 15;
+          ctx.strokeStyle = seg.color;
+          ctx.stroke();
+        });
+
+        // Draw scale marks and numbers (0 to 100 from left to right)
         ctx.fillStyle = '#424242';
+        ctx.strokeStyle = '#424242';
+        ctx.lineWidth = 2;
+        
+        for (let i = 0; i <= 10; i++) {
+          const angle = Math.PI + (Math.PI * (i / 10));
+          const markRadius = radius - 8;
+          const numberRadius = radius - 25;
+          
+          const markX = centerX + Math.cos(angle) * markRadius;
+          const markY = centerY + Math.sin(angle) * markRadius;
+          
+          // Draw tick marks
+          ctx.beginPath();
+          ctx.moveTo(markX, markY);
+          const innerX = centerX + Math.cos(angle) * (markRadius - (i % 2 === 0 ? 10 : 5));
+          const innerY = centerY + Math.sin(angle) * (markRadius - (i % 2 === 0 ? 10 : 5));
+          ctx.lineTo(innerX, innerY);
+          ctx.stroke();
+          
+          // Draw numbers at major ticks (0, 20, 40, 60, 80, 100)
+          if (i % 2 === 0) {
+            const numX = centerX + Math.cos(angle) * numberRadius;
+            const numY = centerY + Math.sin(angle) * numberRadius;
+            ctx.font = '600 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText((i * 10).toString(), numX, numY);
+          }
+        }
+
+        // Draw needle - direct calculation (not reversed)
+        const needleAngle = Math.PI + (Math.PI * (ratingPercent / 100));
+        const needleLength = radius - 18;
+        
+        console.log('Needle drawing:', { needleAngle, needleLength, ratingPercent, radius });
+        
+        // Calculate needle endpoint
+        const needleX = centerX + Math.cos(needleAngle) * needleLength;
+        const needleY = centerY + Math.sin(needleAngle) * needleLength;
+        
+        // Draw the needle as a thick line
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(needleX, needleY);
+        ctx.strokeStyle = '#D32F2F';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        
+        // Draw a triangle at the tip aligned with the needle
+        ctx.save();
+        ctx.translate(needleX, needleY);
+        ctx.rotate(needleAngle + Math.PI / 2); // Rotate 90 degrees to align with needle direction
+        ctx.beginPath();
+        ctx.moveTo(0, -8);
+        ctx.lineTo(-6, 4);
+        ctx.lineTo(6, 4);
+        ctx.closePath();
+        ctx.fillStyle = '#D32F2F';
         ctx.fill();
         ctx.restore();
 
-        // center text - show avg to one decimal on 10-point scale
-        ctx.font = '600 16px sans-serif';
+        // Center circle (needle pivot)
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 10, 0, Math.PI * 2);
+        ctx.fillStyle = '#D32F2F';
+        ctx.fill();
+        ctx.strokeStyle = '#B71C1C';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+
+        // Display rating value
+        ctx.font = '700 20px sans-serif';
         ctx.fillStyle = '#212121';
         ctx.textAlign = 'center';
-        ctx.fillText((avg).toFixed(1) + ' / 10', centerX, centerY + 20);
+        ctx.textBaseline = 'top';
+        ctx.fillText(ratingPercent.toFixed(1), centerX, centerY + 15);
+        
+        ctx.font = '400 12px sans-serif';
+        ctx.fillStyle = '#666';
+        ctx.fillText('out of 100', centerX, centerY + 38);
       }
     }]
   });
