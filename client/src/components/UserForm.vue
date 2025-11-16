@@ -18,9 +18,13 @@
         <v-col cols="12" sm="6">
           <v-file-input
             v-model="profileFile"
-            accept="image/*"
+            accept="image/png, image/jpeg"
             label="Profile Image"
             prepend-icon="mdi-image"
+            :error="!!imageError"
+            :error-messages="imageError ? [imageError] : []"
+            hint="PNG or JPEG, up to 1MB"
+            persistent-hint
             @update:modelValue="onProfileFileChange"
           ></v-file-input>
         </v-col>
@@ -114,13 +118,40 @@ const profileImage = computed({
   set: (v) => emit('update:modelValue', { ...props.modelValue, profileImage: v })
 })
 
-const profileImagePreview = computed(() => profileImage.value ? `data:image/png;base64,${profileImage.value}` : userImg)
+const imageError = ref('')
+
+function guessMimeFromBase64(b64) {
+  return b64 && b64.startsWith('/9j/') ? 'image/jpeg' : 'image/png'
+}
+
+const profileImagePreview = computed(() => {
+  if (profileImage.value) {
+    const mime = profileFile.value?.type || guessMimeFromBase64(profileImage.value)
+    return `data:${mime};base64,${profileImage.value}`
+  }
+  return userImg
+})
 
 const profileFile = ref(null)
 
 function onProfileFileChange(files) {
   const file = Array.isArray(files) ? files[0] : files
-  if (!file) return
+  if (!file) { imageError.value = ''; return }
+  // Validate type
+  const validTypes = ['image/png', 'image/jpeg']
+  if (!validTypes.includes(file.type)) {
+    imageError.value = 'Only PNG or JPEG images are allowed'
+    profileFile.value = null
+    return
+  }
+  // Validate size (<= 1MB)
+  const maxSize = 1024 * 1024
+  if (file.size > maxSize) {
+    imageError.value = 'Image size must be 1MB or less'
+    profileFile.value = null
+    return
+  }
+  imageError.value = ''
   const reader = new FileReader()
   reader.onload = (e) => {
     const result = e.target.result || ''

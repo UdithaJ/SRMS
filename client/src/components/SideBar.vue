@@ -20,9 +20,9 @@
     >
       <v-list dense nav>
         <v-list-item class="pt-6 pb-4 d-flex flex-column align-center">
-          <v-list-item-avatar size="112" class="sidebar-avatar">
-            <v-img :src="avatarSrc" />
-          </v-list-item-avatar>
+          <v-avatar size="112" class="sidebar-avatar" rounded="circle">
+            <v-img :src="avatarSrc" cover />
+          </v-avatar>
           <div class="mt-2 d-flex justify-center w-100">
             <v-btn icon size="small" variant="text" title="Change password" @click="pwdDialog = true">
               <v-icon>mdi-lock-reset</v-icon>
@@ -149,11 +149,15 @@ watch(() => display.mdAndUp, (val) => { drawer.value = !!val })
 
 const isAdmin = computed(() => userStore.userRole === 'admin')
 const userName = computed(() => userStore.userFullName || userStore.userId || '')
+function guessMimeFromBase64(b64) {
+  return b64 && b64.startsWith('/9j/') ? 'image/jpeg' : 'image/png'
+}
 const avatarSrc = computed(() => {
-  if (userStore.userProfileImage) {
-    return userStore.userProfileImage.startsWith('data:')
-      ? userStore.userProfileImage
-      : `data:image/png;base64,${userStore.userProfileImage}`
+  const b64 = userStore.userProfileImage
+  if (b64) {
+    if (b64.startsWith('data:')) return b64
+    const mime = guessMimeFromBase64(b64)
+    return `data:${mime};base64,${b64}`
   }
   return userImg
 })
@@ -217,8 +221,8 @@ const handleChangePassword = async () => {
 .icon-spacer { margin-right: 12px; min-width: 24px; }
 .v-list-item { align-items: center; }
 .text-no-wrap { white-space: nowrap; }
-.sidebar-avatar { width: 112px; height: 112px; }
-.sidebar-avatar .v-image__image { width: 112px !important; height: 112px !important; object-fit: cover; border-radius: 50%; }
+.sidebar-avatar { width: 112px; height: 112px; border-radius: 50%; overflow: hidden; border: 3px solid #FFFFFF; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; }
+.sidebar-avatar :deep(.v-img__img) { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .app-bar-gradient {
   background-image: linear-gradient(to right, #021229 0%, #1976D2 100%) !important;
   background-repeat: no-repeat;
