@@ -138,10 +138,13 @@ const fetchInquiriesCount = async () => {
 const buildRatingGauge = (inquiries) => {
   if (!ratingGauge.value) return;
 
-  // Compute average rating: sum of all inquiry ratings divided by total inquiries
+  // Compute average rating ONLY for "Work Done" inquiries (status id = 2)
   // Ratings are on a 1-10 scale. Missing ratings count as 0 in the total.
-  const totalInquiries = inquiries.length || 0;
-  const sumRatings = inquiries.reduce((s, i) => s + (Number(i.rating) || 0), 0);
+  const workDone = Array.isArray(inquiries)
+    ? inquiries.filter(i => Number(i?.status) === 2)
+    : [];
+  const totalInquiries = workDone.length || 0;
+  const sumRatings = workDone.reduce((s, i) => s + (Number(i.rating) || 0), 0);
   const avg = totalInquiries ? (sumRatings / totalInquiries) : 0;
 
   // Convert average (0-10) to percentage 0-100
