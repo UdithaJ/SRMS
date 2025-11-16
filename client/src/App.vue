@@ -12,7 +12,7 @@ const showSidebar = computed(() => route.path.startsWith('/app'))
 <template>
   <v-app>
     <SideBar v-if="showSidebar" />
-    <v-main class="pl-100 pt-1">
+    <v-main class="pt-1">
       <RouterView />
     </v-main>
   </v-app>
