@@ -68,9 +68,9 @@
 
             <v-col cols="12" md="4">
               <v-card elevation="2" class="pa-4">
-                <v-card-title>Average Rating</v-card-title>
-                <v-card-text>
-                  <v-responsive max-width="300" max-height="260">
+                <v-card-title class="pb-0">Average Rating</v-card-title>
+                <v-card-text class="pt-0">
+                  <v-responsive max-width="300" max-height="200">
                     <canvas ref="ratingGauge"></canvas>
                   </v-responsive>
                 </v-card-text>
@@ -189,14 +189,12 @@ const buildRatingGauge = (inquiries) => {
       afterDraw(chart) {
         // Get the rating value from the chart data
         const ratingPercent = chart.data.datasets[0].data[0] || 0;
-        console.log('Needle Debug - ratingPercent:', ratingPercent);
         
         const { ctx, chartArea: { width, height } } = chart;
         const centerX = width / 2;
         const centerY = height;
         const radius = Math.min(width, height * 2) / 2 - 20;
         
-        console.log('Canvas dimensions:', { width, height, centerX, centerY, radius });
 
         // Draw colored arc segments (speedometer bands)
         const segments = [
