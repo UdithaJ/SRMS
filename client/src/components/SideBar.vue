@@ -211,7 +211,9 @@ const handleChangePassword = async () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/assets/variables.scss';
+
 .menu { list-style: none; padding: 0; }
 .menu li { margin-bottom: 15px; }
 .menu a { color: white; text-decoration: none; }
@@ -224,7 +226,7 @@ const handleChangePassword = async () => {
 .sidebar-avatar { width: 112px; height: 112px; border-radius: 50%; overflow: hidden; border: 3px solid #FFFFFF; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; }
 .sidebar-avatar :deep(.v-img__img) { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .app-bar-gradient {
-  background-image: linear-gradient(to right, #021229 0%, #1976D2 100%) !important;
+  background: $app-bar-color !important;
   background-repeat: no-repeat;
 }
 .app-bar-gradient .v-toolbar-title,
@@ -233,7 +235,7 @@ const handleChangePassword = async () => {
   color: #fff !important;
 }
 .drawer-gradient {
-  background-image: linear-gradient(to bottom, #021229 0%, #1976D2 100%) !important;
+  background: $side-bar-color !important;
   background-repeat: no-repeat;
 }
 .drawer-gradient .v-list-item-title,

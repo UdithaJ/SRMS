@@ -489,9 +489,11 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/assets/variables.scss';
+
 .toolbar-gradient {
-  background: linear-gradient(135deg, #1a237e 0%, #283593 100%) !important;
+  background: $table-header-color !important;
 }
 .toolbar-gradient .v-toolbar-title {
   color: white !important;
