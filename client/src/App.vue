@@ -15,6 +15,11 @@ const showSidebar = computed(() => route.path.startsWith('/app'))
     <v-main class="pt-2">
       <RouterView />
     </v-main>
+    <v-footer app class="app-footer" height="40">
+      <v-spacer />
+      <span class="text-caption">© 2025 UDITHAJ. All rights reserved.</span>
+      <v-spacer />
+    </v-footer>
   </v-app>
 </template>
 
@@ -27,6 +32,11 @@ header {
 .logo {
   display: block;
   margin: 0 auto 2rem;
+}
+
+.app-footer {
+  background-color: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
 }
 
 nav {
