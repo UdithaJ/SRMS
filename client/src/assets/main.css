@@ -22,9 +22,9 @@ a,
 }
 
 @media (min-width: 1024px) {
-  /* keep a little horizontal padding on wide screens but do not force a two-column layout */
+  /* Remove horizontal padding so content spans full width */
   #app {
-    padding: 0 2rem;
+    padding: 0;
     display: block;
   }
 }
