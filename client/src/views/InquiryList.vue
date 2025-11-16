@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid class="pa-4">
+  <v-container fluid class="pa-4 fill-height no-page-scroll">
     <!-- Card Wrapper -->
-    <v-card max-width="1200" outlined elevation="2">
+    <v-card outlined elevation="2" class="card-flex full-width-card">
       <!-- Toolbar Header -->
       <v-toolbar flat color="cyan lighten-4">
         <v-toolbar-title>Inquiries</v-toolbar-title>
@@ -24,10 +24,10 @@
         :items="tableItems"
         :items-per-page="10"
         :page.sync="page"
-        class="elevation-1 compact-table"
+        class="elevation-1 compact-table w-100"
         density="compact"
         fixed-header
-        height="500"
+        :height="computedTableHeight"
       >
         <!-- Status chip -->
         <template v-slot:[itemStatus]="{ item }">
@@ -147,7 +147,7 @@
 
 <script>
 import axios from 'axios'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 
 export default {
@@ -169,6 +169,14 @@ export default {
     const modalMessage = ref('')
     const modalError = ref(false)
     const page = ref(1)
+    const viewportHeight = ref(window.innerHeight)
+
+    const ROW_HEIGHT = 36 // approximate compact row height
+    const HEADER_HEIGHT = 52
+    const VERTICAL_PADDING = 64 // toolbar + container padding + alerts etc
+
+    const updateViewport = () => { viewportHeight.value = window.innerHeight }
+    window.addEventListener('resize', updateViewport)
 
     const statusOptions = {
       1: 'Processing',
@@ -179,7 +187,7 @@ export default {
 
     const statusItems = Object.entries(statusOptions).map(([value, title]) => ({
       title,
-      value
+      value: Number(value)
     }));
 
     // current user store to check role for acknowledgement permission
@@ -218,11 +226,12 @@ export default {
     }
 
     const getStatusColor = (status) => {
-      switch(status) {
-        case "1": return 'orange'
-        case "2": return 'green'
-        case "3": return 'red'
-        case "4": return 'red darken-2'
+      const n = Number(status)
+      switch(n) {
+        case 1: return 'orange'
+        case 2: return 'green'
+        case 3: return 'red'
+        case 4: return 'red darken-2'
         default: return 'grey'
       }
     }
@@ -237,10 +246,17 @@ export default {
         assigneeName: getUserName(i.assignee),
         rating: i.rating || '-',
         acknowledgement: i.acknowledgement || '-',
-        status: i.status || 1,
+        status: Number(i.status) || 1,
         _id: i._id,
         actions: i._id
       }))
+    })
+
+    const computedTableHeight = computed(() => {
+      const rows = tableItems.value.length
+      const desired = rows * ROW_HEIGHT + HEADER_HEIGHT
+      const maxAvailable = viewportHeight.value - VERTICAL_PADDING
+      return Math.min(Math.max(desired, 120), maxAvailable)
     })
 
     const fetchSections = async () => {
@@ -293,7 +309,7 @@ export default {
         assignee: inquiry.assignee || users.value[0]?._id,
         acknowledgement: inquiry.acknowledgement || '',
         notes: inquiry.notes || '',
-        status: inquiry.status || 1
+        status: Number(inquiry.status) || 1
       }
       modalMessage.value = ''
       showModal.value = true
@@ -329,6 +345,7 @@ export default {
     }
 
     onMounted(() => { fetchSections(); fetchUsers(); fetchInquiries() })
+    onBeforeUnmount(() => { window.removeEventListener('resize', updateViewport) })
 
     return {
       tableHeaders, tableItems, page, statusOptions, getStatusColor,
@@ -339,6 +356,7 @@ export default {
       canAcknowledge,
       itemStatus,
       itemActions
+      , computedTableHeight
     }
   }
 }
@@ -350,4 +368,9 @@ export default {
 .compact-table .v-btn.v-btn--icon { --v-btn-size: 26px; }
 .compact-table .action-btn { height:22px !important; width:22px !important; min-width:22px !important; padding:0 !important; }
 .compact-table .action-btn .v-icon { font-size:16px !important; line-height:22px; }
+/* Layout helpers to prevent page scroll and allow dynamic table sizing */
+.fill-height { height: 100vh; }
+.no-page-scroll { overflow: hidden; }
+.card-flex { display:flex; flex-direction:column; height:100%; }
+.full-width-card { width:100%; }
 </style>
