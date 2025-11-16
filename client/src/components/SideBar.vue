@@ -23,7 +23,7 @@
           <v-list-item-avatar size="112" class="sidebar-avatar">
             <v-img :src="userImg" />
           </v-list-item-avatar>
-          <div class="mt-2">
+          <div class="mt-2 d-flex justify-center w-100">
             <v-btn icon size="small" variant="text" title="Change password" @click="pwdDialog = true">
               <v-icon>mdi-lock-reset</v-icon>
             </v-btn>
@@ -34,7 +34,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-divider class="my-2" />
+        <v-divider color="white" class="my-2 white-divider" />
 
         <v-list-item @click="navigate('/app/dashboard')" class="d-flex align-center">
           <template v-slot:prepend>
@@ -229,4 +229,5 @@ const handleChangePassword = async () => {
 .drawer-gradient .v-icon {
   color: #fff !important;
 }
+.white-divider { background-color: rgba(255,255,255,0.5) !important; opacity: 1; }
 </style>

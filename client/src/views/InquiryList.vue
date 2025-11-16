@@ -24,21 +24,22 @@
         :items="tableItems"
         :items-per-page="10"
         :page.sync="page"
-        class="elevation-1"
+        class="elevation-1 compact-table"
+        density="compact"
         fixed-header
         height="500"
       >
         <!-- Status chip -->
-        <template v-slot:item.status="{ item }">
+        <template v-slot:[itemStatus]="{ item }">
           <v-chip :color="getStatusColor(item.status)" small dark>
             {{ statusOptions[item.status] || item.status }}
           </v-chip>
         </template>
 
         <!-- Actions -->
-        <template v-slot:item.actions="{ item }">
-          <v-btn icon size="x-small" @click="openEditModal(item)">
-            <v-icon size="small">mdi-pencil</v-icon>
+        <template v-slot:[itemActions]="{ item }">
+          <v-btn icon class="action-btn" variant="text" @click="openEditModal(item)" :ripple="false" title="Edit">
+            <v-icon>mdi-pencil</v-icon>
           </v-btn>
         </template>
 
@@ -198,6 +199,10 @@ export default {
       { title: 'Actions', value: 'actions', sortable: false }
     ]
 
+    // dynamic slot names for lint-safe usage
+    const itemStatus = 'item.status'
+    const itemActions = 'item.actions'
+
     const filteredRequirements = computed(() => {
       const section = sections.value.find(s => s._id === selectedSectionId.value)
       return section?.requirements || []
@@ -331,8 +336,18 @@ export default {
       sections, selectedSectionId, filteredRequirements, onSectionChange,
       modalInquiry, showModal, isEditMode, modalMessage, modalError,
       addInquiry, updateInquiry, closeModal, usersWithFullName, statusItems,
-      canAcknowledge
+      canAcknowledge,
+      itemStatus,
+      itemActions
     }
   }
 }
 </script>
+
+<style scoped>
+.compact-table .v-data-table__td, .compact-table .v-data-table__th { padding-top: 4px !important; padding-bottom: 4px !important; }
+.compact-table .v-chip { height: 22px; }
+.compact-table .v-btn.v-btn--icon { --v-btn-size: 26px; }
+.compact-table .action-btn { height:22px !important; width:22px !important; min-width:22px !important; padding:0 !important; }
+.compact-table .action-btn .v-icon { font-size:16px !important; line-height:22px; }
+</style>
