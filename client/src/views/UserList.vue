@@ -82,7 +82,8 @@ const modalUser = ref({
   referenceNo: '',
   password: '',
   userRole: '',
-  section: ''
+  section: '',
+  profileImage: ''
 })
 const modalMessage = ref('')
 const modalError = ref(false)
@@ -138,7 +139,7 @@ const getSectionName = (id) => {
 // Open add modal
 const openAddModal = () => {
   isEditMode.value = false
-  modalUser.value = { _id: '', firstName: '', lastName: '', userName: '', referenceNo: '', password: '', userRole: '', section: '' }
+  modalUser.value = { _id: '', firstName: '', lastName: '', userName: '', referenceNo: '', password: '', userRole: '', section: '', profileImage: '' }
   modalMessage.value = ''
   showModal.value = true
 }
@@ -150,7 +151,8 @@ const openEditModal = (user) => {
     ...user,
     password: '',
     userRole: user.userRole || '',
-    section: user.section || ''
+    section: user.section || '',
+    profileImage: user.profileImage || ''
   }
   modalMessage.value = ''
   showModal.value = true
@@ -190,7 +192,7 @@ const updateUser = async () => {
 // Close modal
 const closeModal = () => {
   showModal.value = false
-  modalUser.value = { _id: '', firstName: '', lastName: '', userName: '', referenceNo: '', password: '', userRole: '', section: '' }
+  modalUser.value = { _id: '', firstName: '', lastName: '', userName: '', referenceNo: '', password: '', userRole: '', section: '', profileImage: '' }
   modalMessage.value = ''
   modalError.value = false
 }

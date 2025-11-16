@@ -6,7 +6,7 @@ const router = express.Router();
 // Register user
 router.post('/register', async (req, res) => {
   try {
-    const { firstName, lastName, userName, userRole, referenceNo, password } = req.body;
+    const { firstName, lastName, userName, userRole, referenceNo, password, profileImage } = req.body;
 
     // Check if userName exists
     const existingUserName = await User.findOne({ userName });
@@ -20,7 +20,7 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Reference number already exists' });
     }
 
-    const newUser = new User({ firstName, lastName, userName, userRole, referenceNo, password });
+    const newUser = new User({ firstName, lastName, userName, userRole, referenceNo, password, profileImage });
     await newUser.save();
 
     res.json({ message: 'User registered successfully' });
@@ -52,7 +52,8 @@ router.post('/login', async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         referenceNo: user.referenceNo,
-        userRole: user.userRole
+        userRole: user.userRole,
+        profileImage: user.profileImage || null
       }
     });
   } catch (err) {
@@ -96,7 +97,7 @@ router.get('/users', async (req, res) => {
 // Update user by ID
 router.put('/users/:id', async (req, res) => {
   try {
-    const { firstName, lastName, userName, userRole, section, referenceNo, password } = req.body;
+    const { firstName, lastName, userName, profileImage, userRole, section, referenceNo, password } = req.body;
 
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -124,6 +125,9 @@ router.put('/users/:id', async (req, res) => {
     if (section) user.section = section;
     if (lastName) user.lastName = lastName;
     if (password) user.password = password; // pre-save hook will hash it
+    if (profileImage !== undefined) {
+      user.profileImage = profileImage === '' ? undefined : profileImage;
+    }
 
     await user.save();
     res.json({ message: 'User updated successfully', user: user.toObject({ getters: true, versionKey: false }) });

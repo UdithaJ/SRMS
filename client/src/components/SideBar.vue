@@ -21,7 +21,7 @@
       <v-list dense nav>
         <v-list-item class="pt-6 pb-4 d-flex flex-column align-center">
           <v-list-item-avatar size="112" class="sidebar-avatar">
-            <v-img :src="userImg" />
+            <v-img :src="avatarSrc" />
           </v-list-item-avatar>
           <div class="mt-2 d-flex justify-center w-100">
             <v-btn icon size="small" variant="text" title="Change password" @click="pwdDialog = true">
@@ -149,6 +149,14 @@ watch(() => display.mdAndUp, (val) => { drawer.value = !!val })
 
 const isAdmin = computed(() => userStore.userRole === 'admin')
 const userName = computed(() => userStore.userFullName || userStore.userId || '')
+const avatarSrc = computed(() => {
+  if (userStore.userProfileImage) {
+    return userStore.userProfileImage.startsWith('data:')
+      ? userStore.userProfileImage
+      : `data:image/png;base64,${userStore.userProfileImage}`
+  }
+  return userImg
+})
 const navigate = (path) => { router.push(path); if (!display.mdAndUp) drawer.value = false }
 const logout = () => { userStore.logout(); router.push({ name: 'login' }) }
 

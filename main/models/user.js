@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
   section: { type: mongoose.Schema.Types.ObjectId, ref: 'Section', required: false },
   referenceNo: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  // Base64 (no data URL prefix) or full data URL string of profile image
+  profileImage: { type: String, required: false },
 });
 
 // Hash password before saving
