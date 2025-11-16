@@ -31,7 +31,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import axios from 'axios';
+import { http } from '@/api/http';
 
 const firstName = ref('');
 const lastName = ref('');
@@ -40,11 +40,11 @@ const referenceNo = ref('');
 const password = ref('');
 const message = ref('');
 
-const API_URL = 'http://127.0.0.1:3000/api/auth/register';
+const API_URL = '/api/auth/register';
 
 const registerUser = async () => {
   try {
-    const response = await axios.post(API_URL, {
+    const response = await http.post(API_URL, {
       firstName: firstName.value,
       lastName: lastName.value,
       userName: userName.value,

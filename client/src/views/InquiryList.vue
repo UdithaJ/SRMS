@@ -146,7 +146,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { http } from '@/api/http'
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 
@@ -260,18 +260,18 @@ export default {
     })
 
     const fetchSections = async () => {
-      try { sections.value = (await axios.get('http://127.0.0.1:3000/api/sections')).data } 
+      try { sections.value = (await http.get('/api/sections')).data } 
       catch (err) { console.error(err) }
     }
 
     const fetchUsers = async () => {
-      try { users.value = (await axios.get('http://127.0.0.1:3000/api/auth/users')).data } 
+      try { users.value = (await http.get('/api/auth/users')).data } 
       catch (err) { console.error(err) }
     }
 
     const fetchInquiries = async () => {
       loading.value = true; error.value = ''
-      try { inquiries.value = (await axios.get('http://127.0.0.1:3000/api/inquiries')).data } 
+      try { inquiries.value = (await http.get('/api/inquiries')).data } 
       catch (err) { error.value = err.response?.data?.message || 'Failed to load inquiries' } 
       finally { loading.value = false }
     }
@@ -318,7 +318,7 @@ export default {
     const addInquiry = async () => {
       try {
         const payload = { ...modalInquiry.value }
-        const res = await axios.post('http://127.0.0.1:3000/api/inquiries', payload)
+        const res = await http.post('/api/inquiries', payload)
         modalMessage.value = res.data.message; modalError.value = false
         fetchInquiries(); setTimeout(() => showModal.value = false, 1000)
       } catch (err) {
@@ -330,7 +330,7 @@ export default {
     const updateInquiry = async () => {
       try {
         const payload = { ...modalInquiry.value }
-        const res = await axios.put(`http://127.0.0.1:3000/api/inquiries/${modalInquiry.value._id}`, payload)
+        const res = await http.put(`/api/inquiries/${modalInquiry.value._id}`, payload)
         modalMessage.value = res.data.message; modalError.value = false
         fetchInquiries(); setTimeout(() => showModal.value = false, 1000)
       } catch (err) {

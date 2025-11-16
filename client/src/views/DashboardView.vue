@@ -85,7 +85,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { http } from '@/api/http';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
@@ -114,7 +114,7 @@ let gaugeChartInstance = null;
 
 const fetchUsersCount = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:3000/api/auth/users');
+    const res = await http.get('/api/auth/users');
     usersCount.value = res.data.length;
   } catch (err) {
     console.error('Failed to fetch users count:', err);
@@ -124,7 +124,7 @@ const fetchUsersCount = async () => {
 
 const fetchInquiriesCount = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:3000/api/inquiries');
+    const res = await http.get('/api/inquiries');
     inquiriesCount.value = res.data.length;
     buildInquiryChart(res.data);
     buildInquiryStatusPie(res.data);
@@ -248,7 +248,7 @@ const buildInquiryStatusPie = (inquiries) => {
 
 const fetchSectionsCount = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:3000/api/sections');
+    const res = await http.get('/api/sections');
     sectionsCount.value = res.data.length;
   } catch (err) {
     console.error('Failed to fetch sections count:', err);

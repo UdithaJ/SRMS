@@ -119,7 +119,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { http } from '@/api/http';
 import { ref, onMounted } from 'vue';
 
 export default {
@@ -158,7 +158,7 @@ export default {
     const fetchSections = async () => {
       loading.value = true;
       try {
-        const response = await axios.get('http://127.0.0.1:3000/api/sections');
+        const response = await http.get('/api/sections');
         sections.value = response.data;
       } catch (err) {
         error.value = err.response?.data?.message || 'Failed to load sections';
@@ -170,7 +170,7 @@ export default {
     /* ---------------------- FETCH REQUIREMENTS ---------------------- */
     const fetchRequirements = async (sectionId) => {
       try {
-        const res = await axios.get(`http://127.0.0.1:3000/api/requirements/section/${sectionId}`);
+        const res = await http.get(`/api/requirements/section/${sectionId}`);
         requirements.value = res.data;
       } catch (err) {
         requirements.value = [];
@@ -206,7 +206,7 @@ export default {
     /* ---------------------- ADD SECTION ---------------------- */
     const addSection = async () => {
       try {
-        const res = await axios.post('http://127.0.0.1:3000/api/sections', {
+        const res = await http.post('/api/sections', {
           sectionId: modalSection.value.sectionId,
           name: modalSection.value.name,
         });
@@ -222,8 +222,8 @@ export default {
     /* ---------------------- UPDATE SECTION ---------------------- */
     const updateSection = async () => {
       try {
-        const res = await axios.put(
-          `http://127.0.0.1:3000/api/sections/${modalSection.value._id}`,
+        const res = await http.put(
+          `/api/sections/${modalSection.value._id}`,
           { name: modalSection.value.name }
         );
         modalMessage.value = res.data.message;
@@ -237,7 +237,7 @@ export default {
     /* ---------------------- REQUIREMENTS CRUD ---------------------- */
     const addRequirement = async () => {
       try {
-        const res = await axios.post('http://127.0.0.1:3000/api/requirements', {
+        const res = await http.post('/api/requirements', {
           name: reqForm.value.name,
           section: modalSection.value._id,
         });
@@ -258,7 +258,7 @@ export default {
 
     const updateRequirement = async () => {
       try {
-        await axios.put(`http://127.0.0.1:3000/api/requirements/${reqForm.value._id}`, {
+        await http.put(`/api/requirements/${reqForm.value._id}`, {
           name: reqForm.value.name,
           section: modalSection.value._id
         });
@@ -282,7 +282,7 @@ export default {
       if (!confirm('Delete this requirement?')) return;
 
       try {
-        await axios.delete(`http://127.0.0.1:3000/api/requirements/${id}`);
+        await http.delete(`/api/requirements/${id}`);
         fetchRequirements(modalSection.value._id);
       } catch {
         reqError.value = true;

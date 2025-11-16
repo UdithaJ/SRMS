@@ -55,7 +55,7 @@
 
 <script setup>
 import { ref, reactive, onBeforeMount } from 'vue'
-import axios from 'axios'
+import { http } from '@/api/http'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 
@@ -74,24 +74,24 @@ const rules = {
   required: (v) => !!v || 'This field is required',
 }
 
-const API_URL = 'http://127.0.0.1:3000/api/auth/login'
+const API_URL = '/api/auth/login'
 
 import { onMounted } from 'vue'
 
 onBeforeMount(async () => {
-  // try {
-  //   // electronStore is only available in the Electron renderer via preload.
-  //   // Guard access so the page also works in a browser/dev server environment.
-  //   if (window && window.electronStore && typeof window.electronStore.get === 'function') {
-  //     await userStore.loadUser()
-  //     if (userStore.userId) {
-  //       router.push({ name: 'dashboard' })
-  //     }
-  //   }
-  // } catch (err) {
-  //   // don't block the UI if loading persisted user fails
-  //   console.error('loadUser failed', err)
-  // }
+  try {
+    // electronStore is only available in the Electron renderer via preload.
+    // Guard access so the page also works in a browser/dev server environment.
+    if (window && window.electronStore && typeof window.electronStore.get === 'function') {
+      await userStore.loadUser()
+      if (userStore.userId) {
+        router.push({ name: 'dashboard' })
+      }
+    }
+  } catch (err) {
+    // don't block the UI if loading persisted user fails
+    console.error('loadUser failed', err)
+  }
 })
 
 const login = async () => {
@@ -99,7 +99,7 @@ const login = async () => {
   if (formRef.value && !(await formRef.value.validate())) return
   loading.value = true
   try {
-    const res = await axios.post(API_URL, {
+    const res = await http.post(API_URL, {
       userName: form.userName,
       password: form.password,
     })

@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { http } from '@/api/http';
 import { ref } from 'vue';
 
 export default {
@@ -31,7 +31,7 @@ export default {
 
     const createSection = async () => {
       try {
-        const response = await axios.post('http://127.0.0.1:3000/api/sections', {
+        const response = await http.post('/api/sections', {
           sectionId: sectionId.value,
           name: name.value
         });

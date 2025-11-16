@@ -53,7 +53,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { http } from '@/api/http'
 import UserForm from '../components/UserForm.vue'
 
 const users = ref([])
@@ -104,7 +104,7 @@ const fetchUsers = async () => {
   loading.value = true
   error.value = ''
   try {
-    const res = await axios.get('http://127.0.0.1:3000/api/auth/users')
+    const res = await http.get('/api/auth/users')
     users.value = res.data
   } catch (err) {
     error.value = err.response?.data?.message || 'Failed to fetch users'
@@ -116,7 +116,7 @@ const fetchUsers = async () => {
 // Fetch sections from API
 const fetchSections = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:3000/api/sections')
+    const res = await http.get('/api/sections')
     sections.value = res.data
   } catch (err) {
     console.error('Failed to fetch sections', err)
@@ -162,7 +162,7 @@ const openEditModal = (user) => {
 const addUser = async () => {
   try {
     const payload = { ...modalUser.value }
-    const res = await axios.post('http://127.0.0.1:3000/api/auth/register', payload)
+    const res = await http.post('/api/auth/register', payload)
     modalMessage.value = res.data.message
     modalError.value = false
     fetchUsers()
@@ -178,7 +178,7 @@ const updateUser = async () => {
   try {
     const payload = { ...modalUser.value }
     if (!payload.password) delete payload.password
-    const res = await axios.put(`http://127.0.0.1:3000/api/auth/users/${modalUser.value._id}`, payload)
+    const res = await http.put(`/api/auth/users/${modalUser.value._id}`, payload)
     modalMessage.value = res.data.message
     modalError.value = false
     fetchUsers()
