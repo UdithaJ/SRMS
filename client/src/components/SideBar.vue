@@ -1,83 +1,124 @@
 <template>
   <nav>
-    <v-app-bar app color="cyan-darken-4" class="app-bar-gradient" dense dark :clipped-left="display.mdAndUp">
-      <v-app-bar-nav-icon @click="drawer = !drawer" aria-label="Toggle navigation" />
-      <v-toolbar-title class="ml-2">SRMS</v-toolbar-title>
-      <v-spacer />
-      <v-btn icon @click="logout" title="Logout">
-        <v-icon>mdi-logout</v-icon>
-      </v-btn>
-    </v-app-bar>
-
     <v-navigation-drawer
       v-model="drawer"
       app
-      class="drawer-gradient"
+      class="modern-sidebar"
+      :rail="rail && display.mdAndUp"
       :permanent="display.mdAndUp"
       :temporary="!display.mdAndUp"
-      width="240"
-      elevation="2"
+      :width="280"
+      :rail-width="72"
+      clipped
     >
-      <v-list dense nav>
-        <v-list-item class="pt-6 pb-4 d-flex flex-column align-center">
-          <v-avatar size="112" class="sidebar-avatar" rounded="circle">
+      <!-- Collapse Toggle Button -->
+      <div class="collapse-toggle pa-2" v-if="display.mdAndUp">
+        <v-btn 
+          icon 
+          size="small" 
+          variant="text" 
+          @click="rail = !rail"
+          class="toggle-btn"
+        >
+          <v-icon size="20" color="white">
+            {{ rail ? 'mdi-chevron-right' : 'mdi-chevron-left' }}
+          </v-icon>
+        </v-btn>
+      </div>
+
+      <!-- User Profile Section -->
+      <div v-if="!rail" class="profile-section pa-4">
+        <div class="d-flex align-center">
+          <v-avatar size="48" class="profile-avatar">
             <v-img :src="avatarSrc" cover />
           </v-avatar>
-          <div class="mt-2 d-flex justify-center w-100">
-            <v-btn icon size="small" variant="text" title="Change password" @click="pwdDialog = true">
-              <v-icon>mdi-lock-reset</v-icon>
-            </v-btn>
+          <div class="ml-3 flex-grow-1">
+            <div class="user-name">{{ userName || 'User' }}</div>
+            <div class="user-role">{{ userStore.userRole || '' }}</div>
           </div>
-          <v-list-item-content class="text-center mt-2">
-            <v-list-item-title class="white--text">{{ userName || 'User' }}</v-list-item-title>
-            <v-list-item-subtitle class="white--text">{{ userStore.userRole || '' }}</v-list-item-subtitle>
-          </v-list-item-content>
+          <v-btn icon size="small" variant="text" @click="pwdDialog = true" class="settings-btn">
+            <v-icon size="20" color="white">mdi-cog</v-icon>
+          </v-btn>
+        </div>
+      </div>
+
+      <!-- Rail Mode Avatar -->
+      <div v-if="rail" class="rail-avatar pa-2 d-flex justify-center">
+        <v-avatar size="40" class="profile-avatar">
+          <v-img :src="avatarSrc" cover />
+        </v-avatar>
+      </div>
+
+      <!-- Search Bar -->
+      <div v-if="!rail" class="search-section px-4 pb-3">
+        <v-text-field
+          v-model="searchQuery"
+          placeholder="Search"
+          prepend-inner-icon="mdi-magnify"
+          variant="solo"
+          density="compact"
+          hide-details
+          class="search-input"
+          bg-color="rgba(255, 255, 255, 0.1)"
+          rounded
+        />
+      </div>
+
+      <!-- Menu Label -->
+      <div v-if="!rail" class="menu-label px-6 py-2">
+        <span class="text-caption text-uppercase">MENU</span>
+      </div>
+
+      <!-- Navigation Menu -->
+      <v-list class="nav-menu px-3" density="compact" nav>
+        <v-list-item
+          :active="route.path === '/app/dashboard'"
+          @click="navigate('/app/dashboard')"
+          class="menu-item mb-1"
+          rounded="lg"
+        >
+          <template v-slot:prepend>
+            <v-icon size="20">mdi-view-dashboard</v-icon>
+          </template>
+          <v-list-item-title>Dashboard</v-list-item-title>
         </v-list-item>
 
-        <v-divider color="white" class="my-2 white-divider" />
-
-        <v-list-item @click="navigate('/app/dashboard')" class="d-flex align-center">
+        <v-list-item
+          v-if="isAdmin"
+          :active="route.path === '/app/users'"
+          @click="navigate('/app/users')"
+          class="menu-item mb-1"
+          rounded="lg"
+        >
           <template v-slot:prepend>
-            <v-list-item-icon class="icon-spacer">
-              <v-icon>mdi-view-dashboard</v-icon>
-            </v-list-item-icon>
+            <v-icon size="20">mdi-briefcase-outline</v-icon>
           </template>
-          <v-list-item-content>
-            <v-list-item-title class="text-no-wrap">Dashboard</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>Users</v-list-item-title>
         </v-list-item>
 
-        <v-list-item v-if="isAdmin" @click="navigate('/app/users')" class="d-flex align-center">
+        <v-list-item
+          :active="route.path === '/app/inquiries'"
+          @click="navigate('/app/inquiries')"
+          class="menu-item mb-1"
+          rounded="lg"
+        >
           <template v-slot:prepend>
-            <v-list-item-icon class="icon-spacer">
-              <v-icon>mdi-account-multiple</v-icon>
-            </v-list-item-icon>
+            <v-icon size="20">mdi-file-document-outline</v-icon>
           </template>
-          <v-list-item-content>
-            <v-list-item-title class="text-no-wrap">Users</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>Inquiries</v-list-item-title>
         </v-list-item>
 
-        <v-list-item @click="navigate('/app/inquiries')" class="d-flex align-center">
+        <v-list-item
+          v-if="isAdmin"
+          :active="route.path === '/app/sections'"
+          @click="navigate('/app/sections')"
+          class="menu-item mb-1"
+          rounded="lg"
+        >
           <template v-slot:prepend>
-            <v-list-item-icon class="icon-spacer">
-              <v-icon>mdi-file-document-outline</v-icon>
-            </v-list-item-icon>
+            <v-icon size="20">mdi-bookmark-outline</v-icon>
           </template>
-          <v-list-item-content>
-            <v-list-item-title class="text-no-wrap">Inquiries</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item v-if="isAdmin" @click="navigate('/app/sections')" class="d-flex align-center">
-          <template v-slot:prepend>
-            <v-list-item-icon class="icon-spacer">
-              <v-icon>mdi-format-list-bulleted</v-icon>
-            </v-list-item-icon>
-          </template>
-          <v-list-item-content>
-            <v-list-item-title class="text-no-wrap">Sections</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>Sections</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -130,19 +171,22 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useUserStore } from '@/stores/user'
 import userImg from '@/assets/user.png'
 import { changePassword } from '@/api/auth'
 
 const router = useRouter()
+const route = useRoute()
 const display = useDisplay()
 const userStore = useUserStore()
 
 userStore.loadUser()
 
 const drawer = ref(false)
+const rail = ref(false)
+const searchQuery = ref('')
 
 onMounted(() => { if (display.mdAndUp) drawer.value = true })
 watch(() => display.mdAndUp, (val) => { drawer.value = !!val })
@@ -212,36 +256,172 @@ const handleChangePassword = async () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/variables.scss';
+.modern-sidebar {
+  background: linear-gradient(180deg, #2D2640 0%, #1F1B2E 50%, #171429 100%) !important;
+  border-right: none !important;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(ellipse at top left, rgba(91, 147, 255, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  :deep(.v-navigation-drawer__content) {
+    position: relative;
+    z-index: 1;
+  }
+}
 
-.menu { list-style: none; padding: 0; }
-.menu li { margin-bottom: 15px; }
-.menu a { color: white; text-decoration: none; }
-.menu a.router-link-active { font-weight: bold; }
-.logout-btn { background: none; border: none; color: white; cursor: pointer; font-size: 1em; padding: 0 }
-.logout-btn:hover { text-decoration: underline }
-.icon-spacer { margin-right: 12px; min-width: 24px; }
-.v-list-item { align-items: center; }
-.text-no-wrap { white-space: nowrap; }
-.sidebar-avatar { width: 112px; height: 112px; border-radius: 50%; overflow: hidden; border: 3px solid #FFFFFF; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; }
-.sidebar-avatar :deep(.v-img__img) { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.app-bar-gradient {
-  background: $app-bar-color !important;
-  background-repeat: no-repeat;
+.collapse-toggle {
+  display: flex;
+  justify-content: flex-end;
+  
+  .toggle-btn {
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    
+    &:hover {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+  }
 }
-.app-bar-gradient .v-toolbar-title,
-.app-bar-gradient .v-btn,
-.app-bar-gradient .v-icon {
-  color: #fff !important;
+
+.rail-avatar {
+  margin-bottom: 16px;
+  
+  .profile-avatar {
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
 }
-.drawer-gradient {
-  background: $side-bar-color !important;
-  background-repeat: no-repeat;
+
+.profile-section {
+  padding-top: 8px !important;
+  
+  .profile-avatar {
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .user-name {
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  
+  .user-role {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  
+  .settings-btn {
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
 }
-.drawer-gradient .v-list-item-title,
-.drawer-gradient .v-list-item-subtitle,
-.drawer-gradient .v-icon {
-  color: #fff !important;
+
+.search-section {
+  .search-input {
+    :deep(.v-field) {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-radius: 12px;
+      box-shadow: none;
+      
+      input {
+        color: #FFFFFF;
+        
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
+      }
+      
+      .v-icon {
+        color: rgba(255, 255, 255, 0.5);
+      }
+    }
+    
+    :deep(.v-field__outline) {
+      display: none;
+    }
+  }
 }
-.white-divider { background-color: rgba(255,255,255,0.5) !important; opacity: 1; }
+
+.menu-label {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.nav-menu {
+  .menu-item {
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
+    
+    :deep(.v-list-item__prepend) {
+      .v-icon {
+        color: rgba(255, 255, 255, 0.7);
+        margin-right: 12px;
+      }
+    }
+    
+    :deep(.v-list-item-title) {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
+      color: #FFFFFF;
+      
+      :deep(.v-icon) {
+        color: #FFFFFF;
+      }
+      
+      :deep(.v-list-item-title) {
+        color: #FFFFFF;
+      }
+    }
+    
+    &.v-list-item--active {
+      background: rgba(91, 147, 255, 0.15) !important;
+      color: #FFFFFF;
+      
+      :deep(.v-icon) {
+        color: #5B93FF;
+      }
+      
+      :deep(.v-list-item-title) {
+        color: #FFFFFF;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .menu-badge {
+    :deep(.v-badge__badge) {
+      background-color: #5B93FF !important;
+      font-size: 11px;
+      height: 18px;
+      min-width: 18px;
+      padding: 0 6px;
+    }
+  }
+}
 </style>

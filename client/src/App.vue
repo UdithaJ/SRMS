@@ -2,6 +2,7 @@
 import { RouterView, useRoute } from 'vue-router'
 import { computed } from 'vue'
 import SideBar from '@/components/SideBar.vue'
+import AppBar from '@/components/AppBar.vue'
 
 const route = useRoute()
 
@@ -12,6 +13,7 @@ const showSidebar = computed(() => route.path.startsWith('/app'))
 <template>
   <v-app>
     <SideBar v-if="showSidebar" />
+    <AppBar v-if="showSidebar" />
     <v-main class="pt-2">
       <RouterView />
     </v-main>
