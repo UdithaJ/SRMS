@@ -3,19 +3,19 @@
     <!-- Card Wrapper -->
     <v-card outlined elevation="2" class="card-flex full-width-card">
       <!-- Toolbar Header -->
-      <v-toolbar flat color="cyan lighten-4">
+      <v-toolbar flat class="toolbar-gradient" dark>
         <v-toolbar-title>Inquiries</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon @click="showFilterModal = true" title="Filter">
+        <v-btn icon color="white" @click="showFilterModal = true" title="Filter">
           <v-badge v-if="activeFilterCount > 0" :content="activeFilterCount" color="red" offset-x="-2" offset-y="-2">
             <v-icon>mdi-filter</v-icon>
           </v-badge>
           <v-icon v-else>mdi-filter</v-icon>
         </v-btn>
-        <v-btn icon color="primary" @click="openAddModal" title="Add Inquiry">
+        <v-btn icon color="white" @click="openAddModal" title="Add Inquiry">
           <v-icon>mdi-plus</v-icon>
         </v-btn>
-        <v-btn icon @click="fetchInquiries" title="Refresh">
+        <v-btn icon color="white" @click="fetchInquiries" title="Refresh">
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
       </v-toolbar>
@@ -490,6 +490,15 @@ export default {
 </script>
 
 <style scoped>
+.toolbar-gradient {
+  background: linear-gradient(135deg, #1a237e 0%, #283593 100%) !important;
+}
+.toolbar-gradient .v-toolbar-title {
+  color: white !important;
+}
+.toolbar-gradient .v-icon {
+  color: white !important;
+}
 .compact-table .v-data-table__td, .compact-table .v-data-table__th { padding-top: 4px !important; padding-bottom: 4px !important; }
 .compact-table .v-chip { height: 22px; }
 .compact-table .v-btn.v-btn--icon { --v-btn-size: 26px; }

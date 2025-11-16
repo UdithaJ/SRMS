@@ -1,13 +1,13 @@
 <template>
   <v-container fluid class="pa-4 fill-height no-page-scroll">
     <v-card outlined elevation="2" class="card-flex full-width-card">
-      <v-toolbar flat color="cyan lighten-4">
+      <v-toolbar flat class="toolbar-gradient" dark>
         <v-toolbar-title>Users</v-toolbar-title>
         <v-spacer />
-        <v-btn icon color="primary" @click="openAddModal" title="Add User">
+        <v-btn icon color="white" @click="openAddModal" title="Add User">
           <v-icon>mdi-plus</v-icon>
         </v-btn>
-        <v-btn icon @click="fetchUsers" title="Refresh">
+        <v-btn icon color="white" @click="fetchUsers" title="Refresh">
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
       </v-toolbar>
@@ -235,6 +235,15 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.toolbar-gradient {
+  background: linear-gradient(135deg, #1a237e 0%, #283593 100%) !important;
+}
+.toolbar-gradient .v-toolbar-title {
+  color: white !important;
+}
+.toolbar-gradient .v-icon {
+  color: white !important;
+}
 .error { color: red; }
 .success { color: green; }
 .compact-table .v-data-table__td, .compact-table .v-data-table__th { padding-top: 4px !important; padding-bottom: 4px !important; }
