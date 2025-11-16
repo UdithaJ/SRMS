@@ -46,19 +46,23 @@ const createWindow = () => {
     width: 1000,
     height: 700,
     webPreferences: {
-      preload: `${__dirname}/preload.js`,
+      preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
+      nodeIntegration: false,
+      webSecurity: true,
     },
   });
 
-  // win.webContents.openDevTools();
+  win.webContents.openDevTools();
 
   // Load Vue dev server in development
   if (process.env.NODE_ENV === 'development') {
     win.loadURL('http://localhost:5173');
   } else {
-    // Load built frontend
-    win.loadFile(path.join(__dirname, '../client/dist/index.html'));
+    // Load built frontend - use app.getAppPath() for packaged apps
+    const distPath = path.join(app.getAppPath(), 'client', 'dist', 'index.html');
+    console.log('Loading frontend from:', distPath);
+    win.loadFile(distPath);
   }
 };
 

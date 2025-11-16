@@ -79,19 +79,19 @@ const API_URL = 'http://127.0.0.1:3000/api/auth/login'
 import { onMounted } from 'vue'
 
 onBeforeMount(async () => {
-  try {
-    // electronStore is only available in the Electron renderer via preload.
-    // Guard access so the page also works in a browser/dev server environment.
-    if (window && window.electronStore && typeof window.electronStore.get === 'function') {
-      await userStore.loadUser()
-      if (userStore.userId) {
-        router.push({ name: 'dashboard' })
-      }
-    }
-  } catch (err) {
-    // don't block the UI if loading persisted user fails
-    console.error('loadUser failed', err)
-  }
+  // try {
+  //   // electronStore is only available in the Electron renderer via preload.
+  //   // Guard access so the page also works in a browser/dev server environment.
+  //   if (window && window.electronStore && typeof window.electronStore.get === 'function') {
+  //     await userStore.loadUser()
+  //     if (userStore.userId) {
+  //       router.push({ name: 'dashboard' })
+  //     }
+  //   }
+  // } catch (err) {
+  //   // don't block the UI if loading persisted user fails
+  //   console.error('loadUser failed', err)
+  // }
 })
 
 const login = async () => {

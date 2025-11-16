@@ -1,9 +1,15 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import MainLayout from '../layouts/MainLayout.vue'
 
+// Use hash history for packaged (file://) builds to avoid file protocol issues
+const isFileProtocol = typeof window !== 'undefined' && window.location && window.location.protocol === 'file:'
+const history = isFileProtocol
+  ? createWebHashHistory(import.meta.env.BASE_URL)
+  : createWebHistory(import.meta.env.BASE_URL)
+
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history,
   routes: [
     {
       path: '/',
