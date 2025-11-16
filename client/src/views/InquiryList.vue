@@ -6,13 +6,18 @@
       <v-toolbar flat color="cyan lighten-4">
         <v-toolbar-title>Inquiries</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn color="accent" @click="showFilterModal = true" class="mr-2">
-          <v-icon left>mdi-filter</v-icon>
-          Filter
-          <v-badge v-if="activeFilterCount > 0" :content="activeFilterCount" color="red" inline class="ml-2" />
+        <v-btn icon @click="showFilterModal = true" title="Filter">
+          <v-badge v-if="activeFilterCount > 0" :content="activeFilterCount" color="red" offset-x="-2" offset-y="-2">
+            <v-icon>mdi-filter</v-icon>
+          </v-badge>
+          <v-icon v-else>mdi-filter</v-icon>
         </v-btn>
-        <v-btn color="primary" @click="openAddModal">Add</v-btn>
-        <v-btn color="secondary" @click="fetchInquiries">Refresh</v-btn>
+        <v-btn icon color="primary" @click="openAddModal" title="Add Inquiry">
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+        <v-btn icon @click="fetchInquiries" title="Refresh">
+          <v-icon>mdi-refresh</v-icon>
+        </v-btn>
       </v-toolbar>
 
       <!-- Loading & Errors -->

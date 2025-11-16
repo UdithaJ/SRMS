@@ -4,8 +4,12 @@
       <v-toolbar flat color="cyan lighten-4">
         <v-toolbar-title>Sections</v-toolbar-title>
         <v-spacer />
-        <v-btn color="primary" @click="openAddModal">Add Section</v-btn>
-        <v-btn color="secondary" @click="fetchSections">Refresh</v-btn>
+        <v-btn icon color="primary" @click="openAddModal" title="Add Section">
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+        <v-btn icon @click="fetchSections" title="Refresh">
+          <v-icon>mdi-refresh</v-icon>
+        </v-btn>
       </v-toolbar>
 
       <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
