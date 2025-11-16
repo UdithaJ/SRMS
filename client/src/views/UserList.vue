@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid class="pa-4">
-    <v-card max-width="1200" outlined elevation="2">
+  <v-container fluid class="pa-4 fill-height no-page-scroll">
+    <v-card outlined elevation="2" class="card-flex full-width-card">
       <v-toolbar flat color="cyan lighten-4">
         <v-toolbar-title>Users</v-toolbar-title>
         <v-spacer />
@@ -11,7 +11,14 @@
       <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
       <v-alert v-if="error" type="error">{{ error }}</v-alert>
 
-      <v-data-table :headers="tableHeaders" :items="users" dense class="elevation-1">
+      <v-data-table 
+        :headers="tableHeaders" 
+        :items="users" 
+        :items-per-page="10"
+        class="elevation-1 compact-table w-100"
+        density="compact"
+        fixed-header
+        :height="computedTableHeight">
         <template #item="{ item }">
           <tr>
             <td>{{ item.firstName }}</td>
@@ -21,8 +28,8 @@
             <td>{{ getRoleLabel(item.userRole) }}</td>
             <td>{{ item.userRole === 'section staff' ? getSectionName(item.section) : '-' }}</td>
             <td class="text-right">
-              <v-btn size="x-small" icon small @click="openEditModal(item)">
-                <v-icon size="small">mdi-pencil</v-icon>
+              <v-btn icon class="action-btn" variant="text" @click="openEditModal(item)" :ripple="false" title="Edit">
+                <v-icon>mdi-pencil</v-icon>
               </v-btn>
             </td>
           </tr>
@@ -52,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { http } from '@/api/http'
 import UserForm from '../components/UserForm.vue'
 
@@ -60,6 +67,14 @@ const users = ref([])
 const sections = ref([]) // store the sections list
 const loading = ref(false)
 const error = ref('')
+const viewportHeight = ref(window.innerHeight)
+
+const ROW_HEIGHT = 36
+const HEADER_HEIGHT = 52
+const VERTICAL_PADDING = 64
+
+const updateViewport = () => { viewportHeight.value = window.innerHeight }
+window.addEventListener('resize', updateViewport)
 
 // table headers for Vuetify v-data-table
 const tableHeaders = [
@@ -197,9 +212,20 @@ const closeModal = () => {
   modalError.value = false
 }
 
+const computedTableHeight = computed(() => {
+  const rows = users.value.length
+  const desired = rows * ROW_HEIGHT + HEADER_HEIGHT
+  const maxAvailable = viewportHeight.value - VERTICAL_PADDING
+  return Math.min(Math.max(desired, 120), maxAvailable)
+})
+
 onMounted(() => {
   fetchUsers()
   fetchSections()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateViewport)
 })
 
 </script>
@@ -207,4 +233,12 @@ onMounted(() => {
 <style scoped>
 .error { color: red; }
 .success { color: green; }
+.compact-table .v-data-table__td, .compact-table .v-data-table__th { padding-top: 4px !important; padding-bottom: 4px !important; }
+.compact-table .v-btn.v-btn--icon { --v-btn-size: 26px; }
+.compact-table .action-btn { height:22px !important; width:22px !important; min-width:22px !important; padding:0 !important; }
+.compact-table .action-btn .v-icon { font-size:16px !important; line-height:22px; }
+.fill-height { height: 100vh; }
+.no-page-scroll { overflow: hidden; }
+.card-flex { display:flex; flex-direction:column; height:100%; }
+.full-width-card { width:100%; }
 </style>
