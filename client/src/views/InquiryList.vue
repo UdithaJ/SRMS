@@ -6,6 +6,11 @@
       <v-toolbar flat color="cyan lighten-4">
         <v-toolbar-title>Inquiries</v-toolbar-title>
         <v-spacer></v-spacer>
+        <v-btn color="accent" @click="showFilterModal = true" class="mr-2">
+          <v-icon left>mdi-filter</v-icon>
+          Filter
+          <v-badge v-if="activeFilterCount > 0" :content="activeFilterCount" color="red" inline class="ml-2" />
+        </v-btn>
         <v-btn color="primary" @click="openAddModal">Add</v-btn>
         <v-btn color="secondary" @click="fetchInquiries">Refresh</v-btn>
       </v-toolbar>
@@ -48,6 +53,67 @@
         </template>
       </v-data-table>
     </v-card>
+
+    <!-- Filter Modal -->
+    <v-dialog v-model="showFilterModal" max-width="600px">
+      <v-card>
+        <v-card-title>Filter Inquiries</v-card-title>
+        <v-card-text>
+          <v-form>
+            <v-row>
+              <v-col cols="12">
+                <v-select
+                  :items="statusItems"
+                  label="Status"
+                  v-model="filters.status"
+                  item-title="title"
+                  item-value="value"
+                  clearable
+                  multiple
+                  chips
+                  hint="Select one or more statuses"
+                  persistent-hint
+                ></v-select>
+              </v-col>
+              <v-col cols="12">
+                <v-select
+                  :items="sections"
+                  item-title="name"
+                  item-value="_id"
+                  label="Section"
+                  v-model="filters.section"
+                  clearable
+                  multiple
+                  chips
+                  hint="Select one or more sections"
+                  persistent-hint
+                ></v-select>
+              </v-col>
+              <v-col cols="12">
+                <v-select
+                  :items="usersWithFullName"
+                  item-title="fullName"
+                  item-value="_id"
+                  label="Assignee"
+                  v-model="filters.assignee"
+                  clearable
+                  multiple
+                  chips
+                  hint="Select one or more assignees"
+                  persistent-hint
+                ></v-select>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="warning" variant="text" @click="clearFilters">Clear All</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="secondary" @click="showFilterModal = false">Cancel</v-btn>
+          <v-btn color="primary" @click="applyFilters">Apply</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <!-- Add/Edit Modal -->
     <v-dialog v-model="showModal" max-width="800px">
@@ -171,6 +237,14 @@ export default {
     const page = ref(1)
     const viewportHeight = ref(window.innerHeight)
 
+    // Filter state
+    const showFilterModal = ref(false)
+    const filters = ref({
+      status: [],
+      section: [],
+      assignee: []
+    })
+
     const ROW_HEIGHT = 36 // approximate compact row height
     const HEADER_HEIGHT = 52
     const VERTICAL_PADDING = 64 // toolbar + container padding + alerts etc
@@ -237,6 +311,7 @@ export default {
     }
 
     const tableItems = computed(() => {
+      // Filters are now applied on backend, so just map the data
       return inquiries.value.map(i => ({
         inquiryId: i.inquiryId || '-',
         fullName: `${i.firstName || ''} ${i.lastName || ''}`.trim(),
@@ -250,6 +325,14 @@ export default {
         _id: i._id,
         actions: i._id
       }))
+    })
+
+    const activeFilterCount = computed(() => {
+      let count = 0
+      if (filters.value.status && filters.value.status.length > 0) count++
+      if (filters.value.section && filters.value.section.length > 0) count++
+      if (filters.value.assignee && filters.value.assignee.length > 0) count++
+      return count
     })
 
     const computedTableHeight = computed(() => {
@@ -271,7 +354,27 @@ export default {
 
     const fetchInquiries = async () => {
       loading.value = true; error.value = ''
-      try { inquiries.value = (await http.get('/api/inquiries')).data } 
+      try { 
+        // Build query parameters for filters
+        const params = {};
+        
+        if (filters.value.status && filters.value.status.length > 0) {
+          params.status = filters.value.status.join(',');
+        }
+        
+        if (filters.value.section && filters.value.section.length > 0) {
+          params.section = filters.value.section.join(',');
+        }
+        
+        if (filters.value.assignee && filters.value.assignee.length > 0) {
+          params.assignee = filters.value.assignee.join(',');
+        }
+        
+        const response = await http.get('/api/inquiries', { params });
+        
+        // Handle both old format (array) and new format (object with inquiries array)
+        inquiries.value = Array.isArray(response.data) ? response.data : response.data.inquiries;
+      } 
       catch (err) { error.value = err.response?.data?.message || 'Failed to load inquiries' } 
       finally { loading.value = false }
     }
@@ -344,6 +447,20 @@ export default {
       modalMessage.value = ''
     }
 
+    const applyFilters = () => {
+      showFilterModal.value = false
+      fetchInquiries() // Refetch with new filters
+    }
+
+    const clearFilters = () => {
+      filters.value = {
+        status: [],
+        section: [],
+        assignee: []
+      }
+      fetchInquiries() // Refetch without filters
+    }
+
     onMounted(() => { fetchSections(); fetchUsers(); fetchInquiries() })
     onBeforeUnmount(() => { window.removeEventListener('resize', updateViewport) })
 
@@ -355,8 +472,13 @@ export default {
       addInquiry, updateInquiry, closeModal, usersWithFullName, statusItems,
       canAcknowledge,
       itemStatus,
-      itemActions
-      , computedTableHeight
+      itemActions,
+      computedTableHeight,
+      showFilterModal,
+      filters,
+      applyFilters,
+      clearFilters,
+      activeFilterCount
     }
   }
 }

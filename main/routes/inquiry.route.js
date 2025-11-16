@@ -42,33 +42,105 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const loggedInUser = AuthService.getLoggedInUser();
+    
+    // Extract query parameters for pagination and filtering
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 0; // 0 means no limit (fetch all)
+    const skip = limit > 0 ? (page - 1) * limit : 0;
+    
+    // Extract filter parameters
+    const { status, section, assignee } = req.query;
+    
+    // Build the filter query
+    let filterQuery = {};
+    
+    // Status filter (can be comma-separated list)
+    if (status) {
+      const statusArray = status.split(',').map(s => parseInt(s.trim())).filter(s => !isNaN(s));
+      if (statusArray.length > 0) {
+        filterQuery.status = { $in: statusArray };
+      }
+    }
+    
+    // Assignee filter (can be comma-separated list of user IDs)
+    if (assignee) {
+      const assigneeArray = assignee.split(',').map(a => a.trim()).filter(a => a);
+      if (assigneeArray.length > 0) {
+        filterQuery.assignee = { $in: assigneeArray };
+      }
+    }
+
     let inquiries = [];
+    let totalCount = 0;
 
     if (loggedInUser.userRole === 'section staff') {
-      const user = await User.findById(loggedInUser.userId); // don't forget await
+      const user = await User.findById(loggedInUser.userId);
       const userSectionId = user.section;
 
       // Only fetch inquiries where requirement.section matches the user's section
-      inquiries = await Inquiry.find()
+      inquiries = await Inquiry.find(filterQuery)
         .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
         .populate({
           path: 'requirement',
           populate: { path: 'section' },
-          match: { section: userSectionId } // filter by user's section
+          match: { section: userSectionId }
         });
 
       // Remove inquiries where requirement is null (i.e., not in user's section)
       inquiries = inquiries.filter(inquiry => inquiry.requirement);
+      
+      // Apply section filter if specified (after population)
+      if (section) {
+        const sectionArray = section.split(',').map(s => s.trim()).filter(s => s);
+        if (sectionArray.length > 0) {
+          inquiries = inquiries.filter(inquiry => 
+            inquiry.requirement?.section?._id && 
+            sectionArray.includes(inquiry.requirement.section._id.toString())
+          );
+        }
+      }
+      
+      totalCount = inquiries.length;
     } else {
-      inquiries = await Inquiry.find()
+      // Count total for pagination
+      const countQuery = { ...filterQuery };
+      
+      // If section filter is provided, we need to get requirement IDs that match those sections first
+      if (section) {
+        const sectionArray = section.split(',').map(s => s.trim()).filter(s => s);
+        if (sectionArray.length > 0) {
+          // Import Requirement model to query
+          const Requirement = (await import('../models/requirement.js')).default;
+          const requirements = await Requirement.find({ section: { $in: sectionArray } }).select('_id');
+          const requirementIds = requirements.map(r => r._id);
+          countQuery.requirement = { $in: requirementIds };
+        }
+      }
+      
+      totalCount = await Inquiry.countDocuments(countQuery);
+      
+      inquiries = await Inquiry.find(countQuery)
         .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
         .populate({
           path: 'requirement',
           populate: { path: 'section' }
         });
     }
 
-    res.json(inquiries);
+    // Return with pagination metadata
+    res.json({
+      inquiries,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        pages: limit > 0 ? Math.ceil(totalCount / limit) : 1
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

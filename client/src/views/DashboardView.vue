@@ -125,10 +125,12 @@ const fetchUsersCount = async () => {
 const fetchInquiriesCount = async () => {
   try {
     const res = await http.get('/api/inquiries');
-    inquiriesCount.value = res.data.length;
-    buildInquiryChart(res.data);
-    buildInquiryStatusPie(res.data);
-    buildRatingGauge(res.data);
+    // Handle both old format (array) and new format (object with inquiries array)
+    const inquiriesData = Array.isArray(res.data) ? res.data : res.data.inquiries;
+    inquiriesCount.value = inquiriesData.length;
+    buildInquiryChart(inquiriesData);
+    buildInquiryStatusPie(inquiriesData);
+    buildRatingGauge(inquiriesData);
   } catch (err) {
     console.error('Failed to fetch inquiries count:', err);
     inquiriesCount.value = 0;
