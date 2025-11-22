@@ -241,6 +241,13 @@ const handleChangePassword = async () => {
 </script>
 
 <style scoped lang="scss">
+$neomorphic-bg: #e0e5ec;
+$neomorphic-shadow-dark: rgba(163, 177, 198, 0.6);
+$neomorphic-shadow-light: rgba(255, 255, 255, 0.9);
+$neomorphic-accent: #667eea;
+$neomorphic-text: #4a5568;
+$neomorphic-text-light: #718096;
+
 .modern-sidebar {
   background: linear-gradient(180deg, #2D2640 0%, #1F1B2E 50%, #171429 100%) !important;
   border-right: none !important;
@@ -270,12 +277,20 @@ const handleChangePassword = async () => {
   justify-content: flex-end;
   
   .toggle-btn {
-    opacity: 0.7;
-    transition: opacity 0.2s;
+    background: rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.2s;
+    
+    :deep(.v-icon) {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
     
     &:hover {
-      opacity: 1;
-      background: rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 0 12px rgba(91, 147, 255, 0.3);
+      
+      :deep(.v-icon) {
+        color: #5B93FF !important;
+      }
     }
   }
 }
@@ -284,7 +299,8 @@ const handleChangePassword = async () => {
   margin-bottom: 16px;
   
   .profile-avatar {
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(91, 147, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(91, 147, 255, 0.2);
   }
 }
 
@@ -292,13 +308,14 @@ const handleChangePassword = async () => {
   padding-top: 8px !important;
   
   .profile-avatar {
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(91, 147, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(91, 147, 255, 0.2);
   }
   
   .user-name {
     color: #FFFFFF;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.2;
   }
   
@@ -309,11 +326,20 @@ const handleChangePassword = async () => {
   }
   
   .settings-btn {
-    opacity: 0.7;
-    transition: opacity 0.2s;
+    background: rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.2s;
+    
+    :deep(.v-icon) {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
     
     &:hover {
-      opacity: 1;
+      background: rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 0 12px rgba(91, 147, 255, 0.3);
+      
+      :deep(.v-icon) {
+        color: #5B93FF !important;
+      }
     }
   }
 }
@@ -376,7 +402,7 @@ const handleChangePassword = async () => {
       color: #FFFFFF;
       
       :deep(.v-icon) {
-        color: #FFFFFF;
+        color: #5B93FF;
       }
       
       :deep(.v-list-item-title) {
@@ -386,6 +412,7 @@ const handleChangePassword = async () => {
     
     &.v-list-item--active {
       background: rgba(91, 147, 255, 0.15) !important;
+      box-shadow: 0 0 16px rgba(91, 147, 255, 0.3);
       color: #FFFFFF;
       
       :deep(.v-icon) {
