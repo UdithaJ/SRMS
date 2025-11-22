@@ -1,63 +1,75 @@
 <template>
-  <v-container fluid class="pa-4 fill-height no-page-scroll">
-    <v-card outlined elevation="2" class="card-flex full-width-card">
-      <v-toolbar flat class="toolbar-gradient" dark>
-        <v-toolbar-title>Users</v-toolbar-title>
-        <v-spacer />
-        <v-btn icon color="white" @click="openAddModal" title="Add User">
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
-        <v-btn icon color="white" @click="fetchUsers" title="Refresh">
-          <v-icon>mdi-refresh</v-icon>
-        </v-btn>
-      </v-toolbar>
+  <v-container fluid class="neomorphic-container">
+    <!-- Header Card with Neumorphism -->
+    <div class="neomorphic-card header-card mb-4">
+      <div class="d-flex align-center justify-space-between pa-3">
+        <h2 class="page-title">Users Management</h2>
+        <div class="action-buttons">
+          <button class="neomorphic-btn neomorphic-btn-icon mr-3" @click="openAddModal" title="Add User">
+            <v-icon color="#667eea">mdi-plus</v-icon>
+          </button>
+          <button class="neomorphic-btn neomorphic-btn-icon" @click="fetchUsers" title="Refresh">
+            <v-icon color="#667eea">mdi-refresh</v-icon>
+          </button>
+        </div>
+      </div>
+    </div>
 
-      <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
-      <v-alert v-if="error" type="error">{{ error }}</v-alert>
+    <v-progress-linear v-if="loading" indeterminate color="#667eea" class="mb-3"></v-progress-linear>
+    <v-alert v-if="error" type="error" class="neomorphic-alert mb-3">{{ error }}</v-alert>
 
+    <!-- Table Card with Neumorphism -->
+    <div class="neomorphic-card table-card">
       <v-data-table 
         :headers="tableHeaders" 
         :items="users" 
         :items-per-page="10"
-        class="elevation-1 compact-table w-100"
-        density="compact"
-        fixed-header
-        :height="computedTableHeight">
+        class="neomorphic-table compact-table w-100"
+        density="compact">
         <template #item="{ item }">
-          <tr>
-            <td>{{ item.firstName }}</td>
-            <td>{{ item.lastName }}</td>
-            <td>{{ item.userName }}</td>
-            <td>{{ item.referenceNo }}</td>
-            <td>{{ getRoleLabel(item.userRole) }}</td>
-            <td>{{ item.userRole === 'section staff' ? getSectionName(item.section) : '-' }}</td>
-            <td class="text-right">
-              <v-btn icon class="action-btn" variant="text" @click="openEditModal(item)" :ripple="false" title="Edit">
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
+          <tr class="table-row">
+            <td class="table-cell">{{ item.firstName }}</td>
+            <td class="table-cell">{{ item.lastName }}</td>
+            <td class="table-cell">{{ item.userName }}</td>
+            <td class="table-cell">{{ item.referenceNo }}</td>
+            <td class="table-cell">
+              <span class="role-badge">{{ getRoleLabel(item.userRole) }}</span>
+            </td>
+            <td class="table-cell">{{ item.userRole === 'section staff' ? getSectionName(item.section) : '-' }}</td>
+            <td class="table-cell text-right">
+              <button class="neomorphic-btn-small" @click="openEditModal(item)" title="Edit">
+                <v-icon size="18" color="#667eea">mdi-pencil</v-icon>
+              </button>
             </td>
           </tr>
         </template>
 
         <template #no-data>
-          <v-alert type="info">No users found.</v-alert>
+          <div class="pa-8 text-center text-grey">
+            <v-icon size="48" color="grey-lighten-1">mdi-account-off-outline</v-icon>
+            <p class="mt-2">No users found.</p>
+          </div>
         </template>
       </v-data-table>
-    </v-card>
+    </div>
 
+    <!-- Neumorphic Modal -->
     <v-dialog v-model="showModal" max-width="700px">
-      <v-card>
-        <v-card-title>{{ isEditMode ? 'Edit User' : 'Add User' }}</v-card-title>
-        <v-card-text>
+      <div class="neomorphic-modal">
+        <div class="modal-header pa-6">
+          <h3 class="modal-title">{{ isEditMode ? 'Edit User' : 'Add User' }}</h3>
+        </div>
+        <div class="modal-content pa-6">
           <UserForm v-model="modalUser" :is-edit-mode="isEditMode" :sections="sections" :modal-message="modalMessage" :modal-error="modalError" @role-change="onRoleChange" />
-        </v-card-text>
+        </div>
 
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" @click="isEditMode ? updateUser() : addUser()">{{ isEditMode ? 'Save' : 'Add' }}</v-btn>
-          <v-btn color="secondary" @click="closeModal">Cancel</v-btn>
-        </v-card-actions>
-      </v-card>
+        <div class="modal-actions pa-6 d-flex justify-end">
+          <button class="neomorphic-btn mr-3" @click="closeModal">Cancel</button>
+          <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateUser() : addUser()">
+            {{ isEditMode ? 'Save' : 'Add' }}
+          </button>
+        </div>
+      </div>
     </v-dialog>
   </v-container>
 </template>
@@ -235,25 +247,5 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/variables.scss';
-
-.toolbar-gradient {
-  background: $table-header-color !important;
-}
-.toolbar-gradient .v-toolbar-title {
-  color: white !important;
-}
-.toolbar-gradient .v-icon {
-  color: white !important;
-}
-.error { color: red; }
-.success { color: green; }
-.compact-table .v-data-table__td, .compact-table .v-data-table__th { padding-top: 4px !important; padding-bottom: 4px !important; }
-.compact-table .v-btn.v-btn--icon { --v-btn-size: 26px; }
-.compact-table .action-btn { height:22px !important; width:22px !important; min-width:22px !important; padding:0 !important; }
-.compact-table .action-btn .v-icon { font-size:16px !important; line-height:22px; }
-.fill-height { height: 100vh; }
-.no-page-scroll { overflow: hidden; }
-.card-flex { display:flex; flex-direction:column; height:100%; }
-.full-width-card { width:100%; }
+@import '@/assets/neomorphic.scss';
 </style>

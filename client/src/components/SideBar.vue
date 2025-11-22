@@ -29,7 +29,7 @@
       <!-- User Profile Section -->
       <div v-if="!rail" class="profile-section pa-4">
         <div class="d-flex align-center">
-          <v-avatar size="48" class="profile-avatar">
+          <v-avatar size="64" class="profile-avatar">
             <v-img :src="avatarSrc" cover />
           </v-avatar>
           <div class="ml-3 flex-grow-1">
@@ -44,24 +44,9 @@
 
       <!-- Rail Mode Avatar -->
       <div v-if="rail" class="rail-avatar pa-2 d-flex justify-center">
-        <v-avatar size="40" class="profile-avatar">
+        <v-avatar size="48" class="profile-avatar">
           <v-img :src="avatarSrc" cover />
         </v-avatar>
-      </div>
-
-      <!-- Search Bar -->
-      <div v-if="!rail" class="search-section px-4 pb-3">
-        <v-text-field
-          v-model="searchQuery"
-          placeholder="Search"
-          prepend-inner-icon="mdi-magnify"
-          variant="solo"
-          density="compact"
-          hide-details
-          class="search-input"
-          bg-color="rgba(255, 255, 255, 0.1)"
-          rounded
-        />
       </div>
 
       <!-- Menu Label -->

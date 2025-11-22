@@ -92,6 +92,9 @@ Chart.register(...registerables);
 const usersCount = ref(0);
 const inquiriesCount = ref(0);
 const sectionsCount = ref(0);
+const monthlyCounts = ref([]);
+const statusCounts = ref({});
+const ratingPercent = ref(0);
 
 // Map of status id -> friendly name (used for the status pie chart)
 const statusOptions = {
@@ -112,54 +115,33 @@ let pieChartInstance = null;
 const ratingGauge = ref(null);
 let gaugeChartInstance = null;
 
-const fetchUsersCount = async () => {
+const fetchDashboardData = async () => {
   try {
-    const res = await http.get('/api/auth/users');
-    usersCount.value = res.data.length;
+    const res = await http.get('/api/dashboard');
+    const data = res.data;
+    
+    usersCount.value = data.usersCount;
+    inquiriesCount.value = data.inquiriesCount;
+    sectionsCount.value = data.sectionsCount;
+    monthlyCounts.value = data.monthlyCounts;
+    statusCounts.value = data.statusCounts;
+    ratingPercent.value = data.ratingPercent;
+    
+    buildInquiryChart();
+    buildInquiryStatusPie();
+    buildRatingGauge();
   } catch (err) {
-    console.error('Failed to fetch users count:', err);
+    console.error('Failed to fetch dashboard data:', err);
     usersCount.value = 0;
-  }
-};
-
-const fetchInquiriesCount = async () => {
-  try {
-    const res = await http.get('/api/inquiries');
-    // Handle both old format (array) and new format (object with inquiries array)
-    const inquiriesData = Array.isArray(res.data) ? res.data : res.data.inquiries;
-    inquiriesCount.value = inquiriesData.length;
-    buildInquiryChart(inquiriesData);
-    buildInquiryStatusPie(inquiriesData);
-    buildRatingGauge(inquiriesData);
-  } catch (err) {
-    console.error('Failed to fetch inquiries count:', err);
     inquiriesCount.value = 0;
+    sectionsCount.value = 0;
   }
 };
 
-const buildRatingGauge = (inquiries) => {
+const buildRatingGauge = () => {
   if (!ratingGauge.value) return;
 
-  // Compute average rating ONLY for "Work Done" inquiries (status id = 2)
-  // Ratings are on a 1-10 scale.
-  const workDone = Array.isArray(inquiries)
-    ? inquiries.filter(i => Number(i?.status) === 2)
-    : [];
-  const totalInquiries = workDone.length || 0;
-  const sumRatings = workDone.reduce((s, i) => s + (Number(i.rating) || 0), 0);
-  
-  // Calculate average rating (0-10 scale)
-  const avg = totalInquiries ? (sumRatings / totalInquiries) : 0;
-  
-  // Convert to percentage (0-100): multiply by 10 since max rating is 10
-  const percent = Math.max(0, Math.min(100, avg * 10));
-
-  console.log('Rating Gauge Debug:', { 
-    workDoneCount: totalInquiries, 
-    sumRatings, 
-    avg, 
-    percent 
-  });
+  const percent = ratingPercent.value;
 
   if (gaugeChartInstance) gaugeChartInstance.destroy();
 
@@ -307,21 +289,15 @@ const buildRatingGauge = (inquiries) => {
   });
 };
 
-const buildInquiryStatusPie = (inquiries) => {
+const buildInquiryStatusPie = () => {
   if (!inquiryStatusPie.value) return;
 
-  const counts = {};
-  inquiries.forEach((inq) => {
-    const statusKey = String(inq.status ?? 'unknown');
-    counts[statusKey] = (counts[statusKey] || 0) + 1;
-  });
-
-  const labels = Object.keys(counts).map(k => {
+  const labels = Object.keys(statusCounts.value).map(k => {
     if (statusOptions[k]) return statusOptions[k]
     if (k === 'unknown') return 'Unknown'
     return k
   });
-  const data = Object.values(counts);
+  const data = Object.values(statusCounts.value);
 
   if (pieChartInstance) pieChartInstance.destroy();
 
@@ -346,24 +322,8 @@ const buildInquiryStatusPie = (inquiries) => {
   });
 };
 
-const fetchSectionsCount = async () => {
-  try {
-    const res = await http.get('/api/sections');
-    sectionsCount.value = res.data.length;
-  } catch (err) {
-    console.error('Failed to fetch sections count:', err);
-    sectionsCount.value = 0;
-  }
-};
-
-const buildInquiryChart = (inquiries) => {
+const buildInquiryChart = () => {
   if (!inquiryChart.value) return;
-
-  const monthlyCounts = Array(12).fill(0);
-  inquiries.forEach((inq) => {
-    const month = new Date(inq.createdAt).getMonth();
-    monthlyCounts[month]++;
-  });
 
   if (chartInstance) chartInstance.destroy();
 
@@ -377,7 +337,7 @@ const buildInquiryChart = (inquiries) => {
       datasets: [
         {
           label: 'Inquiries per Month',
-          data: monthlyCounts,
+          data: monthlyCounts.value,
           barThickness: 10,
         }
       ]
@@ -390,9 +350,7 @@ const buildInquiryChart = (inquiries) => {
 };
 
 onMounted(() => {
-  fetchUsersCount();
-  fetchInquiriesCount();
-  fetchSectionsCount();
+  fetchDashboardData();
 });
 </script>
 

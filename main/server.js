@@ -11,6 +11,7 @@ import authRoutes from './routes/auth.js';
 import sectionRoutes from './routes/section.route.js';
 import inquiryRoutes from './routes/inquiry.route.js';
 import requirementRoutes from './routes/requirement.route.js';
+import dashboardRoutes from './routes/dashboard.route.js';
 
 const app = express();
 // Increase body size limits to support base64 images in JSON payloads
@@ -23,6 +24,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/sections', sectionRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/requirements', requirementRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // __dirname replacement in ES modules
 import { fileURLToPath } from 'url';

@@ -1,52 +1,60 @@
 <template>
-  <v-container fluid class="pa-4 fill-height no-page-scroll">
-    <v-card outlined elevation="2" class="card-flex full-width-card">
-      <v-toolbar flat class="toolbar-gradient" dark>
-        <v-toolbar-title>Sections</v-toolbar-title>
-        <v-spacer />
-        <v-btn icon color="white" @click="openAddModal" title="Add Section">
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
-        <v-btn icon color="white" @click="fetchSections" title="Refresh">
-          <v-icon>mdi-refresh</v-icon>
-        </v-btn>
-      </v-toolbar>
+  <v-container fluid class="neomorphic-container">
+    <!-- Header Card with Neumorphism -->
+    <div class="neomorphic-card header-card mb-4">
+      <div class="d-flex align-center justify-space-between pa-3">
+        <h2 class="page-title">Sections Management</h2>
+        <div class="action-buttons">
+          <button class="neomorphic-btn neomorphic-btn-icon mr-3" @click="openAddModal" title="Add Section">
+            <v-icon color="#667eea">mdi-plus</v-icon>
+          </button>
+          <button class="neomorphic-btn neomorphic-btn-icon" @click="fetchSections" title="Refresh">
+            <v-icon color="#667eea">mdi-refresh</v-icon>
+          </button>
+        </div>
+      </div>
+    </div>
 
-      <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
-      <v-alert v-if="error" type="error">{{ error }}</v-alert>
+    <v-progress-linear v-if="loading" indeterminate color="#667eea" class="mb-3"></v-progress-linear>
+    <v-alert v-if="error" type="error" class="neomorphic-alert mb-3">{{ error }}</v-alert>
 
+    <!-- Table Card with Neumorphism -->
+    <div class="neomorphic-card table-card">
       <v-data-table
         :headers="tableHeaders"
         :items="sections"
         :items-per-page="10"
-        class="elevation-1 compact-table w-100"
+        class="neomorphic-table compact-table w-100"
         density="compact"
-        fixed-header
-        :height="computedTableHeight"
       >
         <template #item="{ item }">
-          <tr>
-            <td>{{ item.sectionId }}</td>
-            <td>{{ item.name }}</td>
-            <td class="text-right">
-              <v-btn icon class="action-btn" variant="text" @click="openEditModal(item)" :ripple="false" title="Edit">
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
+          <tr class="table-row">
+            <td class="table-cell">{{ item.sectionId }}</td>
+            <td class="table-cell">{{ item.name }}</td>
+            <td class="table-cell text-right">
+              <button class="neomorphic-btn-small" @click="openEditModal(item)" title="Edit">
+                <v-icon size="18" color="#667eea">mdi-pencil</v-icon>
+              </button>
             </td>
           </tr>
         </template>
 
         <template v-slot:no-data>
-          <v-alert type="info">No sections found.</v-alert>
+          <div class="pa-8 text-center text-grey">
+            <v-icon size="48" color="grey-lighten-1">mdi-folder-outline</v-icon>
+            <p class="mt-2">No sections found.</p>
+          </div>
         </template>
       </v-data-table>
-    </v-card>
+    </div>
 
     <!-- Add/Edit Dialog -->
     <v-dialog v-model="showModal" max-width="800px">
-      <v-card>
-        <v-card-title>{{ isEditMode ? 'Edit Section' : 'Add Section' }}</v-card-title>
-        <v-card-text>
+      <div class="neomorphic-modal">
+        <div class="modal-header pa-6">
+          <h3 class="modal-title">{{ isEditMode ? 'Edit Section' : 'Add Section' }}</h3>
+        </div>
+        <div class="modal-content pa-6">
           <v-form @submit.prevent="isEditMode ? updateSection() : addSection()">
             <v-row>
               <v-col cols="12" sm="6">
@@ -63,33 +71,35 @@
               </v-col>
             </v-row>
 
-            <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="mt-2">
+            <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="neomorphic-alert mt-2">
               {{ modalMessage }}
             </v-alert>
           </v-form>
 
           <!-- Requirements section (edit mode only) -->
-          <div v-if="isEditMode" class="requirements-box">
-            <h4>Requirements for this Section</h4>
+          <div v-if="isEditMode" class="requirements-box neomorphic-card pa-4 mt-4">
+            <h4 class="page-title mb-3" style="font-size: 16px;">Requirements for this Section</h4>
 
             <div class="requirements-scroll">
-              <v-data-table :headers="reqHeaders" :items="requirements" dense hide-default-footer>
+              <v-data-table :headers="reqHeaders" :items="requirements" class="neomorphic-table" dense hide-default-footer>
               <template #item="{ item }">
-                <tr>
-                  <td>{{ item.name }}</td>
-                  <td class="text-right">
-                    <v-btn size="x-small" icon small @click="startEditRequirement(item)">
-                      <v-icon size="small">mdi-pencil</v-icon>
-                    </v-btn>
-                    <v-btn size="x-small" icon small @click="deleteRequirement(item._id)">
-                      <v-icon size="small">mdi-delete</v-icon>
-                    </v-btn>
+                <tr class="table-row">
+                  <td class="table-cell">{{ item.name }}</td>
+                  <td class="table-cell text-right">
+                    <button class="neomorphic-btn-small mr-2" @click="startEditRequirement(item)" title="Edit">
+                      <v-icon size="16" color="#667eea">mdi-pencil</v-icon>
+                    </button>
+                    <button class="neomorphic-btn-small" @click="deleteRequirement(item._id)" title="Delete">
+                      <v-icon size="16" color="#667eea">mdi-delete</v-icon>
+                    </button>
                   </td>
                 </tr>
               </template>
 
               <template v-slot:no-data>
-                <v-alert type="info">No requirements found.</v-alert>
+                <div class="pa-4 text-center text-grey">
+                  <p>No requirements found.</p>
+                </div>
               </template>
               </v-data-table>
             </div>
@@ -99,27 +109,26 @@
                 <v-text-field label="Requirement Name" v-model="reqForm.name"></v-text-field>
               </v-col>
               <v-col cols="12" sm="4">
-                <v-btn color="primary" @click="editingRequirement ? updateRequirement() : addRequirement()">
+                <button class="neomorphic-btn neomorphic-btn-primary mr-2" @click="editingRequirement ? updateRequirement() : addRequirement()">
                   {{ editingRequirement ? 'Update' : 'Add' }}
-                </v-btn>
-                <v-btn v-if="editingRequirement" text @click="cancelRequirementEdit">Cancel</v-btn>
+                </button>
+                <button v-if="editingRequirement" class="neomorphic-btn" @click="cancelRequirementEdit">Cancel</button>
               </v-col>
             </v-row>
 
-            <v-alert v-if="reqMessage" :type="reqError ? 'error' : 'success'" class="mt-2">
+            <v-alert v-if="reqMessage" :type="reqError ? 'error' : 'success'" class="neomorphic-alert mt-2">
               {{ reqMessage }}
             </v-alert>
           </div>
-        </v-card-text>
+        </div>
 
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" @click="isEditMode ? updateSection() : addSection()">
+        <div class="modal-actions pa-6 d-flex justify-end">
+          <button class="neomorphic-btn mr-3" @click="closeModal">Cancel</button>
+          <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateSection() : addSection()">
             {{ isEditMode ? 'Save' : 'Add' }}
-          </v-btn>
-          <v-btn color="secondary" @click="closeModal">Cancel</v-btn>
-        </v-card-actions>
-      </v-card>
+          </button>
+        </div>
+      </div>
     </v-dialog>
   </v-container>
 </template>
@@ -353,35 +362,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/variables.scss';
-
-.toolbar-gradient {
-  background: $table-header-color !important;
-}
-.toolbar-gradient .v-toolbar-title {
-  color: white !important;
-}
-.toolbar-gradient .v-icon {
-  color: white !important;
-}
-/* same styling as original */
-.section-list { max-width: 100%; }
-.requirements-box {
-  margin-top: 1rem;
-}
+@import '@/assets/neomorphic.scss';
 
 .requirements-scroll {
-  max-height: 220px;
+  max-height: 300px;
   overflow-y: auto;
 }
-.error { color: red; }
-.success { color: green; }
-.compact-table .v-data-table__td, .compact-table .v-data-table__th { padding-top: 4px !important; padding-bottom: 4px !important; }
-.compact-table .v-btn.v-btn--icon { --v-btn-size: 26px; }
-.compact-table .action-btn { height:22px !important; width:22px !important; min-width:22px !important; padding:0 !important; }
-.compact-table .action-btn .v-icon { font-size:16px !important; line-height:22px; }
-.fill-height { height: 100vh; }
-.no-page-scroll { overflow: hidden; }
-.card-flex { display:flex; flex-direction:column; height:100%; }
-.full-width-card { width:100%; }
 </style>

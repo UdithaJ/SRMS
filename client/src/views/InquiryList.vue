@@ -1,69 +1,72 @@
 <template>
-  <v-container fluid class="pa-4 fill-height no-page-scroll">
-    <!-- Card Wrapper -->
-    <v-card outlined elevation="2" class="card-flex full-width-card">
-      <!-- Toolbar Header -->
-      <v-toolbar flat class="toolbar-gradient" dark>
-        <v-toolbar-title>Inquiries</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn icon color="white" @click="showFilterModal = true" title="Filter">
-          <v-badge v-if="activeFilterCount > 0" :content="activeFilterCount" color="red" offset-x="-2" offset-y="-2">
-            <v-icon>mdi-filter</v-icon>
-          </v-badge>
-          <v-icon v-else>mdi-filter</v-icon>
-        </v-btn>
-        <v-btn icon color="white" @click="openAddModal" title="Add Inquiry">
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
-        <v-btn icon color="white" @click="fetchInquiries" title="Refresh">
-          <v-icon>mdi-refresh</v-icon>
-        </v-btn>
-      </v-toolbar>
+  <v-container fluid class="neomorphic-container">
+    <!-- Header Card with Neumorphism -->
+    <div class="neomorphic-card header-card mb-4">
+      <div class="d-flex align-center justify-space-between pa-3">
+        <h2 class="page-title">Inquiries Management</h2>
+        <div class="action-buttons">
+          <button class="neomorphic-btn neomorphic-btn-icon mr-3" @click="showFilterModal = true" title="Filter">
+            <v-badge v-if="activeFilterCount > 0" :content="activeFilterCount" color="red" offset-x="-2" offset-y="-2">
+              <v-icon color="#667eea">mdi-filter</v-icon>
+            </v-badge>
+            <v-icon v-else color="#667eea">mdi-filter</v-icon>
+          </button>
+          <button class="neomorphic-btn neomorphic-btn-icon mr-3" @click="openAddModal" title="Add Inquiry">
+            <v-icon color="#667eea">mdi-plus</v-icon>
+          </button>
+          <button class="neomorphic-btn neomorphic-btn-icon" @click="fetchInquiries" title="Refresh">
+            <v-icon color="#667eea">mdi-refresh</v-icon>
+          </button>
+        </div>
+      </div>
+    </div>
 
-      <!-- Loading & Errors -->
-      <v-progress-linear
-        v-if="loading"
-        indeterminate
-        color="primary"
-      ></v-progress-linear>
-      <v-alert v-if="error" type="error">{{ error }}</v-alert>
+    <v-progress-linear v-if="loading" indeterminate color="#667eea" class="mb-3"></v-progress-linear>
+    <v-alert v-if="error" type="error" class="neomorphic-alert mb-3">{{ error }}</v-alert>
 
-      <!-- DATA TABLE -->
+    <!-- Table Card with Neumorphism -->
+    <div class="neomorphic-card table-card">
       <v-data-table
         :headers="tableHeaders"
         :items="tableItems"
         :items-per-page="10"
-        :page.sync="page"
-        class="elevation-1 compact-table w-100"
+        class="neomorphic-table compact-table w-100"
         density="compact"
-        fixed-header
-        :height="computedTableHeight"
       >
-        <!-- Status chip -->
-        <template v-slot:[itemStatus]="{ item }">
-          <v-chip :color="getStatusColor(item.status)" small dark>
-            {{ statusOptions[item.status] || item.status }}
-          </v-chip>
+        <template #item="{ item }">
+          <tr class="table-row">
+            <td class="table-cell">{{ item.inquiryId }}</td>
+            <td class="table-cell">{{ item.fullName }}</td>
+            <td class="table-cell">{{ item.nic }}</td>
+            <td class="table-cell">{{ item.section }}</td>
+            <td class="table-cell">{{ item.assigneeName }}</td>
+            <td class="table-cell">
+              <span class="status-badge">{{ statusOptions[item.status] || item.status }}</span>
+            </td>
+            <td class="table-cell text-right">
+              <button class="neomorphic-btn-small" @click="openEditModal(item)" title="Edit">
+                <v-icon size="18" color="#667eea">mdi-pencil</v-icon>
+              </button>
+            </td>
+          </tr>
         </template>
 
-        <!-- Actions -->
-        <template v-slot:[itemActions]="{ item }">
-          <v-btn icon class="action-btn" variant="text" @click="openEditModal(item)" :ripple="false" title="Edit">
-            <v-icon>mdi-pencil</v-icon>
-          </v-btn>
-        </template>
-
-        <template v-slot:no-data>
-          <v-alert type="info">No inquiries found.</v-alert>
+        <template #no-data>
+          <div class="pa-8 text-center text-grey">
+            <v-icon size="48" color="grey-lighten-1">mdi-file-document-outline</v-icon>
+            <p class="mt-2">No inquiries found.</p>
+          </div>
         </template>
       </v-data-table>
-    </v-card>
+    </div>
 
     <!-- Filter Modal -->
     <v-dialog v-model="showFilterModal" max-width="600px">
-      <v-card>
-        <v-card-title>Filter Inquiries</v-card-title>
-        <v-card-text>
+      <div class="neomorphic-modal">
+        <div class="modal-header pa-6">
+          <h3 class="modal-title">Filter Inquiries</h3>
+        </div>
+        <div class="modal-content pa-6">
           <v-form>
             <v-row>
               <v-col cols="12">
@@ -110,21 +113,24 @@
               </v-col>
             </v-row>
           </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="warning" variant="text" @click="clearFilters">Clear All</v-btn>
-          <v-spacer></v-spacer>
-          <v-btn color="secondary" @click="showFilterModal = false">Cancel</v-btn>
-          <v-btn color="primary" @click="applyFilters">Apply</v-btn>
-        </v-card-actions>
-      </v-card>
+        </div>
+        <div class="modal-actions pa-6 d-flex justify-space-between">
+          <button class="neomorphic-btn" @click="clearFilters">Clear All</button>
+          <div>
+            <button class="neomorphic-btn mr-3" @click="showFilterModal = false">Cancel</button>
+            <button class="neomorphic-btn neomorphic-btn-primary" @click="applyFilters">Apply</button>
+          </div>
+        </div>
+      </div>
     </v-dialog>
 
     <!-- Add/Edit Modal -->
     <v-dialog v-model="showModal" max-width="800px">
-      <v-card>
-        <v-card-title>{{ isEditMode ? 'Edit Inquiry' : 'Add Inquiry' }}</v-card-title>
-        <v-card-text>
+      <div class="neomorphic-modal">
+        <div class="modal-header pa-6">
+          <h3 class="modal-title">{{ isEditMode ? 'Edit Inquiry' : 'Add Inquiry' }}</h3>
+        </div>
+        <div class="modal-content pa-6">
           <v-form @submit.prevent="isEditMode ? updateInquiry() : addInquiry()">
             <v-row>
               <v-col cols="12" sm="6">
@@ -198,20 +204,19 @@
                 ></v-select>
               </v-col>
             </v-row>
-            <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="mt-2">
+            <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="neomorphic-alert mt-2">
               {{ modalMessage }}
             </v-alert>
           </v-form>
-        </v-card-text>
+        </div>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" @click="isEditMode ? updateInquiry() : addInquiry()">
+        <div class="modal-actions pa-6 d-flex justify-end">
+          <button class="neomorphic-btn mr-3" @click="closeModal">Cancel</button>
+          <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateInquiry() : addInquiry()">
             {{ isEditMode ? 'Save' : 'Add' }}
-          </v-btn>
-          <v-btn color="secondary" @click="closeModal">Cancel</v-btn>
-        </v-card-actions>
-      </v-card>
+          </button>
+        </div>
+      </div>
     </v-dialog>
   </v-container>
 </template>
@@ -490,25 +495,5 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/variables.scss';
-
-.toolbar-gradient {
-  background: $table-header-color !important;
-}
-.toolbar-gradient .v-toolbar-title {
-  color: white !important;
-}
-.toolbar-gradient .v-icon {
-  color: white !important;
-}
-.compact-table .v-data-table__td, .compact-table .v-data-table__th { padding-top: 4px !important; padding-bottom: 4px !important; }
-.compact-table .v-chip { height: 22px; }
-.compact-table .v-btn.v-btn--icon { --v-btn-size: 26px; }
-.compact-table .action-btn { height:22px !important; width:22px !important; min-width:22px !important; padding:0 !important; }
-.compact-table .action-btn .v-icon { font-size:16px !important; line-height:22px; }
-/* Layout helpers to prevent page scroll and allow dynamic table sizing */
-.fill-height { height: 100vh; }
-.no-page-scroll { overflow: hidden; }
-.card-flex { display:flex; flex-direction:column; height:100%; }
-.full-width-card { width:100%; }
+@import '@/assets/neomorphic.scss';
 </style>
