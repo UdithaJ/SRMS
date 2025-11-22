@@ -1,83 +1,80 @@
 <template>
-  <v-container fluid>
-    <v-row>
-      <v-col cols="12">
-        <v-sheet elevation="1" class="pa-4">
-          <v-row>
-            <v-col cols="12">
-              <h1>Dashboard</h1>
-              <p>Welcome to your dashboard!</p>
-            </v-col>
-          </v-row>
+  <v-container fluid class="neomorphic-container dashboard-container">
+    <!-- Header Card -->
+    <div class="neomorphic-card header-card mb-4">
+      <div class="d-flex align-center justify-space-between pa-3">
+        <div>
+          <h2 class="page-title">Dashboard</h2>
+          <p class="welcome-text">Welcome to your dashboard!</p>
+        </div>
+        <div class="action-buttons">
+          <button class="neomorphic-btn neomorphic-btn-icon" @click="fetchDashboardData" title="Refresh">
+            <v-icon color="#667eea">mdi-refresh</v-icon>
+          </button>
+        </div>
+      </div>
+    </div>
 
-          <v-row class="mt-4" dense>
-            <!-- Users Card -->
-            <v-col cols="12" sm="4">
-              <v-card outlined>
-                <v-card-title>Users</v-card-title>
-                <v-card-text>
-                  Number of users: {{ usersCount }}
-                </v-card-text>
-              </v-card>
-            </v-col>
+    <!-- Stats Cards -->
+    <v-row class="mb-4" dense>
+      <v-col cols="12" sm="4">
+        <div class="neomorphic-card stat-card pa-4">
+          <div class="stat-icon">
+            <v-icon size="32" color="#667eea">mdi-account-group</v-icon>
+          </div>
+          <h3 class="stat-title">Users</h3>
+          <p class="stat-value">{{ usersCount }}</p>
+        </div>
+      </v-col>
 
-            <!-- Inquiries Card -->
-            <v-col cols="12" sm="4">
-              <v-card outlined>
-                <v-card-title>Inquiries</v-card-title>
-                <v-card-text>
-                  Number of inquiries: {{ inquiriesCount }}
-                </v-card-text>
-              </v-card>
-            </v-col>
+      <v-col cols="12" sm="4">
+        <div class="neomorphic-card stat-card pa-4">
+          <div class="stat-icon">
+            <v-icon size="32" color="#667eea">mdi-file-document-multiple</v-icon>
+          </div>
+          <h3 class="stat-title">Inquiries</h3>
+          <p class="stat-value">{{ inquiriesCount }}</p>
+        </div>
+      </v-col>
 
-            <!-- Sections Card -->
-            <v-col cols="12" sm="4">
-              <v-card outlined>
-                <v-card-title>Sections</v-card-title>
-                <v-card-text>
-                  Number of sections: {{ sectionsCount }}
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
+      <v-col cols="12" sm="4">
+        <div class="neomorphic-card stat-card pa-4">
+          <div class="stat-icon">
+            <v-icon size="32" color="#667eea">mdi-folder-multiple</v-icon>
+          </div>
+          <h3 class="stat-title">Sections</h3>
+          <p class="stat-value">{{ sectionsCount }}</p>
+        </div>
+      </v-col>
+    </v-row>
 
-          <!-- Chart Section -->
-          <v-row class="mt-6">
-            <v-col cols="12" md="4">
-              <v-card elevation="2" class="pa-4">
-                <v-card-title>Inquiries - Monthly</v-card-title>
-                <v-card-text>
-                  <v-responsive  max-width="600" max-height="400">
-                    <canvas ref="inquiryChart"></canvas>
-                  </v-responsive>
-                </v-card-text>
-              </v-card>
-            </v-col>
+    <!-- Chart Section -->
+    <v-row dense>
+      <v-col cols="12" md="4">
+        <div class="neomorphic-card chart-card pa-4">
+          <h3 class="chart-title">Inquiries - Monthly</h3>
+          <div class="chart-wrapper">
+            <canvas ref="inquiryChart"></canvas>
+          </div>
+        </div>
+      </v-col>
 
-            <v-col cols="12" md="4">
-              <v-card elevation="2" class="pa-4">
-                <v-card-title>Inquiries by Status</v-card-title>
-                <v-card-text>
-                  <v-responsive  max-width="400" max-height="400">
-                    <canvas ref="inquiryStatusPie"></canvas>
-                  </v-responsive>
-                </v-card-text>
-              </v-card>
-            </v-col>
+      <v-col cols="12" md="4">
+        <div class="neomorphic-card chart-card pa-4">
+          <h3 class="chart-title">Inquiries by Status</h3>
+          <div class="chart-wrapper">
+            <canvas ref="inquiryStatusPie"></canvas>
+          </div>
+        </div>
+      </v-col>
 
-            <v-col cols="12" md="4">
-              <v-card elevation="2" class="pa-4">
-                <v-card-title class="pb-0">Average Rating</v-card-title>
-                <v-card-text class="pt-0">
-                  <v-responsive max-width="300" max-height="200">
-                    <canvas ref="ratingGauge"></canvas>
-                  </v-responsive>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-sheet>
+      <v-col cols="12" md="4">
+        <div class="neomorphic-card chart-card pa-4">
+          <h3 class="chart-title">Average Rating</h3>
+          <div class="chart-wrapper gauge-wrapper">
+            <canvas ref="ratingGauge"></canvas>
+          </div>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -94,7 +91,7 @@ const inquiriesCount = ref(0);
 const sectionsCount = ref(0);
 const monthlyCounts = ref([]);
 const statusCounts = ref({});
-const ratingPercent = ref(0);
+const avgRating = ref(0);
 
 // Map of status id -> friendly name (used for the status pie chart)
 const statusOptions = {
@@ -125,7 +122,7 @@ const fetchDashboardData = async () => {
     sectionsCount.value = data.sectionsCount;
     monthlyCounts.value = data.monthlyCounts;
     statusCounts.value = data.statusCounts;
-    ratingPercent.value = data.ratingPercent;
+    avgRating.value = data.avgRating;
     
     buildInquiryChart();
     buildInquiryStatusPie();
@@ -141,7 +138,7 @@ const fetchDashboardData = async () => {
 const buildRatingGauge = () => {
   if (!ratingGauge.value) return;
 
-  const percent = ratingPercent.value;
+  const rating = avgRating.value;
 
   if (gaugeChartInstance) gaugeChartInstance.destroy();
 
@@ -150,7 +147,7 @@ const buildRatingGauge = () => {
     data: {
       labels: ['Rating'],
       datasets: [{
-        data: [percent, 100 - percent], // Store rating value in data
+        data: [rating, 10 - rating], // Store rating value (1-10 scale)
         backgroundColor: ['transparent', 'transparent'],
         borderWidth: 0
       }]
@@ -169,8 +166,8 @@ const buildRatingGauge = () => {
     plugins: [{
       id: 'speedometer',
       afterDraw(chart) {
-        // Get the rating value from the chart data
-        const ratingPercent = chart.data.datasets[0].data[0] || 0;
+        // Get the rating value from the chart data (1-10 scale)
+        const rating = chart.data.datasets[0].data[0] || 0;
         
         const { ctx, chartArea: { width, height } } = chart;
         const centerX = width / 2;
@@ -178,11 +175,11 @@ const buildRatingGauge = () => {
         const radius = Math.min(width, height * 2) / 2 - 20;
         
 
-        // Draw colored arc segments (speedometer bands)
+        // Draw colored arc segments (speedometer bands) for 1-10 scale
         const segments = [
-          { start: 0, end: 0.33, color: '#EF5350' },   // Red: 0-33
-          { start: 0.33, end: 0.66, color: '#FFA726' }, // Orange: 33-66
-          { start: 0.66, end: 1, color: '#66BB6A' }     // Green: 66-100
+          { start: 0, end: 0.3, color: '#EF5350' },   // Red: 1-4
+          { start: 0.3, end: 0.6, color: '#FFA726' }, // Orange: 4-7
+          { start: 0.6, end: 1, color: '#66BB6A' }     // Green: 7-10
         ];
 
         segments.forEach(seg => {
@@ -196,13 +193,13 @@ const buildRatingGauge = () => {
           ctx.stroke();
         });
 
-        // Draw scale marks and numbers (0 to 100 from left to right)
+        // Draw scale marks and numbers (1 to 10 from left to right)
         ctx.fillStyle = '#424242';
         ctx.strokeStyle = '#424242';
         ctx.lineWidth = 2;
         
-        for (let i = 0; i <= 10; i++) {
-          const angle = Math.PI + (Math.PI * (i / 10));
+        for (let i = 0; i <= 9; i++) {
+          const angle = Math.PI + (Math.PI * (i / 9));
           const markRadius = radius - 8;
           const numberRadius = radius - 25;
           
@@ -212,27 +209,25 @@ const buildRatingGauge = () => {
           // Draw tick marks
           ctx.beginPath();
           ctx.moveTo(markX, markY);
-          const innerX = centerX + Math.cos(angle) * (markRadius - (i % 2 === 0 ? 10 : 5));
-          const innerY = centerY + Math.sin(angle) * (markRadius - (i % 2 === 0 ? 10 : 5));
+          const innerX = centerX + Math.cos(angle) * (markRadius - 10);
+          const innerY = centerY + Math.sin(angle) * (markRadius - 10);
           ctx.lineTo(innerX, innerY);
           ctx.stroke();
           
-          // Draw numbers at major ticks (0, 20, 40, 60, 80, 100)
-          if (i % 2 === 0) {
-            const numX = centerX + Math.cos(angle) * numberRadius;
-            const numY = centerY + Math.sin(angle) * numberRadius;
-            ctx.font = '600 12px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText((i * 10).toString(), numX, numY);
-          }
+          // Draw numbers at each tick (1 to 10)
+          const numX = centerX + Math.cos(angle) * numberRadius;
+          const numY = centerY + Math.sin(angle) * numberRadius;
+          ctx.font = '600 12px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText((i + 1).toString(), numX, numY);
         }
 
-        // Draw needle - direct calculation (not reversed)
-        const needleAngle = Math.PI + (Math.PI * (ratingPercent / 100));
+        // Draw needle - rating is on 1-10 scale, normalize to 0-1 for angle
+        // Subtract 1 to convert 1-10 to 0-9, then divide by 9
+        const normalizedRating = (rating - 1) / 9;
+        const needleAngle = Math.PI + (Math.PI * normalizedRating);
         const needleLength = radius - 18;
-        
-        console.log('Needle drawing:', { needleAngle, needleLength, ratingPercent, radius });
         
         // Calculate needle endpoint
         const needleX = centerX + Math.cos(needleAngle) * needleLength;
@@ -279,11 +274,11 @@ const buildRatingGauge = () => {
         ctx.fillStyle = '#212121';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        ctx.fillText(ratingPercent.toFixed(1), centerX, centerY + 15);
+        ctx.fillText(rating.toFixed(1), centerX, centerY + 15);
         
         ctx.font = '400 12px sans-serif';
         ctx.fillStyle = '#666';
-        ctx.fillText('out of 100', centerX, centerY + 38);
+        ctx.fillText('out of 10', centerX, centerY + 38);
       }
     }]
   });
@@ -354,12 +349,73 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-h1 {
-  margin: 0;
+<style scoped lang="scss">
+@import '@/assets/neomorphic.scss';
+
+.dashboard-container {
+  overflow-y: auto !important;
+  height: calc(100vh - 64px - 40px - 8px) !important;
 }
 
-p {
-  margin: 0 0 16px 0;
+.welcome-text {
+  color: $neomorphic-text-light;
+  font-size: 14px;
+  margin: 8px 0 0 0;
+}
+
+.stat-card {
+  text-align: center;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+  }
+  
+  .stat-icon {
+    margin-bottom: 12px;
+  }
+  
+  .stat-title {
+    color: $neomorphic-text;
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+  }
+  
+  .stat-value {
+    color: $neomorphic-accent;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+.chart-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  .chart-title {
+    color: $neomorphic-text;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    text-align: center;
+  }
+  
+  .chart-wrapper {
+    flex: 1;
+    position: relative;
+    min-height: 250px;
+    
+    canvas {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+  
+  .gauge-wrapper {
+    min-height: 200px;
+  }
 }
 </style>

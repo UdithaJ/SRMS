@@ -33,11 +33,11 @@ router.get('/', async (req, res) => {
     });
 
     // Calculate average rating for "Work Done" inquiries (status = 2)
+    // Ratings are on a 1-10 scale
     const workDoneInquiries = inquiries.filter(i => Number(i.status) === 2);
     const totalWorkDone = workDoneInquiries.length || 0;
     const sumRatings = workDoneInquiries.reduce((sum, i) => sum + (Number(i.rating) || 0), 0);
     const avgRating = totalWorkDone ? (sumRatings / totalWorkDone) : 0;
-    const ratingPercent = Math.max(0, Math.min(100, avgRating * 10));
 
     res.json({
       usersCount,
@@ -45,8 +45,7 @@ router.get('/', async (req, res) => {
       sectionsCount,
       monthlyCounts,
       statusCounts,
-      avgRating,
-      ratingPercent
+      avgRating
     });
   } catch (err) {
     console.error('Dashboard error:', err);
