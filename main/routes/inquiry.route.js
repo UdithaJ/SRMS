@@ -1,11 +1,12 @@
 import express from 'express';
+import { verifyToken } from '../middleware/auth.js';
 import Inquiry from '../models/inquiry.js';
 import User from '../models/user.js';
 const router = express.Router();
 import { AuthService } from '../services/auth.service.js'
 
-// CREATE Inquiry
-router.post('/', async (req, res) => {
+// CREATE Inquiry (requires authentication)
+router.post('/', verifyToken, async (req, res) => {
   try {
     const {
       firstName,
@@ -38,8 +39,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET ALL inquiries with requirement and section populated
-router.get('/', async (req, res) => {
+// GET ALL inquiries with requirement and section populated (requires authentication)
+router.get('/', verifyToken, async (req, res) => {
   try {
     const loggedInUser = AuthService.getLoggedInUser();
     
@@ -147,8 +148,8 @@ router.get('/', async (req, res) => {
 });
 
 
-// GET by ID with populated requirement and section
-router.get('/:id', async (req, res) => {
+// GET by ID with populated requirement and section (requires authentication)
+router.get('/:id', verifyToken, async (req, res) => {
   try {
     const inquiry = await Inquiry.findById(req.params.id)
       .populate({
@@ -163,8 +164,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// UPDATE Inquiry
-router.put('/:id', async (req, res) => {
+// UPDATE Inquiry (requires authentication)
+router.put('/:id', verifyToken, async (req, res) => {
   try {
     const updatedInquiry = await Inquiry.findByIdAndUpdate(
       req.params.id,
@@ -186,8 +187,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE Inquiry
-router.delete('/:id', async (req, res) => {
+// DELETE Inquiry (requires authentication)
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const inquiry = await Inquiry.findByIdAndDelete(req.params.id);
     if (!inquiry) return res.status(404).json({ message: 'Inquiry not found' });

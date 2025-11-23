@@ -1,5 +1,7 @@
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
+import { verifyToken, isAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -45,8 +47,20 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid user name or password' });
     }
 
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: user._id, 
+        userName: user.userName, 
+        userRole: user.userRole 
+      },
+      process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+      { expiresIn: '24h' }
+    );
+
     res.json({
       message: 'Login successful',
+      token,
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -61,8 +75,8 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Change password
-router.post('/change-password', async (req, res) => {
+// Change password (requires authentication)
+router.post('/change-password', verifyToken, async (req, res) => {
   try {
     const { userId, currentPassword, newPassword } = req.body;
     if (!userId || !currentPassword || !newPassword) {
@@ -84,8 +98,8 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
-// Get all users
-router.get('/users', async (req, res) => {
+// Get all users (requires authentication, excludes password)
+router.get('/users', verifyToken, async (req, res) => {
   try {
     const users = await User.find().select('-password'); // exclude password
     res.json(users);
@@ -94,8 +108,8 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// Update user by ID
-router.put('/users/:id', async (req, res) => {
+// Update user by ID (admin only)
+router.put('/users/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const { firstName, lastName, userName, profileImage, userRole, section, referenceNo, password } = req.body;
 

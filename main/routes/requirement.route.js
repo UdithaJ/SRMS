@@ -1,10 +1,11 @@
 import express from 'express';
+import { verifyToken, isAdmin } from '../middleware/auth.js';
 import Requirement from '../models/requirement.js';
 
 const router = express.Router();
 
-// CREATE Requirement
-router.post('/', async (req, res) => {
+// CREATE Requirement (admin only)
+router.post('/', verifyToken, isAdmin, async (req, res) => {
   try {
     const { name, section } = req.body;
 
@@ -22,8 +23,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET Requirements by Section ID
-router.get('/section/:sectionId', async (req, res) => {
+// GET Requirements by Section ID (requires authentication)
+router.get('/section/:sectionId', verifyToken, async (req, res) => {
   try {
     const requirements = await Requirement.find({ section: req.params.sectionId }).sort({ createdAt: -1 });
 
@@ -37,8 +38,8 @@ router.get('/section/:sectionId', async (req, res) => {
   }
 });
 
-// GET ALL Requirements
-router.get('/', async (req, res) => {
+// GET ALL Requirements (requires authentication)
+router.get('/', verifyToken, async (req, res) => {
   try {
     const requirements = await Requirement.find().sort({ createdAt: -1 });
     res.json(requirements);
@@ -47,8 +48,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET BY ID
-router.get('/:id', async (req, res) => {
+// GET BY ID (requires authentication)
+router.get('/:id', verifyToken, async (req, res) => {
   try {
     const requirement = await Requirement.findById(req.params.id);
     if (!requirement) {
@@ -60,8 +61,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// UPDATE Requirement
-router.put('/:id', async (req, res) => {
+// UPDATE Requirement (admin only)
+router.put('/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const { name, section } = req.body;
 
@@ -91,8 +92,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE Requirement
-router.delete('/:id', async (req, res) => {
+// DELETE Requirement (admin only)
+router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const requirement = await Requirement.findByIdAndDelete(req.params.id);
     if (!requirement) {

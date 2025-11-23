@@ -10,15 +10,25 @@ export const useUserStore = defineStore('user', {
     userProfileImage: null,
   }),
   actions: {
-    async setUser(user) {
+    async setUser(user, token = null) {
       this.userId = user.id;
       this.userRole = user.userRole;
       this.userFullName = user.firstName + ' ' + user.lastName;
       this.userProfileImage = user.profileImage || null;
+      
+      // Store user data
       if (typeof window !== 'undefined' && window.electronStore) {
         await window.electronStore.set('user', { userId: this.userId, userRole: this.userRole, userFullName: this.userFullName, userProfileImage: this.userProfileImage });
       } else {
         try { localStorage.setItem('user', JSON.stringify({ userId: this.userId, userRole: this.userRole, userFullName: this.userFullName, userProfileImage: this.userProfileImage })); } catch {}
+      }
+      
+      // Store token if provided
+      if (token) {
+        if (typeof window !== 'undefined' && window.electronStore) {
+          await window.electronStore.set('authToken', token);
+        }
+        try { localStorage.setItem('authToken', token); } catch {}
       }
     },
 
@@ -35,6 +45,16 @@ export const useUserStore = defineStore('user', {
         this.userFullName = data.userFullName;
         this.userProfileImage = data.userProfileImage || null;
       }
+      
+      // Load token
+      let token = null;
+      if (typeof window !== 'undefined' && window.electronStore) {
+        token = await window.electronStore.get('authToken');
+      } else {
+        try { token = localStorage.getItem('authToken'); } catch {}
+      }
+      // Token is already in localStorage for axios interceptor to use
+      
       return data;
     },
 
@@ -43,11 +63,17 @@ export const useUserStore = defineStore('user', {
       this.userRole = null;
       this.userFullName = null;
       this.userProfileImage = null;
+      
+      // Clear user data
       if (typeof window !== 'undefined' && window.electronStore) {
         window.electronStore.delete('user');
+        window.electronStore.delete('authToken');
       } else {
         try { localStorage.removeItem('user'); } catch {}
       }
+      
+      // Clear JWT token from localStorage
+      try { localStorage.removeItem('authToken'); } catch {}
     },
   },
 });

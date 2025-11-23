@@ -1,12 +1,13 @@
 import express from 'express';
+import { verifyToken } from '../middleware/auth.js';
 import User from '../models/user.js';
 import Inquiry from '../models/inquiry.js';
 import Section from '../models/section.js';
 
 const router = express.Router();
 
-// GET /api/dashboard - Get all dashboard statistics
-router.get('/', async (req, res) => {
+// GET /api/dashboard - Get all dashboard statistics (requires authentication)
+router.get('/', verifyToken, async (req, res) => {
   try {
     // Get counts
     const usersCount = await User.countDocuments();

@@ -1,7 +1,7 @@
 {
-  "name": "app",
+  "name": "srms",
   "version": "1.0.0",
-  "description": "",
+  "description": "Student Record Management System",
   "main": "main/index.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:electron\" \"npm run dev:client\"",
@@ -9,11 +9,49 @@
     "dev:electron": "electron .",
     "build:client": "cd client && npm run build",
     "build": "npm run build:client && npx electron-packager . MyApp --platform=win32 --arch=x64 --overwrite --extra-resource=.env",
+    "dist": "npm run build:client && electron-builder",
+    "dist:win": "npm run build:client && electron-builder --win",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "build": {
+    "appId": "com.srms.app",
+    "productName": "SRMS",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main/**/*",
+      "client/dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": ".env",
+        "to": ".env"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "client/public/logo192.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
   "dependencies": {
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
@@ -21,11 +59,13 @@
     "dotenv": "^17.2.3",
     "electron-store": "^11.0.2",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.3"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
     "electron": "^39.1.2",
+    "electron-builder": "^26.0.12",
     "nodemon": "^3.1.11"
   }
 }

@@ -1,11 +1,12 @@
 import express from 'express';
+import { verifyToken, isAdmin } from '../middleware/auth.js';
 import Section from '../models/section.js';
 import Requirement from '../models/requirement.js';
 
 const router = express.Router();
 
-// Create a new section
-router.post('/', async (req, res) => {
+// Create a new section (admin only)
+router.post('/', verifyToken, isAdmin, async (req, res) => {
   try {
     const { sectionId, name } = req.body;
 
@@ -58,8 +59,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update a section by ID
-router.put('/:id', async (req, res) => {
+// Update a section by ID (admin only)
+router.put('/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const { sectionId, name } = req.body;
 
