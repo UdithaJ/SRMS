@@ -64,8 +64,9 @@
         </div>
 
         <div class="modal-actions pa-6 d-flex justify-end">
-          <button class="neomorphic-btn mr-3" @click="closeModal">Cancel</button>
-          <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateUser() : addUser()">
+          <button class="neomorphic-btn mr-3" @click="closeModal" :disabled="modalLoading">Cancel</button>
+          <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateUser() : addUser()" :disabled="modalLoading">
+            <v-progress-circular v-if="modalLoading" indeterminate size="20" width="2" class="mr-2"></v-progress-circular>
             {{ isEditMode ? 'Save' : 'Add' }}
           </button>
         </div>
@@ -77,7 +78,10 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { http, invalidateCache } from '@/api/http'
+import { useToast } from '@/composables/useToast'
 import UserForm from '../components/UserForm.vue'
+
+const { showToast } = useToast()
 
 const users = ref([])
 const sections = ref([]) // store the sections list
@@ -118,6 +122,7 @@ const modalUser = ref({
 })
 const modalMessage = ref('')
 const modalError = ref(false)
+const modalLoading = ref(false)
 
 // role labels mapping for display
 const roleLabels = {
@@ -218,33 +223,37 @@ const openEditModal = async (user) => {
 // Add user
 const addUser = async () => {
   try {
+    modalLoading.value = true
     const payload = { ...modalUser.value }
     const res = await http.post('/api/auth/register', payload)
-    modalMessage.value = res.data.message
-    modalError.value = false
+    showToast(res.data.message || 'User added successfully', 'success')
     invalidateCache('/api/auth/users')
     fetchUsers()
-    setTimeout(closeModal, 1000)
+    closeModal()
   } catch (err) {
     modalError.value = true
     modalMessage.value = err.response?.data?.message || 'Failed to add user'
+  } finally {
+    modalLoading.value = false
   }
 }
 
 // Update user
 const updateUser = async () => {
   try {
+    modalLoading.value = true
     const payload = { ...modalUser.value }
     if (!payload.password) delete payload.password
     const res = await http.put(`/api/auth/users/${modalUser.value._id}`, payload)
-    modalMessage.value = res.data.message
-    modalError.value = false
+    showToast(res.data.message || 'User updated successfully', 'success')
     invalidateCache('/api/auth/users')
     fetchUsers()
-    setTimeout(closeModal, 1000)
+    closeModal()
   } catch (err) {
     modalError.value = true
     modalMessage.value = err.response?.data?.message || 'Failed to update user'
+  } finally {
+    modalLoading.value = false
   }
 }
 

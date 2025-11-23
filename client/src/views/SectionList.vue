@@ -106,13 +106,14 @@
 
             <v-row class="mt-3" align="center">
               <v-col cols="12" sm="8">
-                <v-text-field label="Requirement Name" v-model="reqForm.name"></v-text-field>
+                <v-text-field label="Requirement Name" v-model="reqForm.name" :disabled="reqLoading"></v-text-field>
               </v-col>
               <v-col cols="12" sm="4">
-                <button class="neomorphic-btn neomorphic-btn-primary mr-2" @click="editingRequirement ? updateRequirement() : addRequirement()">
+                <button class="neomorphic-btn neomorphic-btn-primary mr-2" @click="editingRequirement ? updateRequirement() : addRequirement()" :disabled="reqLoading">
+                  <v-progress-circular v-if="reqLoading" indeterminate size="16" width="2" class="mr-1"></v-progress-circular>
                   {{ editingRequirement ? 'Update' : 'Add' }}
                 </button>
-                <button v-if="editingRequirement" class="neomorphic-btn" @click="cancelRequirementEdit">Cancel</button>
+                <button v-if="editingRequirement" class="neomorphic-btn" @click="cancelRequirementEdit" :disabled="reqLoading">Cancel</button>
               </v-col>
             </v-row>
 
@@ -123,8 +124,9 @@
         </div>
 
         <div class="modal-actions pa-6 d-flex justify-end">
-          <button class="neomorphic-btn mr-3" @click="closeModal">Cancel</button>
-          <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateSection() : addSection()">
+          <button class="neomorphic-btn mr-3" @click="closeModal" :disabled="modalLoading">Cancel</button>
+          <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateSection() : addSection()" :disabled="modalLoading">
+            <v-progress-circular v-if="modalLoading" indeterminate size="20" width="2" class="mr-2"></v-progress-circular>
             {{ isEditMode ? 'Save' : 'Add' }}
           </button>
         </div>
@@ -136,10 +138,12 @@
 <script>
 import { http, invalidateCache } from '@/api/http';
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { useToast } from '@/composables/useToast';
 
 export default {
   name: 'SectionList',
   setup() {
+    const { showToast } = useToast();
     const sections = ref([]);
     const loading = ref(false);
     const error = ref('');
@@ -169,6 +173,7 @@ export default {
     const modalSection = ref({ _id: '', sectionId: '', name: '' });
     const modalMessage = ref('');
     const modalError = ref(false);
+    const modalLoading = ref(false);
 
     // Requirement management
     const requirements = ref([]);
@@ -176,6 +181,7 @@ export default {
     const editingRequirement = ref(false);
     const reqMessage = ref('');
     const reqError = ref(false);
+    const reqLoading = ref(false);
 
     /* ---------------------- FETCH SECTIONS ---------------------- */
     const fetchSections = async (forceRefresh = false) => {
@@ -239,45 +245,52 @@ export default {
     /* ---------------------- ADD SECTION ---------------------- */
     const addSection = async () => {
       try {
+        modalLoading.value = true;
         const res = await http.post('/api/sections', {
           sectionId: modalSection.value.sectionId,
           name: modalSection.value.name,
         });
-        modalMessage.value = res.data.message;
+        showToast(res.data.message || 'Section added successfully', 'success');
         invalidateCache('/api/sections');
         fetchSections();
-        setTimeout(closeModal, 1000);
+        closeModal();
       } catch (err) {
         modalError.value = true;
         modalMessage.value = err.response?.data?.message || 'Failed to add section';
+      } finally {
+        modalLoading.value = false;
       }
     };
 
     /* ---------------------- UPDATE SECTION ---------------------- */
     const updateSection = async () => {
       try {
+        modalLoading.value = true;
         const res = await http.put(
           `/api/sections/${modalSection.value._id}`,
           { name: modalSection.value.name }
         );
-        modalMessage.value = res.data.message;
+        showToast(res.data.message || 'Section updated successfully', 'success');
         invalidateCache('/api/sections');
         fetchSections();
       } catch (err) {
         modalError.value = true;
         modalMessage.value = 'Update failed';
+      } finally {
+        modalLoading.value = false;
       }
     };
 
     /* ---------------------- REQUIREMENTS CRUD ---------------------- */
     const addRequirement = async () => {
       try {
+        reqLoading.value = true;
         const res = await http.post('/api/requirements', {
           name: reqForm.value.name,
           section: modalSection.value._id,
         });
 
-        reqMessage.value = res.data.message;
+        showToast(res.data.message || 'Requirement added successfully', 'success');
         invalidateCache('/api/requirements');
         invalidateCache('/api/sections'); // Sections may include requirements
         fetchRequirements(modalSection.value._id);
@@ -285,6 +298,8 @@ export default {
       } catch (err) {
         reqError.value = true;
         reqMessage.value = 'Failed to add requirement';
+      } finally {
+        reqLoading.value = false;
       }
     };
 
@@ -295,12 +310,13 @@ export default {
 
     const updateRequirement = async () => {
       try {
+        reqLoading.value = true;
         await http.put(`/api/requirements/${reqForm.value._id}`, {
           name: reqForm.value.name,
           section: modalSection.value._id
         });
 
-        reqMessage.value = 'Requirement updated';
+        showToast('Requirement updated successfully', 'success');
         invalidateCache('/api/requirements');
         invalidateCache('/api/sections');
         editingRequirement.value = false;
@@ -309,6 +325,8 @@ export default {
       } catch {
         reqError.value = true;
         reqMessage.value = 'Update failed';
+      } finally {
+        reqLoading.value = false;
       }
     };
 

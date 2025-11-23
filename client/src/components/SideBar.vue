@@ -109,9 +109,11 @@
     </v-navigation-drawer>
     <!-- Change Password Dialog -->
     <v-dialog v-model="pwdDialog" persistent max-width="520">
-      <v-card>
-        <v-card-title>Change Password</v-card-title>
-        <v-card-text>
+      <div class="neomorphic-modal">
+        <div class="modal-header pa-6">
+          <h3 class="modal-title">Change Password</h3>
+        </div>
+        <div class="modal-content pa-6">
           <v-form ref="pwdFormRef" @submit.prevent="handleChangePassword">
             <v-text-field
               v-model="currentPwd"
@@ -141,15 +143,17 @@
               hide-details="auto"
               required
             />
+            <v-alert v-if="pwdMessage" :type="pwdMessageType" class="neomorphic-alert mt-3">{{ pwdMessage }}</v-alert>
           </v-form>
-          <v-alert v-if="pwdMessage" :type="pwdMessageType" density="compact" class="mt-2">{{ pwdMessage }}</v-alert>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="text" @click="closePwdDialog">Cancel</v-btn>
-          <v-btn color="primary" :loading="pwdLoading" @click="handleChangePassword">Save</v-btn>
-        </v-card-actions>
-      </v-card>
+        </div>
+        <div class="modal-actions pa-6 d-flex justify-end">
+          <button class="neomorphic-btn mr-3" @click="closePwdDialog" :disabled="pwdLoading">Cancel</button>
+          <button class="neomorphic-btn neomorphic-btn-primary" @click="handleChangePassword" :disabled="pwdLoading">
+            <v-progress-circular v-if="pwdLoading" indeterminate size="20" width="2" class="mr-2"></v-progress-circular>
+            Save
+          </button>
+        </div>
+      </div>
     </v-dialog>
   </nav>
 </template>
@@ -159,8 +163,11 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useUserStore } from '@/stores/user'
+import { useToast } from '@/composables/useToast'
 import userImg from '@/assets/user.png'
 import { changePassword } from '@/api/auth'
+
+const { showToast } = useToast()
 
 const router = useRouter()
 const route = useRoute()
@@ -228,9 +235,8 @@ const handleChangePassword = async () => {
   try {
     pwdLoading.value = true
     await changePassword(userStore.userId, currentPwd.value, newPwd.value)
-    pwdMessageType.value = 'success'
-    pwdMessage.value = 'Password changed successfully'
-    setTimeout(() => { closePwdDialog() }, 900)
+    showToast('Password changed successfully', 'success')
+    closePwdDialog()
   } catch (err) {
     pwdMessageType.value = 'error'
     pwdMessage.value = err?.response?.data?.message || 'Failed to change password'
@@ -241,6 +247,8 @@ const handleChangePassword = async () => {
 </script>
 
 <style scoped lang="scss">
+@import '@/assets/neomorphic.scss';
+
 $neomorphic-bg: #e0e5ec;
 $neomorphic-shadow-dark: rgba(163, 177, 198, 0.6);
 $neomorphic-shadow-light: rgba(255, 255, 255, 0.9);

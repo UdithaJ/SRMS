@@ -228,8 +228,9 @@
         </div>
 
         <div class="modal-actions pa-6 d-flex justify-end">
-          <button class="neomorphic-btn mr-3" @click="closeModal">Cancel</button>
-          <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateInquiry() : addInquiry()">
+          <button class="neomorphic-btn mr-3" @click="closeModal" :disabled="modalLoading">Cancel</button>
+          <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateInquiry() : addInquiry()" :disabled="modalLoading">
+            <v-progress-circular v-if="modalLoading" indeterminate size="20" width="2" class="mr-2"></v-progress-circular>
             {{ isEditMode ? 'Save' : 'Add' }}
           </button>
         </div>
@@ -242,10 +243,12 @@
 import { http, invalidateCache } from '@/api/http'
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useToast } from '@/composables/useToast'
 
 export default {
   name: 'InquiryList',
   setup() {
+    const { showToast } = useToast()
     const inquiries = ref([])
     const sections = ref([])
     const users = ref([])
@@ -263,6 +266,7 @@ export default {
     })
     const modalMessage = ref('')
     const modalError = ref(false)
+    const modalLoading = ref(false)
     const page = ref(1)
     const viewportHeight = ref(window.innerHeight)
 
@@ -526,29 +530,37 @@ export default {
 
     const addInquiry = async () => {
       try {
+        modalLoading.value = true
         const payload = { ...modalInquiry.value }
         const res = await http.post('/api/inquiries', payload)
-        modalMessage.value = res.data.message; modalError.value = false
+        showToast(res.data.message || 'Inquiry added successfully', 'success')
         // Invalidate inquiry cache to force refresh
         invalidateCache('/api/inquiries')
-        fetchInquiries(); setTimeout(() => showModal.value = false, 1000)
+        fetchInquiries()
+        closeModal()
       } catch (err) {
         modalMessage.value = err.response?.data?.message || 'Failed to add inquiry'
         modalError.value = true
+      } finally {
+        modalLoading.value = false
       }
     }
 
     const updateInquiry = async () => {
       try {
+        modalLoading.value = true
         const payload = { ...modalInquiry.value }
         const res = await http.put(`/api/inquiries/${modalInquiry.value._id}`, payload)
-        modalMessage.value = res.data.message; modalError.value = false
+        showToast(res.data.message || 'Inquiry updated successfully', 'success')
         // Invalidate inquiry cache to force refresh
         invalidateCache('/api/inquiries')
-        fetchInquiries(); setTimeout(() => showModal.value = false, 1000)
+        fetchInquiries()
+        closeModal()
       } catch (err) {
         modalMessage.value = err.response?.data?.message || 'Failed to update inquiry'
         modalError.value = true
+      } finally {
+        modalLoading.value = false
       }
     }
 

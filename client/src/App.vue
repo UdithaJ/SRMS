@@ -3,11 +3,25 @@ import { RouterView, useRoute } from 'vue-router'
 import { computed } from 'vue'
 import SideBar from '@/components/SideBar.vue'
 import AppBar from '@/components/AppBar.vue'
+import { useToast } from '@/composables/useToast'
 
 const route = useRoute()
 
 // show sidebar only for app routes (e.g. /app/*)
 const showSidebar = computed(() => route.path.startsWith('/app'))
+
+// Toast notification
+const { show, message, type, timeout, hideToast } = useToast()
+
+const getToastColor = computed(() => {
+  switch (type.value) {
+    case 'success': return 'success'
+    case 'error': return 'error'
+    case 'warning': return 'warning'
+    case 'info': return 'info'
+    default: return 'success'
+  }
+})
 </script>
 
 <template>
@@ -22,10 +36,31 @@ const showSidebar = computed(() => route.path.startsWith('/app'))
       <span class="text-caption">© 2025 UDITHAJ. All rights reserved. | DS - Madurawala</span>
       <v-spacer />
     </v-footer>
+
+    <!-- Global Toast Notification -->
+    <v-snackbar
+      v-model="show"
+      :timeout="timeout"
+      :color="getToastColor"
+      location="top right"
+      class="toast-notification"
+    >
+      {{ message }}
+      <template v-slot:actions>
+        <v-btn
+          color="white"
+          variant="text"
+          @click="hideToast"
+          icon="mdi-close"
+          size="small"
+        >
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-app>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 header {
   line-height: 1.5;
   max-height: 100vh;
@@ -64,6 +99,18 @@ nav a {
 
 nav a:first-of-type {
   border: 0;
+}
+
+.toast-notification {
+  :deep(.v-snackbar__wrapper) {
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  :deep(.v-snackbar__content) {
+    font-size: 14px;
+    font-weight: 500;
+  }
 }
 
 @media (min-width: 1024px) {
