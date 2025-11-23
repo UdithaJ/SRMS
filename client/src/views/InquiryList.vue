@@ -39,7 +39,23 @@
             <td class="table-cell">{{ item.fullName }}</td>
             <td class="table-cell">{{ item.nic }}</td>
             <td class="table-cell">{{ item.section }}</td>
-            <td class="table-cell">{{ item.assigneeName }}</td>
+            <td class="table-cell">
+              <v-tooltip location="top">
+                <template v-slot:activator="{ props }">
+                  <span v-bind="props" class="assignee-name">{{ item.assigneeName }}</span>
+                </template>
+                <div class="user-tooltip">
+                  <img v-if="item.assigneeImage" :src="item.assigneeImage" alt="Profile" class="tooltip-avatar" />
+                  <div v-else class="tooltip-avatar-placeholder">
+                    <v-icon size="32" color="white">mdi-account</v-icon>
+                  </div>
+                  <div class="tooltip-info">
+                    <div class="tooltip-name">{{ item.assigneeName }}</div>
+                    <div class="tooltip-ref">Ref: {{ item.assigneeRef || 'N/A' }}</div>
+                  </div>
+                </div>
+              </v-tooltip>
+            </td>
             <td class="table-cell">
               <span class="status-badge">{{ statusOptions[item.status] || item.status }}</span>
             </td>
@@ -309,6 +325,25 @@ export default {
       return u ? `${u.firstName} ${u.lastName}` : '-'
     }
 
+    const getUserDetails = (id) => {
+      const u = users.value.find(u => u._id === id)
+      if (!u) return { name: '-', ref: '', image: '' }
+      
+      // Handle profile image - check if it's a data URL or needs data URL prefix
+      let imageUrl = ''
+      if (u.profileImage) {
+        imageUrl = u.profileImage.startsWith('data:') 
+          ? u.profileImage 
+          : `data:image/jpeg;base64,${u.profileImage}`
+      }
+      
+      return {
+        name: `${u.firstName} ${u.lastName}`,
+        ref: u.referenceNo || '',
+        image: imageUrl
+      }
+    }
+
     const getStatusColor = (status) => {
       const n = Number(status)
       switch(n) {
@@ -322,19 +357,24 @@ export default {
 
     const tableItems = computed(() => {
       // Filters are now applied on backend, so just map the data
-      return inquiries.value.map(i => ({
-        inquiryId: i.inquiryId || '-',
-        fullName: `${i.firstName || ''} ${i.lastName || ''}`.trim(),
-        nic: i.nic || '-',
-        section: i.requirement?.section?.name || '-',
-        requirement: i.requirement?.name || '-',
-        assigneeName: getUserName(i.assignee),
-        rating: i.rating || '-',
-        acknowledgement: i.acknowledgement || '-',
-        status: Number(i.status) || 1,
-        _id: i._id,
-        actions: i._id
-      }))
+      return inquiries.value.map(i => {
+        const assigneeDetails = getUserDetails(i.assignee)
+        return {
+          inquiryId: i.inquiryId || '-',
+          fullName: `${i.firstName || ''} ${i.lastName || ''}`.trim(),
+          nic: i.nic || '-',
+          section: i.requirement?.section?.name || '-',
+          requirement: i.requirement?.name || '-',
+          assigneeName: assigneeDetails.name,
+          assigneeRef: assigneeDetails.ref,
+          assigneeImage: assigneeDetails.image,
+          rating: i.rating || '-',
+          acknowledgement: i.acknowledgement || '-',
+          status: Number(i.status) || 1,
+          _id: i._id,
+          actions: i._id
+        }
+      })
     })
 
     const activeFilterCount = computed(() => {
@@ -496,4 +536,72 @@ export default {
 
 <style scoped lang="scss">
 @import '@/assets/neomorphic.scss';
+
+.assignee-name {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: rgba(102, 126, 234, 0.4);
+  
+  &:hover {
+    color: $neomorphic-accent;
+  }
+}
+
+:deep(.v-overlay__content) {
+  background: transparent !important;
+  box-shadow: none !important;
+  
+  .user-tooltip {
+    background: $neomorphic-bg;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 
+      4px 4px 8px $neomorphic-shadow-dark,
+      -4px -4px 8px $neomorphic-shadow-light;
+    min-width: 220px;
+    
+    .tooltip-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 
+        2px 2px 4px $neomorphic-shadow-dark,
+        -2px -2px 4px $neomorphic-shadow-light;
+    }
+    
+    .tooltip-avatar-placeholder {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 
+        2px 2px 4px $neomorphic-shadow-dark,
+        -2px -2px 4px $neomorphic-shadow-light;
+    }
+    
+    .tooltip-info {
+      flex: 1;
+      
+      .tooltip-name {
+        color: $neomorphic-text;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      
+      .tooltip-ref {
+        color: $neomorphic-text-light;
+        font-size: 12px;
+      }
+    }
+  }
+}
 </style>

@@ -5,8 +5,8 @@
         <v-card class="pa-8 elevation-12 login-card">
           <v-row class="mb-4" align="center">
             <v-col cols="3" class="d-flex align-center justify-center">
-              <v-avatar size="96">
-                <v-img src="/logo192.png" alt="logo" />
+              <v-avatar size="96" class="login-avatar">
+                <v-icon size="64" color="white">mdi-account-circle</v-icon>
               </v-avatar>
             </v-col>
             <v-col cols="9">
@@ -105,7 +105,10 @@ const login = async () => {
     })
 
     const data = res.data
-    userStore.setUser(data.user)
+    
+    // Store user data and token
+    await userStore.setUser(data.user, data.token)
+    
     messageType.value = 'success'
     message.value = 'Login successful — redirecting...'
     setTimeout(() => router.push({ name: 'dashboard' }), 400)
@@ -124,23 +127,112 @@ const forgotPassword = () => {
 }
 </script>
 
-<style scoped>
-.login-card {
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.9));
-  max-width: 640px;
-  width: 100%;
-}
+<style scoped lang="scss">
+$neomorphic-bg: #e0e5ec;
+$neomorphic-shadow-dark: rgba(163, 177, 198, 0.6);
+$neomorphic-shadow-light: rgba(255, 255, 255, 0.9);
+$neomorphic-accent: #667eea;
+$neomorphic-text: #4a5568;
+$neomorphic-text-light: #718096;
+
 .login-wrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(135deg, #e0e5ec 0%, #d5dae5 100%);
 }
-.v-application--wrap {
-  min-height: 100vh;
-}
-body {
-  background: linear-gradient(135deg, #e0f2fe, #fef3c7);
+
+.login-card {
+  background: $neomorphic-bg;
+  border-radius: 24px;
+  max-width: 640px;
+  width: 100%;
+  box-shadow: 
+    12px 12px 24px $neomorphic-shadow-dark,
+    -12px -12px 24px $neomorphic-shadow-light;
+  
+  .login-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    box-shadow: 
+      8px 8px 16px $neomorphic-shadow-dark,
+      -8px -8px 16px $neomorphic-shadow-light;
+  }
+  
+  h3 {
+    color: $neomorphic-text;
+    font-weight: 600;
+    font-size: 24px;
+  }
+  
+  .subtitle-2 {
+    color: $neomorphic-text-light;
+    font-size: 14px;
+  }
+  
+  :deep(.v-text-field) {
+    .v-field {
+      background: $neomorphic-bg !important;
+      border-radius: 12px !important;
+      box-shadow: 
+        inset 3px 3px 6px $neomorphic-shadow-dark,
+        inset -3px -3px 6px $neomorphic-shadow-light !important;
+      
+      input {
+        color: $neomorphic-text !important;
+      }
+      
+      .v-field__outline {
+        display: none !important;
+      }
+    }
+    
+    .v-label {
+      color: $neomorphic-text-light !important;
+    }
+    
+    .v-field__append-inner {
+      .v-icon {
+        color: $neomorphic-text-light !important;
+      }
+    }
+  }
+  
+  :deep(.v-btn) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border-radius: 12px;
+    box-shadow: 
+      6px 6px 12px $neomorphic-shadow-dark,
+      -6px -6px 12px $neomorphic-shadow-light;
+    text-transform: none;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    
+    &:hover {
+      box-shadow: 
+        4px 4px 8px $neomorphic-shadow-dark,
+        -4px -4px 8px $neomorphic-shadow-light;
+    }
+    
+    &:active {
+      box-shadow: 
+        inset 3px 3px 6px rgba(102, 126, 234, 0.4),
+        inset -3px -3px 6px rgba(118, 75, 162, 0.2);
+    }
+  }
+  
+  :deep(.v-alert) {
+    border-radius: 12px;
+    box-shadow: 
+      4px 4px 8px $neomorphic-shadow-dark,
+      -4px -4px 8px $neomorphic-shadow-light;
+    border: none !important;
+    
+    &.v-alert--variant-tonal {
+      background: $neomorphic-bg !important;
+    }
+  }
 }
 </style>

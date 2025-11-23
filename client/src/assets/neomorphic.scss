@@ -195,14 +195,15 @@ $neomorphic-text-light: #718096;
 .neomorphic-modal {
   background: $neomorphic-bg;
   border-radius: 24px;
-  box-shadow: 
-    12px 12px 24px $neomorphic-shadow-dark,
-    -12px -12px 24px $neomorphic-shadow-light;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
 }
 
 .modal-header {
   border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+  flex-shrink: 0;
   
   .modal-title {
     color: $neomorphic-text;
@@ -214,11 +215,14 @@ $neomorphic-text-light: #718096;
 
 .modal-content {
   background: $neomorphic-bg;
+  overflow-y: auto;
+  flex: 1 1 auto;
 }
 
 .modal-actions {
   border-top: 1px solid rgba(102, 126, 234, 0.1);
   background: $neomorphic-bg;
+  flex-shrink: 0;
 }
 
 // Alert
@@ -232,4 +236,113 @@ $neomorphic-text-light: #718096;
 .compact-table .v-data-table__td, .compact-table .v-data-table__th { 
   padding-top: 4px !important; 
   padding-bottom: 4px !important; 
+}
+
+// Scrollbar Styles
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(163, 177, 198, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.6) 0%, rgba(118, 75, 162, 0.6) 100%);
+  border-radius: 4px;
+  
+  &:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+  }
+}
+
+// Form Field Styles
+.neomorphic-modal, .modal-content {
+  :deep(.v-text-field) {
+    .v-field {
+      background: $neomorphic-bg !important;
+      border-radius: 12px !important;
+      box-shadow: 
+        inset 3px 3px 6px $neomorphic-shadow-dark,
+        inset -3px -3px 6px $neomorphic-shadow-light !important;
+      
+      .v-field__field {
+        input {
+          color: $neomorphic-text !important;
+        }
+      }
+      
+      .v-field__outline {
+        display: none !important;
+      }
+    }
+    
+    .v-label {
+      color: $neomorphic-text-light !important;
+    }
+  }
+  
+  :deep(.v-textarea) {
+    .v-field {
+      background: $neomorphic-bg !important;
+      border-radius: 12px !important;
+      box-shadow: 
+        inset 3px 3px 6px $neomorphic-shadow-dark,
+        inset -3px -3px 6px $neomorphic-shadow-light !important;
+      
+      .v-field__field {
+        textarea {
+          color: $neomorphic-text !important;
+        }
+      }
+      
+      .v-field__outline {
+        display: none !important;
+      }
+    }
+    
+    .v-label {
+      color: $neomorphic-text-light !important;
+    }
+  }
+  
+  :deep(.v-select) {
+    .v-field {
+      background: $neomorphic-bg !important;
+      border-radius: 12px !important;
+      box-shadow: 
+        inset 3px 3px 6px $neomorphic-shadow-dark,
+        inset -3px -3px 6px $neomorphic-shadow-light !important;
+      
+      .v-field__field {
+        .v-select__selection-text {
+          color: $neomorphic-text !important;
+        }
+      }
+      
+      .v-field__outline {
+        display: none !important;
+      }
+      
+      .v-field__append-inner {
+        .v-icon {
+          color: $neomorphic-text-light !important;
+        }
+      }
+    }
+    
+    .v-label {
+      color: $neomorphic-text-light !important;
+    }
+  }
+  
+  :deep(.v-chip) {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%) !important;
+    color: $neomorphic-accent !important;
+    box-shadow: 
+      2px 2px 4px $neomorphic-shadow-dark,
+      -2px -2px 4px $neomorphic-shadow-light !important;
+  }
 }
