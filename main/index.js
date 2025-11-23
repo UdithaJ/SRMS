@@ -29,7 +29,7 @@
 
 
 // main/index.js
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import Store from 'electron-store';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -59,6 +59,10 @@ const createWindow = () => {
   if (process.env.NODE_ENV === 'development') {
     win.loadURL('http://localhost:5173');
   } else {
+    
+    // Remove the menu bar
+    Menu.setApplicationMenu(null);
+
     // Load built frontend - use app.getAppPath() for packaged apps
     const distPath = path.join(app.getAppPath(), 'client', 'dist', 'index.html');
     console.log('Loading frontend from:', distPath);

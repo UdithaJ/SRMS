@@ -1,7 +1,7 @@
 {
-  "name": "app",
+  "name": "srms",
   "version": "1.0.0",
-  "description": "",
+  "description": "Service Record Management System",
   "main": "main/index.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:electron\" \"npm run dev:client\"",
@@ -9,11 +9,37 @@
     "dev:electron": "electron .",
     "build:client": "cd client && npm run build",
     "build": "npm run build:client && npx electron-packager . MyApp --platform=win32 --arch=x64 --overwrite --extra-resource=.env",
+    "dist": "npm run build:client && electron-builder",
+    "dist:win": "npm run build:client && electron-builder --win",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "build": {
+    "appId": "com.srms.app",
+    "productName": "SRMS",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main/**/*",
+      "client/dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      ".env"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
   "dependencies": {
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
@@ -25,7 +51,8 @@
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
-    "electron": "^39.1.2",
+    "electron": "^39.2.3",
+    "electron-builder": "^26.0.12",
     "nodemon": "^3.1.11"
   }
 }
