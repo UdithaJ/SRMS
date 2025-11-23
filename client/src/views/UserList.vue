@@ -8,7 +8,7 @@
           <button class="neomorphic-btn neomorphic-btn-icon mr-3" @click="openAddModal" title="Add User">
             <v-icon color="#667eea">mdi-plus</v-icon>
           </button>
-          <button class="neomorphic-btn neomorphic-btn-icon" @click="fetchUsers" title="Refresh">
+          <button class="neomorphic-btn neomorphic-btn-icon" @click="fetchUsers(true)" title="Refresh">
             <v-icon color="#667eea">mdi-refresh</v-icon>
           </button>
         </div>
@@ -76,7 +76,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
-import { http } from '@/api/http'
+import { http, invalidateCache } from '@/api/http'
 import UserForm from '../components/UserForm.vue'
 
 const users = ref([])
@@ -130,12 +130,21 @@ const roleLabels = {
 
 const getRoleLabel = (role) => roleLabels[role] || role || '-'
 
-// Fetch all users
-const fetchUsers = async () => {
+// Fetch all users (exclude profileImage for performance)
+const fetchUsers = async (forceRefresh = false) => {
   loading.value = true
   error.value = ''
   try {
-    const res = await http.get('/api/auth/users')
+    // Clear cache if force refresh
+    if (forceRefresh) {
+      invalidateCache('/api/auth/users')
+    }
+    
+    const res = await http.get('/api/auth/users', {
+      params: { exclude: 'profileImage' },
+      cacheTTL: 180000, // Cache for 3 minutes
+      useCache: !forceRefresh // Bypass cache if force refresh
+    })
     users.value = res.data
   } catch (err) {
     error.value = err.response?.data?.message || 'Failed to fetch users'
@@ -147,7 +156,9 @@ const fetchUsers = async () => {
 // Fetch sections from API
 const fetchSections = async () => {
   try {
-    const res = await http.get('/api/sections')
+    const res = await http.get('/api/sections', {
+      cacheTTL: 300000 // Cache for 5 minutes
+    })
     sections.value = res.data
   } catch (err) {
     console.error('Failed to fetch sections', err)
@@ -175,18 +186,33 @@ const openAddModal = () => {
   showModal.value = true
 }
 
-// Open edit modal
-const openEditModal = (user) => {
+// Open edit modal (fetch full user details with profileImage)
+const openEditModal = async (user) => {
   isEditMode.value = true
-  modalUser.value = {
-    ...user,
-    password: '',
-    userRole: user.userRole || '',
-    section: user.section || '',
-    profileImage: user.profileImage || ''
-  }
   modalMessage.value = ''
   showModal.value = true
+  
+  try {
+    // Fetch complete user details including profileImage
+    const res = await http.get(`/api/auth/users/${user._id}`)
+    modalUser.value = {
+      ...res.data,
+      password: '',
+      userRole: res.data.userRole || '',
+      section: res.data.section || '',
+      profileImage: res.data.profileImage || ''
+    }
+  } catch (err) {
+    console.error('Failed to fetch user details', err)
+    // Fallback to basic user data if fetch fails
+    modalUser.value = {
+      ...user,
+      password: '',
+      userRole: user.userRole || '',
+      section: user.section || '',
+      profileImage: ''
+    }
+  }
 }
 
 // Add user
@@ -196,6 +222,7 @@ const addUser = async () => {
     const res = await http.post('/api/auth/register', payload)
     modalMessage.value = res.data.message
     modalError.value = false
+    invalidateCache('/api/auth/users')
     fetchUsers()
     setTimeout(closeModal, 1000)
   } catch (err) {
@@ -212,6 +239,7 @@ const updateUser = async () => {
     const res = await http.put(`/api/auth/users/${modalUser.value._id}`, payload)
     modalMessage.value = res.data.message
     modalError.value = false
+    invalidateCache('/api/auth/users')
     fetchUsers()
     setTimeout(closeModal, 1000)
   } catch (err) {

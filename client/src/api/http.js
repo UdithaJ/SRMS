@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { apiCache, generateCacheKey } from '@/utils/cache'
 
 // Prefer env value when provided (Vite injects at build time)
 const envBase = import.meta?.env?.VITE_API_BASE_URL
@@ -22,4 +23,62 @@ export const http = axios.create({
 export function getApiUrl(path = '') {
   const p = path.startsWith('/') ? path : `/${path}`
   return `${baseURL}${p}`
+}
+
+// Request interceptor with caching for GET requests
+http.interceptors.request.use(
+  (config) => {
+    // Add JWT token from localStorage
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+
+    // Check cache for GET requests with useCache flag
+    if (config.method === 'get' && config.useCache !== false) {
+      const cacheKey = generateCacheKey(config.url, config.params)
+      const cachedData = apiCache.get(cacheKey)
+      
+      if (cachedData) {
+        // Return cached response
+        config.adapter = () => {
+          return Promise.resolve({
+            data: cachedData,
+            status: 200,
+            statusText: 'OK (cached)',
+            headers: config.headers,
+            config,
+            request: {}
+          })
+        }
+      }
+    }
+
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
+// Response interceptor to cache successful GET responses
+http.interceptors.response.use(
+  (response) => {
+    // Cache successful GET responses
+    if (response.config.method === 'get' && response.config.useCache !== false) {
+      const cacheKey = generateCacheKey(response.config.url, response.config.params)
+      const ttl = response.config.cacheTTL || 300000 // Default 5 minutes
+      apiCache.set(cacheKey, response.data, ttl)
+    }
+
+    return response
+  },
+  (error) => Promise.reject(error)
+)
+
+// Helper to invalidate cache
+export const invalidateCache = (pattern) => {
+  if (pattern) {
+    apiCache.invalidatePattern(pattern)
+  } else {
+    apiCache.clear()
+  }
 }

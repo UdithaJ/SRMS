@@ -5,7 +5,7 @@
       <div class="d-flex align-center justify-space-between pa-3">
         <h2 class="page-title">Inquiries Management</h2>
         <div class="action-buttons">
-          <button class="neomorphic-btn neomorphic-btn-icon mr-3" @click="showFilterModal = true" title="Filter">
+          <button class="neomorphic-btn neomorphic-btn-icon mr-3" @click="openFilterModal" title="Filter">
             <v-badge v-if="activeFilterCount > 0" :content="activeFilterCount" color="red" offset-x="-2" offset-y="-2">
               <v-icon color="#667eea">mdi-filter</v-icon>
             </v-badge>
@@ -14,7 +14,7 @@
           <button class="neomorphic-btn neomorphic-btn-icon mr-3" @click="openAddModal" title="Add Inquiry">
             <v-icon color="#667eea">mdi-plus</v-icon>
           </button>
-          <button class="neomorphic-btn neomorphic-btn-icon" @click="fetchInquiries" title="Refresh">
+          <button class="neomorphic-btn neomorphic-btn-icon" @click="fetchInquiries(true)" title="Refresh">
             <v-icon color="#667eea">mdi-refresh</v-icon>
           </button>
         </div>
@@ -239,7 +239,7 @@
 </template>
 
 <script>
-import { http } from '@/api/http'
+import { http, invalidateCache } from '@/api/http'
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 
@@ -328,42 +328,47 @@ export default {
       return u ? `${u.firstName} ${u.lastName}` : '-'
     }
 
-    const getUserDetails = (id) => {
-      const u = users.value.find(u => u._id === id)
-      if (!u) return { name: '-', ref: '', image: '' }
+    const getUserDetails = (assigneeObj) => {
+      // assigneeObj is now the populated user object from backend
+      if (!assigneeObj || !assigneeObj._id) return { name: '-', ref: '', image: '' }
       
-      // Check cache first
+      const id = assigneeObj._id
+      const name = `${assigneeObj.firstName || ''} ${assigneeObj.lastName || ''}`.trim()
+      const ref = assigneeObj.referenceNo || ''
+      
+      // Check cache first for profile image
       if (profileImageCache.value[id]) {
-        return {
-          name: `${u.firstName} ${u.lastName}`,
-          ref: u.referenceNo || '',
-          image: profileImageCache.value[id]
-        }
+        return { name, ref, image: profileImageCache.value[id] }
       }
       
-      // Handle profile image - check if it's a data URL or needs data URL prefix
+      // Handle profile image if present (only from detailed fetch)
       let imageUrl = ''
-      if (u.profileImage) {
-        imageUrl = u.profileImage.startsWith('data:') 
-          ? u.profileImage 
-          : `data:image/jpeg;base64,${u.profileImage}`
+      if (assigneeObj.profileImage) {
+        imageUrl = assigneeObj.profileImage.startsWith('data:') 
+          ? assigneeObj.profileImage 
+          : `data:image/jpeg;base64,${assigneeObj.profileImage}`
         // Cache it
         profileImageCache.value[id] = imageUrl
       }
       
-      return {
-        name: `${u.firstName} ${u.lastName}`,
-        ref: u.referenceNo || '',
-        image: imageUrl
-      }
+      return { name, ref, image: imageUrl }
     }
 
-    const getAssigneeInfo = (assigneeId) => {
+    const getAssigneeInfo = async (inquiryId, assigneeId) => {
       if (!assigneeId) {
         assigneeInfo.value = null
         return
       }
-      assigneeInfo.value = getUserDetails(assigneeId)
+      
+      try {
+        // Fetch full inquiry details including assignee with profile image
+        const response = await http.get(`/api/inquiries/${inquiryId}`)
+        const assigneeObj = response.data.assignee
+        assigneeInfo.value = getUserDetails(assigneeObj)
+      } catch (err) {
+        console.error('Failed to fetch assignee info', err)
+        assigneeInfo.value = { name: '-', ref: '', image: '' }
+      }
     }
 
     const getStatusColor = (status) => {
@@ -378,8 +383,9 @@ export default {
     }
 
     const tableItems = computed(() => {
-      // Filters are now applied on backend, so just map the data
+      // Filters are now applied on backend, inquiries come with populated data
       return inquiries.value.map(i => {
+        // Assignee is now populated by backend
         const assigneeDetails = getUserDetails(i.assignee)
         return {
           inquiryId: i.inquiryId || '-',
@@ -413,18 +419,33 @@ export default {
     })
 
     const fetchSections = async () => {
-      try { sections.value = (await http.get('/api/sections')).data } 
+      try { 
+        sections.value = (await http.get('/api/sections', {
+          cacheTTL: 300000 // Cache for 5 minutes
+        })).data 
+      } 
       catch (err) { console.error(err) }
     }
 
     const fetchUsers = async () => {
-      try { users.value = (await http.get('/api/auth/users')).data } 
+      try { 
+        // Fetch users without profileImage for dropdown selection
+        users.value = (await http.get('/api/auth/users', {
+          params: { exclude: 'profileImage' },
+          cacheTTL: 300000 // Cache for 5 minutes
+        })).data 
+      } 
       catch (err) { console.error(err) }
     }
 
-    const fetchInquiries = async () => {
+    const fetchInquiries = async (forceRefresh = false) => {
       loading.value = true; error.value = ''
       try { 
+        // Clear cache if force refresh
+        if (forceRefresh) {
+          invalidateCache('/api/inquiries')
+        }
+        
         // Build query parameters for filters
         const params = {};
         
@@ -440,10 +461,14 @@ export default {
           params.assignee = filters.value.assignee.join(',');
         }
         
-        const response = await http.get('/api/inquiries', { params });
+        const response = await http.get('/api/inquiries', { 
+          params,
+          cacheTTL: 120000, // Cache for 2 minutes
+          useCache: !forceRefresh // Bypass cache if force refresh
+        });
         
-        // Handle both old format (array) and new format (object with inquiries array)
-        inquiries.value = Array.isArray(response.data) ? response.data : response.data.inquiries;
+        // Response now includes populated assignee and section data
+        inquiries.value = response.data.inquiries || [];
       } 
       catch (err) { error.value = err.response?.data?.message || 'Failed to load inquiries' } 
       finally { loading.value = false }
@@ -453,7 +478,11 @@ export default {
       modalInquiry.value.requirement = filteredRequirements.value[0]?._id || ''
     }
 
-    const openAddModal = () => {
+    const openAddModal = async () => {
+      // Lazy load sections and users if not already loaded
+      if (sections.value.length === 0) await fetchSections()
+      if (users.value.length === 0) await fetchUsers()
+      
       isEditMode.value = false
       selectedSectionId.value = sections.value[0]?._id || ''
       modalInquiry.value = {
@@ -464,7 +493,11 @@ export default {
       showModal.value = true
     }
 
-    const openEditModal = (item) => {
+    const openEditModal = async (item) => {
+      // Lazy load sections and users if not already loaded
+      if (sections.value.length === 0) await fetchSections()
+      if (users.value.length === 0) await fetchUsers()
+      
       isEditMode.value = true
       const inquiry = inquiries.value.find(i => i._id === item._id)
       const requirementObj = inquiry.requirement || {}
@@ -472,7 +505,7 @@ export default {
       selectedSectionId.value = sectionId
       const section = sections.value.find(s => s._id === sectionId)
       const requirements = section?.requirements || []
-      const assigneeId = inquiry.assignee || users.value[0]?._id
+      const assigneeId = typeof inquiry.assignee === 'string' ? inquiry.assignee : inquiry.assignee?._id || users.value[0]?._id
       modalInquiry.value = {
         _id: inquiry._id,
         firstName: inquiry.firstName,
@@ -485,8 +518,8 @@ export default {
         notes: inquiry.notes || '',
         status: Number(inquiry.status) || 1
       }
-      // Load assignee info
-      getAssigneeInfo(assigneeId)
+      // Load assignee info with profile image
+      getAssigneeInfo(inquiry._id, assigneeId)
       modalMessage.value = ''
       showModal.value = true
     }
@@ -496,6 +529,8 @@ export default {
         const payload = { ...modalInquiry.value }
         const res = await http.post('/api/inquiries', payload)
         modalMessage.value = res.data.message; modalError.value = false
+        // Invalidate inquiry cache to force refresh
+        invalidateCache('/api/inquiries')
         fetchInquiries(); setTimeout(() => showModal.value = false, 1000)
       } catch (err) {
         modalMessage.value = err.response?.data?.message || 'Failed to add inquiry'
@@ -508,6 +543,8 @@ export default {
         const payload = { ...modalInquiry.value }
         const res = await http.put(`/api/inquiries/${modalInquiry.value._id}`, payload)
         modalMessage.value = res.data.message; modalError.value = false
+        // Invalidate inquiry cache to force refresh
+        invalidateCache('/api/inquiries')
         fetchInquiries(); setTimeout(() => showModal.value = false, 1000)
       } catch (err) {
         modalMessage.value = err.response?.data?.message || 'Failed to update inquiry'
@@ -534,7 +571,18 @@ export default {
       fetchInquiries() // Refetch without filters
     }
 
-    onMounted(() => { fetchSections(); fetchUsers(); fetchInquiries() })
+    const openFilterModal = async () => {
+      // Lazy load sections and users if not already loaded
+      if (sections.value.length === 0) await fetchSections()
+      if (users.value.length === 0) await fetchUsers()
+      showFilterModal.value = true
+    }
+
+    onMounted(() => { 
+      // Only fetch inquiries on initial load
+      // Sections and users will be lazy loaded when modals are opened
+      fetchInquiries() 
+    })
     onBeforeUnmount(() => { window.removeEventListener('resize', updateViewport) })
 
     return {
@@ -548,11 +596,13 @@ export default {
       itemActions,
       computedTableHeight,
       showFilterModal,
+      openFilterModal,
       filters,
       applyFilters,
       clearFilters,
       activeFilterCount,
-      assigneeInfo
+      assigneeInfo,
+
     }
   }
 }

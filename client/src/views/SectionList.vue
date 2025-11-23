@@ -8,7 +8,7 @@
           <button class="neomorphic-btn neomorphic-btn-icon mr-3" @click="openAddModal" title="Add Section">
             <v-icon color="#667eea">mdi-plus</v-icon>
           </button>
-          <button class="neomorphic-btn neomorphic-btn-icon" @click="fetchSections" title="Refresh">
+          <button class="neomorphic-btn neomorphic-btn-icon" @click="fetchSections(true)" title="Refresh">
             <v-icon color="#667eea">mdi-refresh</v-icon>
           </button>
         </div>
@@ -134,7 +134,7 @@
 </template>
 
 <script>
-import { http } from '@/api/http';
+import { http, invalidateCache } from '@/api/http';
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 
 export default {
@@ -154,14 +154,14 @@ export default {
 
     // table headers for sections
     const tableHeaders = [
-      { text: 'Section ID', value: 'sectionId' },
-      { text: 'Name', value: 'name' },
-      { text: 'Actions', value: 'actions', sortable: false }
+      { title: 'Section ID', value: 'sectionId' },
+      { title: 'Name', value: 'name' },
+      { title: 'Actions', value: 'actions', sortable: false }
     ];
 
     const reqHeaders = [
-      { text: 'Name', value: 'name' },
-      { text: 'Actions', value: 'actions', sortable: false }
+      { title: 'Name', value: 'name' },
+      { title: 'Actions', value: 'actions', sortable: false }
     ];
 
     const showModal = ref(false);
@@ -178,10 +178,18 @@ export default {
     const reqError = ref(false);
 
     /* ---------------------- FETCH SECTIONS ---------------------- */
-    const fetchSections = async () => {
+    const fetchSections = async (forceRefresh = false) => {
       loading.value = true;
       try {
-        const response = await http.get('/api/sections');
+        // Clear cache if force refresh
+        if (forceRefresh) {
+          invalidateCache('/api/sections');
+        }
+        
+        const response = await http.get('/api/sections', {
+          cacheTTL: 300000, // Cache for 5 minutes
+          useCache: !forceRefresh // Bypass cache if force refresh
+        });
         sections.value = response.data;
       } catch (err) {
         error.value = err.response?.data?.message || 'Failed to load sections';
@@ -193,7 +201,9 @@ export default {
     /* ---------------------- FETCH REQUIREMENTS ---------------------- */
     const fetchRequirements = async (sectionId) => {
       try {
-        const res = await http.get(`/api/requirements/section/${sectionId}`);
+        const res = await http.get(`/api/requirements/section/${sectionId}`, {
+          cacheTTL: 240000 // Cache for 4 minutes
+        });
         requirements.value = res.data;
       } catch (err) {
         requirements.value = [];
@@ -234,6 +244,7 @@ export default {
           name: modalSection.value.name,
         });
         modalMessage.value = res.data.message;
+        invalidateCache('/api/sections');
         fetchSections();
         setTimeout(closeModal, 1000);
       } catch (err) {
@@ -250,6 +261,7 @@ export default {
           { name: modalSection.value.name }
         );
         modalMessage.value = res.data.message;
+        invalidateCache('/api/sections');
         fetchSections();
       } catch (err) {
         modalError.value = true;
@@ -266,6 +278,8 @@ export default {
         });
 
         reqMessage.value = res.data.message;
+        invalidateCache('/api/requirements');
+        invalidateCache('/api/sections'); // Sections may include requirements
         fetchRequirements(modalSection.value._id);
         reqForm.value.name = '';
       } catch (err) {
@@ -287,6 +301,8 @@ export default {
         });
 
         reqMessage.value = 'Requirement updated';
+        invalidateCache('/api/requirements');
+        invalidateCache('/api/sections');
         editingRequirement.value = false;
         reqForm.value = { name: '', _id: '' };
         fetchRequirements(modalSection.value._id);
@@ -306,6 +322,8 @@ export default {
 
       try {
         await http.delete(`/api/requirements/${id}`);
+        invalidateCache('/api/requirements');
+        invalidateCache('/api/sections');
         fetchRequirements(modalSection.value._id);
       } catch {
         reqError.value = true;

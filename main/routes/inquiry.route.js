@@ -86,6 +86,10 @@ router.get('/', async (req, res) => {
           path: 'requirement',
           populate: { path: 'section' },
           match: { section: userSectionId }
+        })
+        .populate({
+          path: 'assignee',
+          select: 'firstName lastName referenceNo'
         });
 
       // Remove inquiries where requirement is null (i.e., not in user's section)
@@ -128,6 +132,10 @@ router.get('/', async (req, res) => {
         .populate({
           path: 'requirement',
           populate: { path: 'section' }
+        })
+        .populate({
+          path: 'assignee',
+          select: 'firstName lastName referenceNo'
         });
     }
 
@@ -147,13 +155,17 @@ router.get('/', async (req, res) => {
 });
 
 
-// GET by ID with populated requirement and section
+// GET by ID with populated requirement, section, and full assignee details (including profile image)
 router.get('/:id', async (req, res) => {
   try {
     const inquiry = await Inquiry.findById(req.params.id)
       .populate({
         path: 'requirement',
         populate: { path: 'section' }
+      })
+      .populate({
+        path: 'assignee',
+        select: 'firstName lastName referenceNo profileImage'
       });
 
     if (!inquiry) return res.status(404).json({ message: 'Inquiry not found' });

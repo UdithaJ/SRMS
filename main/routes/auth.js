@@ -87,8 +87,29 @@ router.post('/change-password', async (req, res) => {
 // Get all users
 router.get('/users', async (req, res) => {
   try {
-    const users = await User.find().select('-password'); // exclude password
+    // Support exclude query param: /users?exclude=profileImage
+    const excludeFields = req.query.exclude ? req.query.exclude.split(',') : [];
+    let selectFields = '-password'; // always exclude password
+    
+    if (excludeFields.length > 0) {
+      excludeFields.forEach(field => {
+        selectFields += ` -${field}`;
+      });
+    }
+    
+    const users = await User.find().select(selectFields);
     res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get single user by ID
+router.get('/users/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
