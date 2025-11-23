@@ -39,23 +39,7 @@
             <td class="table-cell">{{ item.fullName }}</td>
             <td class="table-cell">{{ item.nic }}</td>
             <td class="table-cell">{{ item.section }}</td>
-            <td class="table-cell">
-              <v-tooltip location="top">
-                <template v-slot:activator="{ props }">
-                  <span v-bind="props" class="assignee-name">{{ item.assigneeName }}</span>
-                </template>
-                <div class="user-tooltip">
-                  <img v-if="item.assigneeImage" :src="item.assigneeImage" alt="Profile" class="tooltip-avatar" />
-                  <div v-else class="tooltip-avatar-placeholder">
-                    <v-icon size="32" color="white">mdi-account</v-icon>
-                  </div>
-                  <div class="tooltip-info">
-                    <div class="tooltip-name">{{ item.assigneeName }}</div>
-                    <div class="tooltip-ref">Ref: {{ item.assigneeRef || 'N/A' }}</div>
-                  </div>
-                </div>
-              </v-tooltip>
-            </td>
+            <td class="table-cell">{{ item.assigneeName }}</td>
             <td class="table-cell">
               <span class="status-badge">{{ statusOptions[item.status] || item.status }}</span>
             </td>
@@ -149,6 +133,23 @@
         <div class="modal-content pa-6">
           <v-form @submit.prevent="isEditMode ? updateInquiry() : addInquiry()">
             <v-row>
+              <v-col cols="12" v-if="isEditMode && assigneeInfo">
+                <div class="assignee-profile">
+                  <div class="assignee-profile-header">Pending With</div>
+                  <div class="assignee-profile-content">
+                    <div class="assignee-avatar-wrapper">
+                      <img v-if="assigneeInfo.image" :src="assigneeInfo.image" alt="Assignee" class="assignee-avatar" />
+                      <div v-else class="assignee-avatar-placeholder">
+                        <v-icon size="48" color="white">mdi-account</v-icon>
+                      </div>
+                    </div>
+                    <div class="assignee-details">
+                      <div class="assignee-name-text">{{ assigneeInfo.name }}</div>
+                      <div class="assignee-ref-text">Ref: {{ assigneeInfo.ref || 'N/A' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </v-col>
               <v-col cols="12" sm="6">
                 <v-text-field label="First Name" v-model="modalInquiry.firstName" required></v-text-field>
               </v-col>
@@ -248,6 +249,8 @@ export default {
     const inquiries = ref([])
     const sections = ref([])
     const users = ref([])
+    const profileImageCache = ref({})
+    const assigneeInfo = ref(null)
     const selectedSectionId = ref('')
     const loading = ref(false)
     const error = ref('')
@@ -329,12 +332,23 @@ export default {
       const u = users.value.find(u => u._id === id)
       if (!u) return { name: '-', ref: '', image: '' }
       
+      // Check cache first
+      if (profileImageCache.value[id]) {
+        return {
+          name: `${u.firstName} ${u.lastName}`,
+          ref: u.referenceNo || '',
+          image: profileImageCache.value[id]
+        }
+      }
+      
       // Handle profile image - check if it's a data URL or needs data URL prefix
       let imageUrl = ''
       if (u.profileImage) {
         imageUrl = u.profileImage.startsWith('data:') 
           ? u.profileImage 
           : `data:image/jpeg;base64,${u.profileImage}`
+        // Cache it
+        profileImageCache.value[id] = imageUrl
       }
       
       return {
@@ -342,6 +356,14 @@ export default {
         ref: u.referenceNo || '',
         image: imageUrl
       }
+    }
+
+    const getAssigneeInfo = (assigneeId) => {
+      if (!assigneeId) {
+        assigneeInfo.value = null
+        return
+      }
+      assigneeInfo.value = getUserDetails(assigneeId)
     }
 
     const getStatusColor = (status) => {
@@ -366,8 +388,6 @@ export default {
           section: i.requirement?.section?.name || '-',
           requirement: i.requirement?.name || '-',
           assigneeName: assigneeDetails.name,
-          assigneeRef: assigneeDetails.ref,
-          assigneeImage: assigneeDetails.image,
           rating: i.rating || '-',
           acknowledgement: i.acknowledgement || '-',
           status: Number(i.status) || 1,
@@ -452,6 +472,7 @@ export default {
       selectedSectionId.value = sectionId
       const section = sections.value.find(s => s._id === sectionId)
       const requirements = section?.requirements || []
+      const assigneeId = inquiry.assignee || users.value[0]?._id
       modalInquiry.value = {
         _id: inquiry._id,
         firstName: inquiry.firstName,
@@ -459,11 +480,13 @@ export default {
         nic: inquiry.nic,
         requirement: requirementObj._id || requirements[0]?._id || '',
         rating: inquiry.rating || null,
-        assignee: inquiry.assignee || users.value[0]?._id,
+        assignee: assigneeId,
         acknowledgement: inquiry.acknowledgement || '',
         notes: inquiry.notes || '',
         status: Number(inquiry.status) || 1
       }
+      // Load assignee info
+      getAssigneeInfo(assigneeId)
       modalMessage.value = ''
       showModal.value = true
     }
@@ -528,7 +551,8 @@ export default {
       filters,
       applyFilters,
       clearFilters,
-      activeFilterCount
+      activeFilterCount,
+      assigneeInfo
     }
   }
 }
@@ -537,69 +561,69 @@ export default {
 <style scoped lang="scss">
 @import '@/assets/neomorphic.scss';
 
-.assignee-name {
-  cursor: pointer;
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-decoration-color: rgba(102, 126, 234, 0.4);
+.assignee-profile {
+  background: $neomorphic-bg;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 
+    inset 3px 3px 6px $neomorphic-shadow-dark,
+    inset -3px -3px 6px $neomorphic-shadow-light;
   
-  &:hover {
-    color: $neomorphic-accent;
+  .assignee-profile-header {
+    color: $neomorphic-text;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
-}
-
-:deep(.v-overlay__content) {
-  background: transparent !important;
-  box-shadow: none !important;
   
-  .user-tooltip {
-    background: $neomorphic-bg;
-    border-radius: 12px;
-    padding: 12px;
+  .assignee-profile-content {
     display: flex;
     align-items: center;
-    gap: 12px;
-    box-shadow: 
-      4px 4px 8px $neomorphic-shadow-dark,
-      -4px -4px 8px $neomorphic-shadow-light;
-    min-width: 220px;
+    gap: 16px;
     
-    .tooltip-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      object-fit: cover;
-      box-shadow: 
-        2px 2px 4px $neomorphic-shadow-dark,
-        -2px -2px 4px $neomorphic-shadow-light;
+    .assignee-avatar-wrapper {
+      flex-shrink: 0;
+      
+      .assignee-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 
+          4px 4px 8px $neomorphic-shadow-dark,
+          -4px -4px 8px $neomorphic-shadow-light;
+        border: 3px solid $neomorphic-bg;
+      }
+      
+      .assignee-avatar-placeholder {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 
+          4px 4px 8px $neomorphic-shadow-dark,
+          -4px -4px 8px $neomorphic-shadow-light;
+      }
     }
     
-    .tooltip-avatar-placeholder {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 
-        2px 2px 4px $neomorphic-shadow-dark,
-        -2px -2px 4px $neomorphic-shadow-light;
-    }
-    
-    .tooltip-info {
+    .assignee-details {
       flex: 1;
       
-      .tooltip-name {
+      .assignee-name-text {
         color: $neomorphic-text;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 16px;
         margin-bottom: 4px;
       }
       
-      .tooltip-ref {
+      .assignee-ref-text {
         color: $neomorphic-text-light;
-        font-size: 12px;
+        font-size: 13px;
       }
     }
   }
