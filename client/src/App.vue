@@ -31,10 +31,18 @@ const getToastColor = computed(() => {
     <v-main class="pt-2">
       <RouterView />
     </v-main>
-    <v-footer app class="app-footer" height="40">
-      <v-spacer />
-      <span class="text-caption">© 2025 UDITHAJ. All rights reserved. | DS - Madurawala</span>
-      <v-spacer />
+    <v-footer app class="app-footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <v-icon size="small" class="footer-icon">mdi-copyright</v-icon>
+          <span>2025 UDITHAJ. All rights reserved.</span>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-right">
+          <v-icon size="small" class="footer-icon">mdi-map-marker</v-icon>
+          <span>DS - Madurawala</span>
+        </div>
+      </div>
     </v-footer>
 
     <!-- Global Toast Notification -->
@@ -72,8 +80,59 @@ header {
 }
 
 .app-footer {
-  background-color: #f5f5f5;
-  border-top: 1px solid #e0e0e0;
+  background: linear-gradient(145deg, #e8e8e8, #ffffff);
+  border-top: none;
+  box-shadow: 
+    0 -4px 12px rgba(0, 0, 0, 0.05),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9);
+  padding: 12px 24px;
+  
+  .footer-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+    font-size: 13px;
+    color: #5a5a5a;
+    font-weight: 500;
+  }
+  
+  .footer-left,
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .footer-icon {
+    color: #7a7a7a;
+    opacity: 0.8;
+  }
+  
+  .footer-divider {
+    width: 1px;
+    height: 20px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(0, 0, 0, 0.15) 20%,
+      rgba(0, 0, 0, 0.15) 80%,
+      transparent
+    );
+  }
+  
+  @media (max-width: 768px) {
+    .footer-content {
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+    }
+    
+    .footer-divider {
+      display: none;
+    }
+  }
 }
 
 nav {

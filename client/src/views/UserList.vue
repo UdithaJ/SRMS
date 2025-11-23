@@ -79,6 +79,7 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { http, invalidateCache } from '@/api/http'
 import { useToast } from '@/composables/useToast'
+import { getRoleLabel } from '@/utils/constants'
 import UserForm from '../components/UserForm.vue'
 
 const { showToast } = useToast()
@@ -123,17 +124,6 @@ const modalUser = ref({
 const modalMessage = ref('')
 const modalError = ref(false)
 const modalLoading = ref(false)
-
-// role labels mapping for display
-const roleLabels = {
-  admin: 'Admin',
-  reporter: 'Reporter',
-  'section staff': 'Section Staff',
-  ads: 'ADS',
-  ds: 'DS'
-}
-
-const getRoleLabel = (role) => roleLabels[role] || role || '-'
 
 // Fetch all users (exclude profileImage for performance)
 const fetchUsers = async (forceRefresh = false) => {

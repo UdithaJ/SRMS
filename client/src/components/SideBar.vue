@@ -34,7 +34,7 @@
           </v-avatar>
           <div class="ml-3 flex-grow-1">
             <div class="user-name">{{ userName || 'User' }}</div>
-            <div class="user-role">{{ userStore.userRole || '' }}</div>
+            <div class="user-role">{{ userRoleLabel }}</div>
           </div>
           <v-btn icon size="small" variant="text" @click="pwdDialog = true" class="settings-btn">
             <v-icon size="20" color="white">mdi-cog</v-icon>
@@ -76,7 +76,7 @@
           rounded="lg"
         >
           <template v-slot:prepend>
-            <v-icon size="20">mdi-briefcase-outline</v-icon>
+            <v-icon size="20">mdi-account-group</v-icon>
           </template>
           <v-list-item-title>Users</v-list-item-title>
         </v-list-item>
@@ -88,7 +88,7 @@
           rounded="lg"
         >
           <template v-slot:prepend>
-            <v-icon size="20">mdi-file-document-outline</v-icon>
+            <v-icon size="20">mdi-list-box</v-icon>
           </template>
           <v-list-item-title>Inquiries</v-list-item-title>
         </v-list-item>
@@ -101,7 +101,7 @@
           rounded="lg"
         >
           <template v-slot:prepend>
-            <v-icon size="20">mdi-bookmark-outline</v-icon>
+            <v-icon size="20">mdi-sitemap</v-icon>
           </template>
           <v-list-item-title>Sections</v-list-item-title>
         </v-list-item>
@@ -166,6 +166,7 @@ import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
 import userImg from '@/assets/user.png'
 import { changePassword } from '@/api/auth'
+import { ROLE_LABELS } from '@/utils/constants'
 
 const { showToast } = useToast()
 
@@ -185,6 +186,12 @@ watch(() => display.mdAndUp, (val) => { drawer.value = !!val })
 
 const isAdmin = computed(() => userStore.userRole === 'admin')
 const userName = computed(() => userStore.userFullName || userStore.userId || '')
+
+const userRoleLabel = computed(() => {
+  const role = userStore.userRole || ''
+  return ROLE_LABELS[role] || role
+})
+
 function guessMimeFromBase64(b64) {
   return b64 && b64.startsWith('/9j/') ? 'image/jpeg' : 'image/png'
 }

@@ -14,6 +14,11 @@
         class="ml-2"
       />
       
+      <div class="system-branding">
+        <div class="system-name">CIMS</div>
+        <div class="system-slogan" v-if="display.smAndUp">Digitalizing Today for a Better Tomorrow</div>
+      </div>
+      
       <v-spacer />
       
       <v-btn 
@@ -76,6 +81,32 @@ const logout = () => {
   
   :deep(.v-toolbar__content) {
     padding: 0 24px;
+  }
+  
+  .system-branding {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    
+    .system-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px rgba(91, 147, 255, 0.3);
+      background: linear-gradient(135deg, #ffffff 0%, #5B93FF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .system-slogan {
+      font-size: 11px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
   }
   
   :deep(.v-btn--icon) {

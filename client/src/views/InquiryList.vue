@@ -41,7 +41,9 @@
             <td class="table-cell">{{ item.section }}</td>
             <td class="table-cell">{{ item.assigneeName }}</td>
             <td class="table-cell">
-              <span class="status-badge">{{ statusOptions[item.status] || item.status }}</span>
+              <v-chip :color="getStatusColor(item.status)" size="small" class="status-chip">
+                {{ statusOptions[item.status] || item.status }}
+              </v-chip>
             </td>
             <td class="table-cell text-right">
               <button class="neomorphic-btn-small" @click="openEditModal(item)" title="Edit">
@@ -108,6 +110,18 @@
                   multiple
                   chips
                   hint="Select one or more assignees"
+                  persistent-hint
+                ></v-select>
+              </v-col>
+              <v-col cols="12">
+                <v-select
+                  :items="acknowledgementItems"
+                  label="Acknowledgement"
+                  v-model="filters.acknowledgement"
+                  clearable
+                  multiple
+                  chips
+                  hint="Select one or more acknowledgement statuses"
                   persistent-hint
                 ></v-select>
               </v-col>
@@ -201,7 +215,11 @@
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select
-                  :items="['Pending','Approved','Rejected']"
+                  :items="[
+                    'Checked and Completed',
+                    'Checked and Instruction Given',
+                    'Checked and Need to Follow Up'
+                    ]"
                   label="Acknowledgement"
                   v-model="modalInquiry.acknowledgement"
                   :disabled="!canAcknowledge"
@@ -275,7 +293,8 @@ export default {
     const filters = ref({
       status: [],
       section: [],
-      assignee: []
+      assignee: [],
+      acknowledgement: []
     })
 
     const ROW_HEIGHT = 36 // approximate compact row height
@@ -296,6 +315,12 @@ export default {
       title,
       value: Number(value)
     }));
+
+    const acknowledgementItems = [
+      'Checked and Completed',
+      'Checked and Instruction Given',
+      'Checked and Need to Follow Up'
+    ];
 
     // current user store to check role for acknowledgement permission
     const userStore = useUserStore();
@@ -378,11 +403,11 @@ export default {
     const getStatusColor = (status) => {
       const n = Number(status)
       switch(n) {
-        case 1: return 'orange'
-        case 2: return 'green'
-        case 3: return 'red'
-        case 4: return 'red darken-2'
-        default: return 'grey'
+        case 1: return '#FFA726' // Processing - Orange
+        case 2: return '#66BB6A' // Work Done - Green
+        case 3: return '#EF5350' // Legal Issue - Red
+        case 4: return '#D32F2F' // Document Issue - Darker Red
+        default: return '#9E9E9E' // Unknown - Grey
       }
     }
 
@@ -412,6 +437,7 @@ export default {
       if (filters.value.status && filters.value.status.length > 0) count++
       if (filters.value.section && filters.value.section.length > 0) count++
       if (filters.value.assignee && filters.value.assignee.length > 0) count++
+      if (filters.value.acknowledgement && filters.value.acknowledgement.length > 0) count++
       return count
     })
 
@@ -463,6 +489,10 @@ export default {
         
         if (filters.value.assignee && filters.value.assignee.length > 0) {
           params.assignee = filters.value.assignee.join(',');
+        }
+        
+        if (filters.value.acknowledgement && filters.value.acknowledgement.length > 0) {
+          params.acknowledgement = filters.value.acknowledgement.join(',');
         }
         
         const response = await http.get('/api/inquiries', { 
@@ -571,6 +601,8 @@ export default {
 
     const applyFilters = () => {
       showFilterModal.value = false
+      // Invalidate cache when applying filters to force fresh data
+      invalidateCache('/api/inquiries')
       fetchInquiries() // Refetch with new filters
     }
 
@@ -578,8 +610,11 @@ export default {
       filters.value = {
         status: [],
         section: [],
-        assignee: []
+        assignee: [],
+        acknowledgement: []
       }
+      // Invalidate cache when clearing filters to force fresh data
+      invalidateCache('/api/inquiries')
       fetchInquiries() // Refetch without filters
     }
 
@@ -603,6 +638,7 @@ export default {
       sections, selectedSectionId, filteredRequirements, onSectionChange,
       modalInquiry, showModal, isEditMode, modalMessage, modalError,
       addInquiry, updateInquiry, closeModal, usersWithFullName, statusItems,
+      acknowledgementItems,
       canAcknowledge,
       itemStatus,
       itemActions,
@@ -614,7 +650,7 @@ export default {
       clearFilters,
       activeFilterCount,
       assigneeInfo,
-
+      modalLoading
     }
   }
 }
@@ -687,6 +723,15 @@ export default {
         color: $neomorphic-text-light;
         font-size: 13px;
       }
+    }
+  }
+
+  .status-chip {
+    font-weight: 500;
+    font-size: 12px;
+    
+    :deep(.v-chip__content) {
+      color: white;
     }
   }
 }

@@ -49,7 +49,7 @@ router.get('/', async (req, res) => {
     const skip = limit > 0 ? (page - 1) * limit : 0;
     
     // Extract filter parameters
-    const { status, section, assignee } = req.query;
+    const { status, section, assignee, acknowledgement } = req.query;
     
     // Build the filter query
     let filterQuery = {};
@@ -67,6 +67,24 @@ router.get('/', async (req, res) => {
       const assigneeArray = assignee.split(',').map(a => a.trim()).filter(a => a);
       if (assigneeArray.length > 0) {
         filterQuery.assignee = { $in: assigneeArray };
+      }
+    }
+    
+    // Acknowledgement filter (can be comma-separated list)
+    if (acknowledgement) {
+      const acknowledgementArray = acknowledgement.split(',').map(a => a.trim()).filter(a => a);
+      if (acknowledgementArray.length > 0) {
+        // Filter only records that have an acknowledgement value and it matches one of the selected values
+        filterQuery.$and = filterQuery.$and || [];
+        filterQuery.$and.push({
+          acknowledgement: { $in: acknowledgementArray }
+        });
+        filterQuery.$and.push({
+          acknowledgement: { $ne: null }
+        });
+        filterQuery.$and.push({
+          acknowledgement: { $ne: '' }
+        });
       }
     }
 
