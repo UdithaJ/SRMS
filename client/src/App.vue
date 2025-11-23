@@ -19,7 +19,7 @@ const showSidebar = computed(() => route.path.startsWith('/app'))
     </v-main>
     <v-footer app class="app-footer" height="40">
       <v-spacer />
-      <span class="text-caption">© 2025 UDITHAJ. All rights reserved.</span>
+      <span class="text-caption">© 2025 UDITHAJ. All rights reserved. | DS - Madurawala</span>
       <v-spacer />
     </v-footer>
   </v-app>
