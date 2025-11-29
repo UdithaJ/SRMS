@@ -2,8 +2,8 @@
   <div class="data-list-wrapper">
     <!-- Table Card -->
     <div class="neomorphic-card table-card">
-      <div class="table-container">
-        <v-table class="neomorphic-table compact-table w-100" density="compact" fixed-header>
+      <div class="table-wrapper">
+        <table class="data-table">
           <thead>
             <tr>
               <th v-for="header in headers" :key="header.value" class="table-header">
@@ -11,41 +11,45 @@
               </th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-if="items.length === 0">
-              <td :colspan="headers.length" class="text-center pa-8">
-                <slot name="no-data">
-                  <v-icon size="48" color="grey-lighten-1">{{ noDataIcon }}</v-icon>
-                  <p class="mt-2 text-grey">{{ noDataText }}</p>
-                </slot>
-              </td>
-            </tr>
-            <tr v-for="item in items" :key="item._id || item.id" class="table-row">
-              <td 
-                v-for="header in headers.filter(h => h.value !== 'actions')" 
-                :key="header.value" 
-                class="table-cell"
-                :class="header.align ? `text-${header.align}` : ''"
-              >
-                <slot :name="`item.${header.value}`" :item="item" :value="item[header.value]">
-                  {{ item[header.value] }}
-                </slot>
-              </td>
-              <td v-if="hasActions" class="table-cell text-right">
-                <slot name="item.actions" :item="item">
-                  <button 
-                    v-if="showEdit"
-                    class="neomorphic-btn-small" 
-                    @click="$emit('edit', item)" 
-                    title="Edit"
-                  >
-                    <v-icon size="18" color="#667eea">mdi-pencil</v-icon>
-                  </button>
-                </slot>
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
+        </table>
+        <div class="table-body-scroll">
+          <table class="data-table">
+            <tbody>
+              <tr v-if="items.length === 0">
+                <td :colspan="headers.length" class="text-center pa-8">
+                  <slot name="no-data">
+                    <v-icon size="48" color="grey-lighten-1">{{ noDataIcon }}</v-icon>
+                    <p class="mt-2 text-grey">{{ noDataText }}</p>
+                  </slot>
+                </td>
+              </tr>
+              <tr v-for="item in items" :key="item._id || item.id" class="table-row">
+                <td 
+                  v-for="header in headers.filter(h => h.value !== 'actions')" 
+                  :key="header.value" 
+                  class="table-cell"
+                  :class="header.align ? `text-${header.align}` : ''"
+                >
+                  <slot :name="`item.${header.value}`" :item="item" :value="item[header.value]">
+                    {{ item[header.value] }}
+                  </slot>
+                </td>
+                <td v-if="hasActions" class="table-cell text-right">
+                  <slot name="item.actions" :item="item">
+                    <button 
+                      v-if="showEdit"
+                      class="neomorphic-btn-small" 
+                      @click="$emit('edit', item)" 
+                      title="Edit"
+                    >
+                      <v-icon size="18" color="#667eea">mdi-pencil</v-icon>
+                    </button>
+                  </slot>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -193,23 +197,20 @@ const visiblePages = computed(() => {
   flex: 0 0 auto;
 }
 
-.table-container {
-  min-height: calc(100vh - 320px);
-  max-height: calc(100vh - 320px);
-  overflow-y: auto;
-  overflow-x: auto;
-
-  :deep(.v-table) {
+.table-wrapper {
+  display: flex;
+  flex-direction: column;
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    
     thead {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      
       tr {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         
         th {
-          background: transparent !important;
           color: white !important;
           font-weight: 600 !important;
           text-transform: uppercase;
@@ -217,16 +218,30 @@ const visiblePages = computed(() => {
           letter-spacing: 0.5px;
           padding: 16px 12px !important;
           border-bottom: none !important;
+          text-align: left;
         }
       }
     }
-
-    tbody tr {
-      &:hover {
-        background: rgba(102, 126, 234, 0.05) !important;
+    
+    tbody {
+      tr {
+        &:hover {
+          background: rgba(102, 126, 234, 0.05) !important;
+        }
+        
+        td {
+          padding: 12px !important;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
       }
     }
   }
+}
+
+.table-body-scroll {
+  height: calc(100vh - 370px);
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
 .pagination-controls {
