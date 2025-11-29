@@ -194,6 +194,7 @@ const visiblePages = computed(() => {
 }
 
 .table-container {
+  min-height: calc(100vh - 320px);
   max-height: calc(100vh - 320px);
   overflow-y: auto;
   overflow-x: auto;
