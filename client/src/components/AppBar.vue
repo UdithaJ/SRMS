@@ -27,7 +27,7 @@
         @click="toggleTheme"
         :title="isDarkTheme ? 'Switch to Light Theme' : 'Switch to Dark Theme'"
       >
-        <v-icon>{{ isDarkTheme ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent' }}</v-icon>
+        <v-icon>{{ isDarkTheme ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
       </v-btn>
       
       <v-btn 

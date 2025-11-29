@@ -211,7 +211,7 @@ const visiblePages = computed(() => {
     
     thead {
       tr {
-        background: linear-gradient(135deg, #2e084e 0%, #30038b 100%) !important;
+        background: var(--app-bar-color) !important;
         
         th {
           color: white !important;
@@ -229,7 +229,7 @@ const visiblePages = computed(() => {
     tbody {
       tr {
         &:hover {
-          background: rgba(102, 126, 234, 0.05) !important;
+          background: var(--table-hover-bg) !important;
         }
         
         td {
@@ -238,6 +238,7 @@ const visiblePages = computed(() => {
           font-size: 14px !important;
           max-width: 0;
           overflow: hidden;
+          color: var(--neomorphic-text) !important;
           
           .cell-content {
             white-space: nowrap;
@@ -254,6 +255,29 @@ const visiblePages = computed(() => {
   height: calc(100vh - 370px);
   overflow-y: auto;
   overflow-x: auto;
+  
+  &::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbar-track) !important;
+    border-radius: 4px !important;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb) !important;
+    border-radius: 4px !important;
+    
+    &:hover {
+      background: var(--scrollbar-thumb-hover) !important;
+    }
+  }
+  
+  // Firefox scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 .pagination-controls {

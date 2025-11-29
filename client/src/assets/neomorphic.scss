@@ -263,6 +263,18 @@
     .v-field__overlay {
       background: var(--neomorphic-bg) !important;
     }
+    
+    input, textarea {
+      color: var(--neomorphic-text) !important;
+    }
+    
+    .v-field__input {
+      color: var(--neomorphic-text) !important;
+    }
+  }
+  
+  :deep(.v-label) {
+    color: var(--neomorphic-text-light) !important;
   }
   
   :deep(.v-chip) {

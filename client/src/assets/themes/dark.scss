@@ -5,8 +5,8 @@
   --neomorphic-shadow-dark: rgba(0, 0, 0, 0.5);
   --neomorphic-shadow-light: rgba(255, 255, 255, 0.05);
   --neomorphic-accent: #8b9dff;
-  --neomorphic-text: #e0e0e0;
-  --neomorphic-text-light: #a0a0a0;
+  --neomorphic-text: #f0f0f0;
+  --neomorphic-text-light: #c0c0c0;
   
   // Background gradients
   --neomorphic-container-bg: linear-gradient(135deg, #1e1e2e 0%, #252535 100%);
@@ -27,9 +27,9 @@
   --modal-border: rgba(139, 157, 255, 0.15);
   
   // Scrollbar colors
-  --scrollbar-track: rgba(0, 0, 0, 0.3);
-  --scrollbar-thumb: linear-gradient(135deg, rgba(139, 157, 255, 0.6) 0%, rgba(159, 122, 186, 0.6) 100%);
-  --scrollbar-thumb-hover: linear-gradient(135deg, rgba(139, 157, 255, 0.8) 0%, rgba(159, 122, 186, 0.8) 100%);
+  --scrollbar-track: rgba(0, 0, 0, 0.4);
+  --scrollbar-thumb: #5B93FF;
+  --scrollbar-thumb-hover: #7BA9FF;
   
   // Footer colors
   --footer-bg: linear-gradient(145deg, #1a1a2a, #25252f);
