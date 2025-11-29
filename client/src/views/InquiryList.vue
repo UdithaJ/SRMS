@@ -179,15 +179,16 @@
                 ></v-select>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field
-                  label="Rating"
-                  type="number"
+                <div class="mb-1 text-caption text-grey">Rating</div>
+                <v-rating
                   v-model="modalInquiry.rating"
-                  min="1"
-                  max="5"
+                  length="4"
+                  color="#667eea"
+                  active-color="#667eea"
+                  hover
                   density="comfortable"
-                  hide-details="auto"
-                ></v-text-field>
+                  size="large"
+                ></v-rating>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select

@@ -114,15 +114,18 @@ let gaugeChartInstance = null;
 
 const fetchDashboardData = async () => {
   try {
-    const res = await http.get('/api/dashboard');
+    // Add cache-busting timestamp to prevent HTTP caching
+    const res = await http.get('/api/dashboard', {
+      params: { _t: Date.now() }
+    });
     const data = res.data;
     
     usersCount.value = data.usersCount;
     inquiriesCount.value = data.inquiriesCount;
     sectionsCount.value = data.sectionsCount;
-    monthlyCounts.value = data.monthlyCounts;
-    statusCounts.value = data.statusCounts;
-    avgRating.value = data.avgRating;
+    monthlyCounts.value = data.monthlyCounts || [];
+    statusCounts.value = data.statusCounts || {};
+    avgRating.value = data.avgRating || 0;
     
     buildInquiryChart();
     buildInquiryStatusPie();
@@ -140,14 +143,17 @@ const buildRatingGauge = () => {
 
   const rating = avgRating.value;
 
-  if (gaugeChartInstance) gaugeChartInstance.destroy();
+  if (gaugeChartInstance) {
+    gaugeChartInstance.destroy();
+    gaugeChartInstance = null;
+  }
 
   gaugeChartInstance = new Chart(ratingGauge.value, {
     type: 'doughnut',
     data: {
       labels: ['Rating'],
       datasets: [{
-        data: [rating, 10 - rating], // Store rating value (1-10 scale)
+        data: [rating, 4 - rating], // Store rating value (1-4 scale)
         backgroundColor: ['transparent', 'transparent'],
         borderWidth: 0
       }]
@@ -166,7 +172,7 @@ const buildRatingGauge = () => {
     plugins: [{
       id: 'speedometer',
       afterDraw(chart) {
-        // Get the rating value from the chart data (1-10 scale)
+        // Get the rating value from the chart data (1-4 scale)
         const rating = chart.data.datasets[0].data[0] || 0;
         
         const { ctx, chartArea: { width, height } } = chart;
@@ -175,11 +181,12 @@ const buildRatingGauge = () => {
         const radius = Math.min(width, height * 2) / 2 - 20;
         
 
-        // Draw colored arc segments (speedometer bands) for 1-10 scale
+        // Draw colored arc segments (speedometer bands) for 1-4 scale
         const segments = [
-          { start: 0, end: 0.3, color: '#EF5350' },   // Red: 1-4
-          { start: 0.3, end: 0.6, color: '#FFA726' }, // Orange: 4-7
-          { start: 0.6, end: 1, color: '#66BB6A' }     // Green: 7-10
+          { start: 0, end: 0.25, color: '#EF5350' },    // Red: 1
+          { start: 0.25, end: 0.5, color: '#FF9800' },  // Orange: 2
+          { start: 0.5, end: 0.75, color: '#FFEB3B' },  // Yellow: 3
+          { start: 0.75, end: 1, color: '#66BB6A' }     // Green: 4
         ];
 
         segments.forEach(seg => {
@@ -193,13 +200,13 @@ const buildRatingGauge = () => {
           ctx.stroke();
         });
 
-        // Draw scale marks and numbers (1 to 10 from left to right)
+        // Draw scale marks and numbers (1 to 4 from left to right)
         ctx.fillStyle = '#424242';
         ctx.strokeStyle = '#424242';
         ctx.lineWidth = 2;
         
-        for (let i = 0; i <= 9; i++) {
-          const angle = Math.PI + (Math.PI * (i / 9));
+        for (let i = 0; i <= 3; i++) {
+          const angle = Math.PI + (Math.PI * (i / 3));
           const markRadius = radius - 8;
           const numberRadius = radius - 25;
           
@@ -214,7 +221,7 @@ const buildRatingGauge = () => {
           ctx.lineTo(innerX, innerY);
           ctx.stroke();
           
-          // Draw numbers at each tick (1 to 10)
+          // Draw numbers at each tick (1 to 4)
           const numX = centerX + Math.cos(angle) * numberRadius;
           const numY = centerY + Math.sin(angle) * numberRadius;
           ctx.font = '600 12px sans-serif';
@@ -223,9 +230,9 @@ const buildRatingGauge = () => {
           ctx.fillText((i + 1).toString(), numX, numY);
         }
 
-        // Draw needle - rating is on 1-10 scale, normalize to 0-1 for angle
-        // Subtract 1 to convert 1-10 to 0-9, then divide by 9
-        const normalizedRating = (rating - 1) / 9;
+        // Draw needle - rating is on 1-4 scale, normalize to 0-1 for angle
+        // Subtract 1 to convert 1-4 to 0-3, then divide by 3
+        const normalizedRating = (rating - 1) / 3;
         const needleAngle = Math.PI + (Math.PI * normalizedRating);
         const needleLength = radius - 18;
         
@@ -278,7 +285,7 @@ const buildRatingGauge = () => {
         
         ctx.font = '400 12px sans-serif';
         ctx.fillStyle = '#666';
-        ctx.fillText('out of 10', centerX, centerY + 38);
+        ctx.fillText('out of 4', centerX, centerY + 38);
       }
     }]
   });
@@ -294,7 +301,10 @@ const buildInquiryStatusPie = () => {
   });
   const data = Object.values(statusCounts.value);
 
-  if (pieChartInstance) pieChartInstance.destroy();
+  if (pieChartInstance) {
+    pieChartInstance.destroy();
+    pieChartInstance = null;
+  }
 
   pieChartInstance = new Chart(inquiryStatusPie.value, {
     type: 'pie',
@@ -320,7 +330,10 @@ const buildInquiryStatusPie = () => {
 const buildInquiryChart = () => {
   if (!inquiryChart.value) return;
 
-  if (chartInstance) chartInstance.destroy();
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
 
   chartInstance = new Chart(inquiryChart.value, {
     type: 'bar',
