@@ -262,64 +262,131 @@ $neomorphic-text-light: #718096;
 .neomorphic-modal, .modal-content {
   :deep(.v-text-field) {
     .v-field {
-      background: $neomorphic-bg !important;
+      background: rgba(255, 255, 255, 0.8) !important;
       border-radius: 12px !important;
+      border: 2px solid rgba(102, 126, 234, 0.15) !important;
       box-shadow: 
-        inset 3px 3px 6px $neomorphic-shadow-dark,
-        inset -3px -3px 6px $neomorphic-shadow-light !important;
+        0 2px 8px rgba(163, 177, 198, 0.2),
+        0 1px 2px rgba(163, 177, 198, 0.1) !important;
+      transition: all 0.3s ease !important;
       
       .v-field__field {
         input {
           color: $neomorphic-text !important;
+          padding: 12px 16px !important;
         }
+      }
+      
+      .v-field__overlay {
+        display: none !important;
       }
       
       .v-field__outline {
         display: none !important;
       }
+      
+      &:hover {
+        border-color: rgba(102, 126, 234, 0.3) !important;
+        box-shadow: 
+          0 4px 12px rgba(163, 177, 198, 0.25),
+          0 2px 4px rgba(163, 177, 198, 0.15) !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+      }
+      
+      &.v-field--focused {
+        border-color: $neomorphic-accent !important;
+        box-shadow: 
+          0 4px 16px rgba(102, 126, 234, 0.25),
+          0 2px 8px rgba(102, 126, 234, 0.15) !important;
+        background: #ffffff !important;
+        
+        .v-field__overlay {
+          opacity: 0 !important;
+        }
+      }
     }
     
     .v-label {
       color: $neomorphic-text-light !important;
+      font-weight: 500 !important;
     }
   }
   
   :deep(.v-textarea) {
     .v-field {
-      background: $neomorphic-bg !important;
+      background: rgba(255, 255, 255, 0.8) !important;
       border-radius: 12px !important;
+      border: 2px solid rgba(102, 126, 234, 0.15) !important;
       box-shadow: 
-        inset 3px 3px 6px $neomorphic-shadow-dark,
-        inset -3px -3px 6px $neomorphic-shadow-light !important;
+        0 2px 8px rgba(163, 177, 198, 0.2),
+        0 1px 2px rgba(163, 177, 198, 0.1) !important;
+      transition: all 0.3s ease !important;
       
       .v-field__field {
         textarea {
           color: $neomorphic-text !important;
+          padding: 12px 16px !important;
         }
+      }
+      
+      .v-field__overlay {
+        display: none !important;
       }
       
       .v-field__outline {
         display: none !important;
       }
+      
+      &:hover {
+        border-color: rgba(102, 126, 234, 0.3) !important;
+        box-shadow: 
+          0 4px 12px rgba(163, 177, 198, 0.25),
+          0 2px 4px rgba(163, 177, 198, 0.15) !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+      }
+      
+      &.v-field--focused {
+        border-color: $neomorphic-accent !important;
+        box-shadow: 
+          0 4px 16px rgba(102, 126, 234, 0.25),
+          0 2px 8px rgba(102, 126, 234, 0.15) !important;
+        background: #ffffff !important;
+        
+        .v-field__overlay {
+          opacity: 0 !important;
+        }
+      }
     }
     
     .v-label {
       color: $neomorphic-text-light !important;
+      font-weight: 500 !important;
     }
   }
   
   :deep(.v-select) {
     .v-field {
-      background: $neomorphic-bg !important;
+      background: rgba(255, 255, 255, 0.8) !important;
       border-radius: 12px !important;
+      border: 2px solid rgba(102, 126, 234, 0.15) !important;
       box-shadow: 
-        inset 3px 3px 6px $neomorphic-shadow-dark,
-        inset -3px -3px 6px $neomorphic-shadow-light !important;
+        0 2px 8px rgba(163, 177, 198, 0.2),
+        0 1px 2px rgba(163, 177, 198, 0.1) !important;
+      transition: all 0.3s ease !important;
       
       .v-field__field {
         .v-select__selection-text {
           color: $neomorphic-text !important;
+          padding: 12px 16px !important;
         }
+        
+        input {
+          padding: 12px 16px !important;
+        }
+      }
+      
+      .v-field__overlay {
+        display: none !important;
       }
       
       .v-field__outline {
@@ -328,21 +395,87 @@ $neomorphic-text-light: #718096;
       
       .v-field__append-inner {
         .v-icon {
-          color: $neomorphic-text-light !important;
+          color: $neomorphic-accent !important;
+        }
+      }
+      
+      &:hover {
+        border-color: rgba(102, 126, 234, 0.3) !important;
+        box-shadow: 
+          0 4px 12px rgba(163, 177, 198, 0.25),
+          0 2px 4px rgba(163, 177, 198, 0.15) !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+      }
+      
+      &.v-field--focused {
+        border-color: $neomorphic-accent !important;
+        box-shadow: 
+          0 4px 16px rgba(102, 126, 234, 0.25),
+          0 2px 8px rgba(102, 126, 234, 0.15) !important;
+        background: #ffffff !important;
+        
+        .v-field__overlay {
+          opacity: 0 !important;
         }
       }
     }
     
     .v-label {
       color: $neomorphic-text-light !important;
+      font-weight: 500 !important;
+    }
+  }
+  
+  :deep(.v-file-input) {
+    .v-field {
+      background: rgba(255, 255, 255, 0.8) !important;
+      border-radius: 12px !important;
+      border: 2px solid rgba(102, 126, 234, 0.15) !important;
+      box-shadow: 
+        0 2px 8px rgba(163, 177, 198, 0.2),
+        0 1px 2px rgba(163, 177, 198, 0.1) !important;
+      transition: all 0.3s ease !important;
+      
+      .v-field__overlay {
+        display: none !important;
+      }
+      
+      .v-field__outline {
+        display: none !important;
+      }
+      
+      &:hover {
+        border-color: rgba(102, 126, 234, 0.3) !important;
+        box-shadow: 
+          0 4px 12px rgba(163, 177, 198, 0.25),
+          0 2px 4px rgba(163, 177, 198, 0.15) !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+      }
+      
+      &.v-field--focused {
+        border-color: $neomorphic-accent !important;
+        box-shadow: 
+          0 4px 16px rgba(102, 126, 234, 0.25),
+          0 2px 8px rgba(102, 126, 234, 0.15) !important;
+        background: #ffffff !important;
+        
+        .v-field__overlay {
+          opacity: 0 !important;
+        }
+      }
+    }
+    
+    .v-label {
+      color: $neomorphic-text-light !important;
+      font-weight: 500 !important;
     }
   }
   
   :deep(.v-chip) {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%) !important;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%) !important;
     color: $neomorphic-accent !important;
+    border: 1px solid rgba(102, 126, 234, 0.2) !important;
     box-shadow: 
-      2px 2px 4px $neomorphic-shadow-dark,
-      -2px -2px 4px $neomorphic-shadow-light !important;
+      0 2px 4px rgba(163, 177, 198, 0.15) !important;
   }
 }

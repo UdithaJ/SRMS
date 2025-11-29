@@ -200,11 +200,11 @@ const buildRatingGauge = () => {
           ctx.stroke();
         });
 
-        // Draw scale marks and labels (Bad, Fair, Good, Very Good from left to right)
+        // Draw scale marks and labels (Poor, Fair, Good, Very Good from left to right)
         ctx.strokeStyle = '#424242';
         ctx.lineWidth = 2;
         
-        const labels = ['Bad', 'Fair', 'Good', 'Very Good'];
+        const labels = ['Poor', 'Fair', 'Good', 'Very Good'];
         
         for (let i = 0; i <= 3; i++) {
           const angle = Math.PI + (Math.PI * (i / 3));
