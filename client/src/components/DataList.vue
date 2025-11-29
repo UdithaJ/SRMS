@@ -29,10 +29,13 @@
                   :key="header.value" 
                   class="table-cell"
                   :class="header.align ? `text-${header.align}` : ''"
+                  :title="String(item[header.value] || '')"
                 >
-                  <slot :name="`item.${header.value}`" :item="item" :value="item[header.value]">
-                    {{ item[header.value] }}
-                  </slot>
+                  <div class="cell-content">
+                    <slot :name="`item.${header.value}`" :item="item" :value="item[header.value]">
+                      {{ item[header.value] }}
+                    </slot>
+                  </div>
                 </td>
                 <td v-if="hasActions" class="table-cell text-right">
                   <slot name="item.actions" :item="item">
@@ -230,8 +233,17 @@ const visiblePages = computed(() => {
         }
         
         td {
-          padding: 12px !important;
+          padding: 6px 12px !important;
           border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+          font-size: 14px !important;
+          max-width: 0;
+          overflow: hidden;
+          
+          .cell-content {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
         }
       }
     }

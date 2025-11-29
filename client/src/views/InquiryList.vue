@@ -35,7 +35,7 @@
       @page-change="handlePageChange"
     >
       <template #[`item.status`]="{ item }">
-        <v-chip :color="getStatusColor(item.status)" size="small" class="status-chip">
+        <v-chip :color="getStatusColor(item.status)" size="small" class="status-chip" :title="statusOptions[item.status] || item.status">
           {{ statusOptions[item.status] || item.status }}
         </v-chip>
       </template>
