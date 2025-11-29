@@ -184,15 +184,53 @@ const visiblePages = computed(() => {
 
 .data-list-wrapper {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.table-card {
+  flex: 0 0 auto;
 }
 
 .table-container {
-  max-height: calc(100vh - 280px);
+  max-height: calc(100vh - 320px);
   overflow-y: auto;
   overflow-x: auto;
+
+  :deep(.v-table) {
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      
+      tr {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        
+        th {
+          background: transparent !important;
+          color: white !important;
+          font-weight: 600 !important;
+          text-transform: uppercase;
+          font-size: 13px !important;
+          letter-spacing: 0.5px;
+          padding: 16px 12px !important;
+          border-bottom: none !important;
+        }
+      }
+    }
+
+    tbody tr {
+      &:hover {
+        background: rgba(102, 126, 234, 0.05) !important;
+      }
+    }
+  }
 }
 
 .pagination-controls {
+  flex: 0 0 auto;
+  margin-top: 0 !important;
   .pagination-info {
     color: $neomorphic-text;
     font-size: 14px;

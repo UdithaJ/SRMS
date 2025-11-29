@@ -124,6 +124,9 @@ import DataList from '@/components/DataList.vue';
 
 export default {
   name: 'SectionList',
+  components: {
+    DataList
+  },
   setup() {
     const { showToast } = useToast();
     const sections = ref([]);
