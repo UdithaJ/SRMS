@@ -34,19 +34,19 @@
     </DataList>
 
     <!-- Neumorphic Modal -->
-    <v-dialog v-model="showModal" max-width="700px">
-      <div class="neomorphic-modal">
-        <div class="modal-header pa-6">
+    <v-dialog v-model="showModal" max-width="650px">
+      <div class="neomorphic-modal elegant-modal">
+        <div class="modal-header">
           <h3 class="modal-title">{{ isEditMode ? 'Edit User' : 'Add User' }}</h3>
         </div>
-        <div class="modal-content pa-6">
+        <div class="modal-content">
           <UserForm v-model="modalUser" :is-edit-mode="isEditMode" :sections="sections" :modal-message="modalMessage" :modal-error="modalError" @role-change="onRoleChange" />
         </div>
 
-        <div class="modal-actions pa-6 d-flex justify-end">
+        <div class="modal-actions">
           <button class="neomorphic-btn mr-3" @click="closeModal" :disabled="modalLoading">Cancel</button>
           <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateUser() : addUser()" :disabled="modalLoading">
-            <v-progress-circular v-if="modalLoading" indeterminate size="20" width="2" class="mr-2"></v-progress-circular>
+            <v-progress-circular v-if="modalLoading" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
             {{ isEditMode ? 'Save' : 'Add' }}
           </button>
         </div>
@@ -266,4 +266,34 @@ onMounted(() => {
 
 <style scoped lang="scss">
 @import '@/assets/neomorphic.scss';
+
+.elegant-modal {
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+  
+  .modal-content {
+    padding: 24px;
+    max-height: calc(90vh - 160px);
+    overflow-y: auto;
+  }
+  
+  .modal-actions {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    
+    .neomorphic-btn {
+      padding: 10px 24px;
+      font-size: 14px;
+    }
+  }
+}
 </style>

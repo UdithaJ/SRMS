@@ -30,25 +30,33 @@
     />
 
     <!-- Add/Edit Dialog -->
-    <v-dialog v-model="showModal" max-width="800px">
-      <div class="neomorphic-modal">
-        <div class="modal-header pa-6">
+    <v-dialog v-model="showModal" max-width="750px">
+      <div class="neomorphic-modal elegant-modal">
+        <div class="modal-header">
           <h3 class="modal-title">{{ isEditMode ? 'Edit Section' : 'Add Section' }}</h3>
         </div>
-        <div class="modal-content pa-6">
+        <div class="modal-content">
           <v-form @submit.prevent="isEditMode ? updateSection() : addSection()">
             <v-row>
-              <v-col cols="12" sm="6">
+              <v-col cols="12">
                 <v-text-field
                   label="Section ID"
                   v-model="modalSection.sectionId"
                   :disabled="isEditMode"
+                  density="comfortable"
+                  hide-details="auto"
                   required
                 ></v-text-field>
               </v-col>
 
-              <v-col cols="12" sm="6">
-                <v-text-field label="Name" v-model="modalSection.name" required></v-text-field>
+              <v-col cols="12">
+                <v-text-field 
+                  label="Name" 
+                  v-model="modalSection.name" 
+                  density="comfortable"
+                  hide-details="auto"
+                  required
+                ></v-text-field>
               </v-col>
             </v-row>
 
@@ -87,7 +95,13 @@
 
             <v-row class="mt-3" align="center">
               <v-col cols="12" sm="8">
-                <v-text-field label="Requirement Name" v-model="reqForm.name" :disabled="reqLoading"></v-text-field>
+                <v-text-field 
+                  label="Requirement Name" 
+                  v-model="reqForm.name" 
+                  density="comfortable"
+                  hide-details="auto"
+                  :disabled="reqLoading"
+                ></v-text-field>
               </v-col>
               <v-col cols="12" sm="4">
                 <button class="neomorphic-btn neomorphic-btn-primary mr-2" @click="editingRequirement ? updateRequirement() : addRequirement()" :disabled="reqLoading">
@@ -104,10 +118,10 @@
           </div>
         </div>
 
-        <div class="modal-actions pa-6 d-flex justify-end">
+        <div class="modal-actions d-flex justify-end">
           <button class="neomorphic-btn mr-3" @click="closeModal" :disabled="modalLoading">Cancel</button>
           <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateSection() : addSection()" :disabled="modalLoading">
-            <v-progress-circular v-if="modalLoading" indeterminate size="20" width="2" class="mr-2"></v-progress-circular>
+            <v-progress-circular v-if="modalLoading" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
             {{ isEditMode ? 'Save' : 'Add' }}
           </button>
         </div>
@@ -396,5 +410,41 @@ export default {
 .requirements-scroll {
   max-height: 300px;
   overflow-y: auto;
+}
+
+.elegant-modal {
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .modal-content {
+    padding: 24px;
+    max-height: calc(85vh - 180px);
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 3px;
+
+      &:hover {
+        background: rgba(102, 126, 234, 0.5);
+      }
+    }
+  }
+
+  .modal-actions {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
 }
 </style>

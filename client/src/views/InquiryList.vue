@@ -42,12 +42,12 @@
     </DataList>
 
     <!-- Filter Modal -->
-    <v-dialog v-model="showFilterModal" max-width="600px">
-      <div class="neomorphic-modal">
-        <div class="modal-header pa-6">
+    <v-dialog v-model="showFilterModal" max-width="550px">
+      <div class="neomorphic-modal elegant-modal">
+        <div class="modal-header">
           <h3 class="modal-title">Filter Inquiries</h3>
         </div>
-        <div class="modal-content pa-6">
+        <div class="modal-content">
           <v-form>
             <v-row>
               <v-col cols="12">
@@ -60,8 +60,8 @@
                   clearable
                   multiple
                   chips
-                  hint="Select one or more statuses"
-                  persistent-hint
+                  density="comfortable"
+                  hide-details="auto"
                 ></v-select>
               </v-col>
               <v-col cols="12">
@@ -74,8 +74,8 @@
                   clearable
                   multiple
                   chips
-                  hint="Select one or more sections"
-                  persistent-hint
+                  density="comfortable"
+                  hide-details="auto"
                 ></v-select>
               </v-col>
               <v-col cols="12">
@@ -88,8 +88,8 @@
                   clearable
                   multiple
                   chips
-                  hint="Select one or more assignees"
-                  persistent-hint
+                  density="comfortable"
+                  hide-details="auto"
                 ></v-select>
               </v-col>
               <v-col cols="12">
@@ -100,14 +100,14 @@
                   clearable
                   multiple
                   chips
-                  hint="Select one or more acknowledgement statuses"
-                  persistent-hint
+                  density="comfortable"
+                  hide-details="auto"
                 ></v-select>
               </v-col>
             </v-row>
           </v-form>
         </div>
-        <div class="modal-actions pa-6 d-flex justify-space-between">
+        <div class="modal-actions">
           <button class="neomorphic-btn" @click="clearFilters">Clear All</button>
           <div>
             <button class="neomorphic-btn mr-3" @click="showFilterModal = false">Cancel</button>
@@ -118,12 +118,12 @@
     </v-dialog>
 
     <!-- Add/Edit Modal -->
-    <v-dialog v-model="showModal" max-width="800px">
-      <div class="neomorphic-modal">
-        <div class="modal-header pa-6">
+    <v-dialog v-model="showModal" max-width="750px">
+      <div class="neomorphic-modal elegant-modal">
+        <div class="modal-header">
           <h3 class="modal-title">{{ isEditMode ? 'Edit Inquiry' : 'Add Inquiry' }}</h3>
         </div>
-        <div class="modal-content pa-6">
+        <div class="modal-content">
           <v-form @submit.prevent="isEditMode ? updateInquiry() : addInquiry()">
             <v-row>
               <v-col cols="12" v-if="isEditMode && assigneeInfo">
@@ -144,13 +144,13 @@
                 </div>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field label="First Name" v-model="modalInquiry.firstName" required></v-text-field>
+                <v-text-field label="First Name" v-model="modalInquiry.firstName" density="comfortable" hide-details="auto" required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field label="Last Name" v-model="modalInquiry.lastName" required></v-text-field>
+                <v-text-field label="Last Name" v-model="modalInquiry.lastName" density="comfortable" hide-details="auto" required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field label="NIC" v-model="modalInquiry.nic" required></v-text-field>
+                <v-text-field label="NIC" v-model="modalInquiry.nic" density="comfortable" hide-details="auto" required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select
@@ -159,7 +159,9 @@
                   item-value="_id"
                   label="Section"
                   v-model="selectedSectionId"
-                  @change="onSectionChange"
+                  @update:modelValue="onSectionChange"
+                  density="comfortable"
+                  hide-details="auto"
                   required
                 ></v-select>
               </v-col>
@@ -170,6 +172,9 @@
                   item-value="_id"
                   label="Requirement"
                   v-model="modalInquiry.requirement"
+                  density="comfortable"
+                  hide-details="auto"
+                  :key="selectedSectionId"
                   required
                 ></v-select>
               </v-col>
@@ -180,6 +185,8 @@
                   v-model="modalInquiry.rating"
                   min="1"
                   max="5"
+                  density="comfortable"
+                  hide-details="auto"
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
@@ -189,6 +196,8 @@
                   item-value="_id"
                   label="Assignee"
                   v-model="modalInquiry.assignee"
+                  density="comfortable"
+                  hide-details="auto"
                   required
                 ></v-select>
               </v-col>
@@ -202,10 +211,12 @@
                   label="Acknowledgement"
                   v-model="modalInquiry.acknowledgement"
                   :disabled="!canAcknowledge"
+                  density="comfortable"
+                  hide-details="auto"
                 ></v-select>
               </v-col>
               <v-col cols="12">
-                <v-textarea label="Notes" v-model="modalInquiry.notes"></v-textarea>
+                <v-textarea label="Notes" v-model="modalInquiry.notes" density="comfortable" hide-details="auto"></v-textarea>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select
@@ -214,20 +225,22 @@
                   v-model="modalInquiry.status"
                   item-title="title"
                   item-value="value"
+                  density="comfortable"
+                  hide-details="auto"
                   required
                 ></v-select>
               </v-col>
             </v-row>
-            <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="neomorphic-alert mt-2">
+            <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="neomorphic-alert mt-3" density="compact">
               {{ modalMessage }}
             </v-alert>
           </v-form>
         </div>
 
-        <div class="modal-actions pa-6 d-flex justify-end">
+        <div class="modal-actions">
           <button class="neomorphic-btn mr-3" @click="closeModal" :disabled="modalLoading">Cancel</button>
           <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateInquiry() : addInquiry()" :disabled="modalLoading">
-            <v-progress-circular v-if="modalLoading" indeterminate size="20" width="2" class="mr-2"></v-progress-circular>
+            <v-progress-circular v-if="modalLoading" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
             {{ isEditMode ? 'Save' : 'Add' }}
           </button>
         </div>
@@ -499,7 +512,9 @@ export default {
     }
 
     const onSectionChange = () => {
-      modalInquiry.value.requirement = filteredRequirements.value[0]?._id || ''
+      // Reset requirement to first available requirement for the selected section
+      const firstReq = filteredRequirements.value[0]
+      modalInquiry.value.requirement = firstReq?._id || ''
     }
 
     const openAddModal = async () => {
@@ -724,6 +739,36 @@ export default {
     
     :deep(.v-chip__content) {
       color: white;
+    }
+  }
+}
+
+.elegant-modal {
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+  
+  .modal-content {
+    padding: 24px;
+    max-height: calc(90vh - 160px);
+    overflow-y: auto;
+  }
+  
+  .modal-actions {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    
+    .neomorphic-btn {
+      padding: 10px 24px;
+      font-size: 14px;
     }
   }
 }

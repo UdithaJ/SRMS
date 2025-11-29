@@ -211,7 +211,7 @@ const visiblePages = computed(() => {
     
     thead {
       tr {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        background: linear-gradient(135deg, #2e084e 0%, #30038b 100%) !important;
         
         th {
           color: white !important;

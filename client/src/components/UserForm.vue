@@ -3,16 +3,28 @@
     <v-form>
       <v-row>
         <v-col cols="12" sm="6">
-          <v-text-field label="First Name" v-model="firstName"></v-text-field>
+          <v-text-field label="First Name" v-model="firstName" density="comfortable" hide-details="auto"></v-text-field>
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="Last Name" v-model="lastName"></v-text-field>
+          <v-text-field label="Last Name" v-model="lastName" density="comfortable" hide-details="auto"></v-text-field>
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="User Name" v-model="userName"></v-text-field>
+          <v-text-field label="User Name" v-model="userName" density="comfortable" hide-details="auto"></v-text-field>
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="Reference No" v-model="referenceNo"></v-text-field>
+          <v-text-field label="Reference No" v-model="referenceNo" density="comfortable" hide-details="auto"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="6">
+          <v-select :items="roles" item-title="label" item-value="value" label="User Role" v-model="userRole" density="comfortable" hide-details="auto"></v-select>
+        </v-col>
+
+        <v-col cols="12" sm="6" v-if="userRole === 'section staff'">
+          <v-select :items="sections" item-title="name" item-value="_id" label="Section" v-model="section" density="comfortable" hide-details="auto"></v-select>
+        </v-col>
+
+        <v-col cols="12" sm="6">
+          <v-text-field label="Password" v-model="password" type="password" density="comfortable" hide-details="auto" :placeholder="isEditMode ? 'Leave blank to keep current password' : ''"></v-text-field>
         </v-col>
 
         <v-col cols="12" sm="6">
@@ -21,6 +33,7 @@
             accept="image/png, image/jpeg"
             label="Profile Image"
             prepend-icon="mdi-image"
+            density="comfortable"
             :error="!!imageError"
             :error-messages="imageError ? [imageError] : []"
             hint="PNG or JPEG, up to 1MB"
@@ -30,28 +43,16 @@
         </v-col>
 
         <v-col cols="12" sm="6">
-          <div class="d-flex align-center">
-            <v-avatar size="80" class="mr-4">
+          <div class="d-flex align-center" style="height: 100%;">
+            <v-avatar size="64" class="mr-3">
               <v-img :src="profileImagePreview" />
             </v-avatar>
-            <div class="text-caption">Image Preview</div>
+            <div class="text-caption text-grey">Preview</div>
           </div>
-        </v-col>
-
-        <v-col cols="12" sm="6">
-          <v-select :items="roles" item-title="label" item-value="value" label="User Role" v-model="userRole"></v-select>
-        </v-col>
-
-        <v-col cols="12" sm="6" v-if="userRole === 'section staff'">
-          <v-select :items="sections" item-title="name" item-value="_id" label="Section" v-model="section"></v-select>
-        </v-col>
-
-        <v-col cols="12" sm="6">
-          <v-text-field label="Password" v-model="password" type="password" :placeholder="isEditMode ? 'Leave blank to keep current password' : ''"></v-text-field>
         </v-col>
       </v-row>
 
-      <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="mt-2">{{ modalMessage }}</v-alert>
+      <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="mt-3" density="compact">{{ modalMessage }}</v-alert>
     </v-form>
   </div>
 </template>
