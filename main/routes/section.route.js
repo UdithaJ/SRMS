@@ -27,7 +27,19 @@ router.post('/', async (req, res) => {
 // Get all sections WITH linked requirements
 router.get('/', async (req, res) => {
   try {
-    const sections = await Section.find();
+    // Extract query parameters for pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10; // default 10
+    const skip = (page - 1) * limit;
+
+    // Count total documents for pagination metadata
+    const totalCount = await Section.countDocuments();
+
+    // Fetch sections with pagination
+    const sections = await Section.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     const result = await Promise.all(
       sections.map(async (sec) => {
@@ -39,7 +51,15 @@ router.get('/', async (req, res) => {
       })
     );
 
-    res.json(result);
+    res.json({
+      sections: result,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        pages: Math.ceil(totalCount / limit)
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

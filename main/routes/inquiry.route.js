@@ -45,8 +45,8 @@ router.get('/', async (req, res) => {
     
     // Extract query parameters for pagination and filtering
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 0; // 0 means no limit (fetch all)
-    const skip = limit > 0 ? (page - 1) * limit : 0;
+    const limit = parseInt(req.query.limit) || 10; // default 10
+    const skip = (page - 1) * limit;
     
     // Extract filter parameters
     const { status, section, assignee, acknowledgement } = req.query;
@@ -164,7 +164,7 @@ router.get('/', async (req, res) => {
         page,
         limit,
         total: totalCount,
-        pages: limit > 0 ? Math.ceil(totalCount / limit) : 1
+        pages: Math.ceil(totalCount / limit)
       }
     });
   } catch (err) {

@@ -19,39 +19,19 @@
     <v-alert v-if="error" type="error" class="neomorphic-alert mb-3">{{ error }}</v-alert>
 
     <!-- Table Card with Neumorphism -->
-    <div class="neomorphic-card table-card">
-      <v-data-table 
-        :headers="tableHeaders" 
-        :items="users" 
-        :items-per-page="10"
-        class="neomorphic-table compact-table w-100"
-        density="compact">
-        <template #item="{ item }">
-          <tr class="table-row">
-            <td class="table-cell">{{ item.firstName }}</td>
-            <td class="table-cell">{{ item.lastName }}</td>
-            <td class="table-cell">{{ item.userName }}</td>
-            <td class="table-cell">{{ item.referenceNo }}</td>
-            <td class="table-cell">
-              <span class="role-badge">{{ getRoleLabel(item.userRole) }}</span>
-            </td>
-            <td class="table-cell">{{ item.userRole === 'section staff' ? getSectionName(item.section) : '-' }}</td>
-            <td class="table-cell text-right">
-              <button class="neomorphic-btn-small" @click="openEditModal(item)" title="Edit">
-                <v-icon size="18" color="#667eea">mdi-pencil</v-icon>
-              </button>
-            </td>
-          </tr>
-        </template>
-
-        <template #no-data>
-          <div class="pa-8 text-center text-grey">
-            <v-icon size="48" color="grey-lighten-1">mdi-account-off-outline</v-icon>
-            <p class="mt-2">No users found.</p>
-          </div>
-        </template>
-      </v-data-table>
-    </div>
+    <DataList
+      :headers="tableHeaders"
+      :items="tableItems"
+      :pagination="pagination"
+      no-data-icon="mdi-account-off-outline"
+      no-data-text="No users found."
+      @edit="openEditModal"
+      @page-change="handlePageChange"
+    >
+      <template #[`item.userRoleLabel`]="{ value }">
+        <span class="role-badge">{{ value }}</span>
+      </template>
+    </DataList>
 
     <!-- Neumorphic Modal -->
     <v-dialog v-model="showModal" max-width="700px">
@@ -81,6 +61,7 @@ import { http, invalidateCache } from '@/api/http'
 import { useToast } from '@/composables/useToast'
 import { getRoleLabel } from '@/utils/constants'
 import UserForm from '../components/UserForm.vue'
+import DataList from '../components/DataList.vue'
 
 const { showToast } = useToast()
 
@@ -88,14 +69,13 @@ const users = ref([])
 const sections = ref([]) // store the sections list
 const loading = ref(false)
 const error = ref('')
-const viewportHeight = ref(window.innerHeight)
-
-const ROW_HEIGHT = 36
-const HEADER_HEIGHT = 52
-const VERTICAL_PADDING = 64
-
-const updateViewport = () => { viewportHeight.value = window.innerHeight }
-window.addEventListener('resize', updateViewport)
+const currentPage = ref(1)
+const pagination = ref({
+  page: 1,
+  limit: 10,
+  total: 0,
+  pages: 0
+})
 
 // table headers for Vuetify v-data-table
 const tableHeaders = [
@@ -103,8 +83,8 @@ const tableHeaders = [
   { title: 'Last Name', value: 'lastName' },
   { title: 'User Name', value: 'userName' },
   { title: 'Reference No', value: 'referenceNo' },
-  { title: 'User Role', value: 'userRole' },
-  { title: 'Section', value: 'section' },
+  { title: 'User Role', value: 'userRoleLabel' },
+  { title: 'Section', value: 'sectionName' },
   { title: 'Actions', value: 'actions', sortable: false }
 ]
 
@@ -133,14 +113,20 @@ const fetchUsers = async (forceRefresh = false) => {
     // Clear cache if force refresh
     if (forceRefresh) {
       invalidateCache('/api/auth/users')
+      currentPage.value = 1
     }
     
     const res = await http.get('/api/auth/users', {
-      params: { exclude: 'profileImage' },
+      params: { 
+        exclude: 'profileImage',
+        page: currentPage.value,
+        limit: 10
+      },
       cacheTTL: 180000, // Cache for 3 minutes
       useCache: !forceRefresh // Bypass cache if force refresh
     })
-    users.value = res.data
+    users.value = res.data.users || []
+    pagination.value = res.data.pagination || { page: 1, limit: 10, total: 0, pages: 0 }
   } catch (err) {
     error.value = err.response?.data?.message || 'Failed to fetch users'
   } finally {
@@ -148,13 +134,20 @@ const fetchUsers = async (forceRefresh = false) => {
   }
 }
 
+// Handle page change
+const handlePageChange = (page) => {
+  currentPage.value = page
+  fetchUsers()
+}
+
 // Fetch sections from API
 const fetchSections = async () => {
   try {
     const res = await http.get('/api/sections', {
+      params: { limit: 1000 }, // Fetch all sections for dropdown
       cacheTTL: 300000 // Cache for 5 minutes
     })
-    sections.value = res.data
+    sections.value = res.data.sections || res.data || []
   } catch (err) {
     console.error('Failed to fetch sections', err)
   }
@@ -255,20 +248,18 @@ const closeModal = () => {
   modalError.value = false
 }
 
-const computedTableHeight = computed(() => {
-  const rows = users.value.length
-  const desired = rows * ROW_HEIGHT + HEADER_HEIGHT
-  const maxAvailable = viewportHeight.value - VERTICAL_PADDING
-  return Math.min(Math.max(desired, 120), maxAvailable)
+// Computed items for DataList
+const tableItems = computed(() => {
+  return users.value.map(user => ({
+    ...user,
+    userRoleLabel: getRoleLabel(user.userRole),
+    sectionName: user.userRole === 'section staff' ? getSectionName(user.section) : '-'
+  }))
 })
 
 onMounted(() => {
   fetchUsers()
   fetchSections()
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateViewport)
 })
 
 </script>

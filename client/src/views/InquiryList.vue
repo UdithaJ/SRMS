@@ -25,42 +25,21 @@
     <v-alert v-if="error" type="error" class="neomorphic-alert mb-3">{{ error }}</v-alert>
 
     <!-- Table Card with Neumorphism -->
-    <div class="neomorphic-card table-card">
-      <v-data-table
-        :headers="tableHeaders"
-        :items="tableItems"
-        :items-per-page="10"
-        class="neomorphic-table compact-table w-100"
-        density="compact"
-      >
-        <template #item="{ item }">
-          <tr class="table-row">
-            <td class="table-cell">{{ item.inquiryId }}</td>
-            <td class="table-cell">{{ item.fullName }}</td>
-            <td class="table-cell">{{ item.nic }}</td>
-            <td class="table-cell">{{ item.section }}</td>
-            <td class="table-cell">{{ item.assigneeName }}</td>
-            <td class="table-cell">
-              <v-chip :color="getStatusColor(item.status)" size="small" class="status-chip">
-                {{ statusOptions[item.status] || item.status }}
-              </v-chip>
-            </td>
-            <td class="table-cell text-right">
-              <button class="neomorphic-btn-small" @click="openEditModal(item)" title="Edit">
-                <v-icon size="18" color="#667eea">mdi-pencil</v-icon>
-              </button>
-            </td>
-          </tr>
-        </template>
-
-        <template #no-data>
-          <div class="pa-8 text-center text-grey">
-            <v-icon size="48" color="grey-lighten-1">mdi-file-document-outline</v-icon>
-            <p class="mt-2">No inquiries found.</p>
-          </div>
-        </template>
-      </v-data-table>
-    </div>
+    <DataList
+      :headers="tableHeaders"
+      :items="tableItems"
+      :pagination="pagination"
+      no-data-icon="mdi-file-document-outline"
+      no-data-text="No inquiries found."
+      @edit="openEditModal"
+      @page-change="handlePageChange"
+    >
+      <template #[`item.status`]="{ item }">
+        <v-chip :color="getStatusColor(item.status)" size="small" class="status-chip">
+          {{ statusOptions[item.status] || item.status }}
+        </v-chip>
+      </template>
+    </DataList>
 
     <!-- Filter Modal -->
     <v-dialog v-model="showFilterModal" max-width="600px">
@@ -259,12 +238,16 @@
 
 <script>
 import { http, invalidateCache } from '@/api/http'
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@/composables/useToast'
+import DataList from '@/components/DataList.vue'
 
 export default {
   name: 'InquiryList',
+  components: {
+    DataList
+  },
   setup() {
     const { showToast } = useToast()
     const inquiries = ref([])
@@ -285,8 +268,13 @@ export default {
     const modalMessage = ref('')
     const modalError = ref(false)
     const modalLoading = ref(false)
-    const page = ref(1)
-    const viewportHeight = ref(window.innerHeight)
+    const currentPage = ref(1)
+    const pagination = ref({
+      page: 1,
+      limit: 10,
+      total: 0,
+      pages: 0
+    })
 
     // Filter state
     const showFilterModal = ref(false)
@@ -296,13 +284,6 @@ export default {
       assignee: [],
       acknowledgement: []
     })
-
-    const ROW_HEIGHT = 36 // approximate compact row height
-    const HEADER_HEIGHT = 52
-    const VERTICAL_PADDING = 64 // toolbar + container padding + alerts etc
-
-    const updateViewport = () => { viewportHeight.value = window.innerHeight }
-    window.addEventListener('resize', updateViewport)
 
     const statusOptions = {
       1: 'Processing',
@@ -441,18 +422,13 @@ export default {
       return count
     })
 
-    const computedTableHeight = computed(() => {
-      const rows = tableItems.value.length
-      const desired = rows * ROW_HEIGHT + HEADER_HEIGHT
-      const maxAvailable = viewportHeight.value - VERTICAL_PADDING
-      return Math.min(Math.max(desired, 120), maxAvailable)
-    })
-
     const fetchSections = async () => {
       try { 
-        sections.value = (await http.get('/api/sections', {
+        const res = await http.get('/api/sections', {
+          params: { limit: 1000 }, // Fetch all sections for dropdown
           cacheTTL: 300000 // Cache for 5 minutes
-        })).data 
+        })
+        sections.value = res.data.sections || res.data || []
       } 
       catch (err) { console.error(err) }
     }
@@ -460,10 +436,14 @@ export default {
     const fetchUsers = async () => {
       try { 
         // Fetch users without profileImage for dropdown selection
-        users.value = (await http.get('/api/auth/users', {
-          params: { exclude: 'profileImage' },
+        const res = await http.get('/api/auth/users', {
+          params: { 
+            exclude: 'profileImage',
+            limit: 1000 // Fetch all users for dropdown
+          },
           cacheTTL: 300000 // Cache for 5 minutes
-        })).data 
+        })
+        users.value = res.data.users || res.data || []
       } 
       catch (err) { console.error(err) }
     }
@@ -474,10 +454,14 @@ export default {
         // Clear cache if force refresh
         if (forceRefresh) {
           invalidateCache('/api/inquiries')
+          currentPage.value = 1
         }
         
-        // Build query parameters for filters
-        const params = {};
+        // Build query parameters for filters and pagination
+        const params = {
+          page: currentPage.value,
+          limit: 10
+        };
         
         if (filters.value.status && filters.value.status.length > 0) {
           params.status = filters.value.status.join(',');
@@ -503,9 +487,15 @@ export default {
         
         // Response now includes populated assignee and section data
         inquiries.value = response.data.inquiries || [];
+        pagination.value = response.data.pagination || { page: 1, limit: 10, total: 0, pages: 0 };
       } 
       catch (err) { error.value = err.response?.data?.message || 'Failed to load inquiries' } 
       finally { loading.value = false }
+    }
+
+    const handlePageChange = (page) => {
+      currentPage.value = page
+      fetchInquiries()
     }
 
     const onSectionChange = () => {
@@ -601,6 +591,7 @@ export default {
 
     const applyFilters = () => {
       showFilterModal.value = false
+      currentPage.value = 1 // Reset to first page when applying filters
       // Invalidate cache when applying filters to force fresh data
       invalidateCache('/api/inquiries')
       fetchInquiries() // Refetch with new filters
@@ -613,6 +604,7 @@ export default {
         assignee: [],
         acknowledgement: []
       }
+      currentPage.value = 1 // Reset to first page when clearing filters
       // Invalidate cache when clearing filters to force fresh data
       invalidateCache('/api/inquiries')
       fetchInquiries() // Refetch without filters
@@ -630,10 +622,9 @@ export default {
       // Sections and users will be lazy loaded when modals are opened
       fetchInquiries() 
     })
-    onBeforeUnmount(() => { window.removeEventListener('resize', updateViewport) })
 
     return {
-      tableHeaders, tableItems, page, statusOptions, getStatusColor,
+      tableHeaders, tableItems, statusOptions, getStatusColor,
       openAddModal, openEditModal, fetchInquiries, loading, error,
       sections, selectedSectionId, filteredRequirements, onSectionChange,
       modalInquiry, showModal, isEditMode, modalMessage, modalError,
@@ -642,7 +633,6 @@ export default {
       canAcknowledge,
       itemStatus,
       itemActions,
-      computedTableHeight,
       showFilterModal,
       openFilterModal,
       filters,
@@ -650,7 +640,9 @@ export default {
       clearFilters,
       activeFilterCount,
       assigneeInfo,
-      modalLoading
+      modalLoading,
+      pagination,
+      handlePageChange
     }
   }
 }

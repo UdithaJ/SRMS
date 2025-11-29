@@ -87,6 +87,11 @@ router.post('/change-password', async (req, res) => {
 // Get all users
 router.get('/users', async (req, res) => {
   try {
+    // Extract query parameters for pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10; // default 10
+    const skip = (page - 1) * limit;
+
     // Support exclude query param: /users?exclude=profileImage
     const excludeFields = req.query.exclude ? req.query.exclude.split(',') : [];
     let selectFields = '-password'; // always exclude password
@@ -96,9 +101,25 @@ router.get('/users', async (req, res) => {
         selectFields += ` -${field}`;
       });
     }
+
+    // Count total documents for pagination metadata
+    const totalCount = await User.countDocuments();
     
-    const users = await User.find().select(selectFields);
-    res.json(users);
+    const users = await User.find()
+      .select(selectFields)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+    
+    res.json({
+      users,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        pages: Math.ceil(totalCount / limit)
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

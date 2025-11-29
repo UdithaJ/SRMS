@@ -19,34 +19,15 @@
     <v-alert v-if="error" type="error" class="neomorphic-alert mb-3">{{ error }}</v-alert>
 
     <!-- Table Card with Neumorphism -->
-    <div class="neomorphic-card table-card">
-      <v-data-table
-        :headers="tableHeaders"
-        :items="sections"
-        :items-per-page="10"
-        class="neomorphic-table compact-table w-100"
-        density="compact"
-      >
-        <template #item="{ item }">
-          <tr class="table-row">
-            <td class="table-cell">{{ item.sectionId }}</td>
-            <td class="table-cell">{{ item.name }}</td>
-            <td class="table-cell text-right">
-              <button class="neomorphic-btn-small" @click="openEditModal(item)" title="Edit">
-                <v-icon size="18" color="#667eea">mdi-pencil</v-icon>
-              </button>
-            </td>
-          </tr>
-        </template>
-
-        <template v-slot:no-data>
-          <div class="pa-8 text-center text-grey">
-            <v-icon size="48" color="grey-lighten-1">mdi-folder-outline</v-icon>
-            <p class="mt-2">No sections found.</p>
-          </div>
-        </template>
-      </v-data-table>
-    </div>
+    <DataList
+      :headers="tableHeaders"
+      :items="tableItems"
+      :pagination="pagination"
+      no-data-icon="mdi-folder-outline"
+      no-data-text="No sections found."
+      @edit="openEditModal"
+      @page-change="handlePageChange"
+    />
 
     <!-- Add/Edit Dialog -->
     <v-dialog v-model="showModal" max-width="800px">
@@ -137,8 +118,9 @@
 
 <script>
 import { http, invalidateCache } from '@/api/http';
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useToast } from '@/composables/useToast';
+import DataList from '@/components/DataList.vue';
 
 export default {
   name: 'SectionList',
@@ -147,14 +129,13 @@ export default {
     const sections = ref([]);
     const loading = ref(false);
     const error = ref('');
-    const viewportHeight = ref(window.innerHeight);
-
-    const ROW_HEIGHT = 36;
-    const HEADER_HEIGHT = 52;
-    const VERTICAL_PADDING = 64;
-
-    const updateViewport = () => { viewportHeight.value = window.innerHeight };
-    window.addEventListener('resize', updateViewport);
+    const currentPage = ref(1);
+    const pagination = ref({
+      page: 1,
+      limit: 10,
+      total: 0,
+      pages: 0
+    });
 
     // table headers for sections
     const tableHeaders = [
@@ -190,18 +171,30 @@ export default {
         // Clear cache if force refresh
         if (forceRefresh) {
           invalidateCache('/api/sections');
+          currentPage.value = 1;
         }
         
         const response = await http.get('/api/sections', {
+          params: {
+            page: currentPage.value,
+            limit: 10
+          },
           cacheTTL: 300000, // Cache for 5 minutes
           useCache: !forceRefresh // Bypass cache if force refresh
         });
-        sections.value = response.data;
+        sections.value = response.data.sections || [];
+        pagination.value = response.data.pagination || { page: 1, limit: 10, total: 0, pages: 0 };
       } catch (err) {
         error.value = err.response?.data?.message || 'Failed to load sections';
       } finally {
         loading.value = false;
       }
+    };
+
+    /* ---------------------- PAGE CHANGE ---------------------- */
+    const handlePageChange = (page) => {
+      currentPage.value = page;
+      fetchSections();
     };
 
     /* ---------------------- FETCH REQUIREMENTS ---------------------- */
@@ -349,18 +342,13 @@ export default {
       }
     };
 
-    const computedTableHeight = computed(() => {
-      const rows = sections.value.length;
-      const desired = rows * ROW_HEIGHT + HEADER_HEIGHT;
-      const maxAvailable = viewportHeight.value - VERTICAL_PADDING;
-      return Math.min(Math.max(desired, 120), maxAvailable);
+    const tableItems = computed(() => {
+      return sections.value.map(section => ({
+        ...section
+      }));
     });
 
     onMounted(fetchSections);
-
-    onBeforeUnmount(() => {
-      window.removeEventListener('resize', updateViewport);
-    });
 
     return {
       tableHeaders,
@@ -391,7 +379,9 @@ export default {
       updateRequirement,
       deleteRequirement,
       cancelRequirementEdit,
-      computedTableHeight,
+      tableItems,
+      pagination,
+      handlePageChange,
     };
   },
 };
