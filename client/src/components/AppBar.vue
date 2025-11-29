@@ -22,6 +22,17 @@
       <v-spacer />
       
       <v-btn 
+        v-show="false"
+        icon
+        class="seasonal-btn mr-2"
+        :class="{ 'seasonal-active': seasonalTheme }"
+        @click="toggleSeasonalTheme(!seasonalTheme)"
+        title="Toggle Seasonal Theme"
+      >
+        <v-icon>mdi-snowflake</v-icon>
+      </v-btn>
+      
+      <v-btn 
         variant="text" 
         class="logout-btn"
         @click="logout"
@@ -37,12 +48,29 @@
 import { useDisplay } from 'vuetify'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { ref, onMounted } from 'vue'
 
 const display = useDisplay()
 const router = useRouter()
 const userStore = useUserStore()
 
 const emit = defineEmits(['toggle-drawer'])
+
+const seasonalTheme = ref(false)
+
+onMounted(() => {
+  // Load saved preference from localStorage
+  const saved = localStorage.getItem('seasonalTheme')
+  seasonalTheme.value = saved === 'true'
+  // Dispatch event on mount to sync with App.vue
+  window.dispatchEvent(new CustomEvent('seasonal-theme-changed', { detail: seasonalTheme.value }))
+})
+
+const toggleSeasonalTheme = (value) => {
+  seasonalTheme.value = value
+  localStorage.setItem('seasonalTheme', value.toString())
+  window.dispatchEvent(new CustomEvent('seasonal-theme-changed', { detail: value }))
+}
 
 const toggleDrawer = () => {
   emit('toggle-drawer')
@@ -181,6 +209,42 @@ const logout = () => {
       }
     }
   }
+  
+  .seasonal-btn {
+    background: rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.3s ease;
+    
+    .v-icon {
+      color: rgba(255, 255, 255, 0.5) !important;
+      transition: all 0.3s ease;
+    }
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.08) !important;
+      
+      .v-icon {
+        color: rgba(91, 147, 255, 0.8) !important;
+        transform: rotate(15deg);
+      }
+    }
+    
+    &.seasonal-active {
+      background: rgba(91, 147, 255, 0.2) !important;
+      box-shadow: 0 0 20px rgba(91, 147, 255, 0.4),
+                  inset 0 0 20px rgba(91, 147, 255, 0.2);
+      
+      .v-icon {
+        color: #5B93FF !important;
+        animation: snowflakeRotate 3s linear infinite;
+      }
+      
+      &:hover {
+        background: rgba(91, 147, 255, 0.25) !important;
+        box-shadow: 0 0 25px rgba(91, 147, 255, 0.5),
+                    inset 0 0 20px rgba(91, 147, 255, 0.3);
+      }
+    }
+  }
 }
 
 @keyframes electricSweep {
@@ -189,6 +253,15 @@ const logout = () => {
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+@keyframes snowflakeRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 </style>

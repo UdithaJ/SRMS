@@ -1,14 +1,61 @@
 <script setup>
 import { RouterView, useRoute } from 'vue-router'
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import SideBar from '@/components/SideBar.vue'
 import AppBar from '@/components/AppBar.vue'
 import { useToast } from '@/composables/useToast'
+import { getCurrentSeason, getSeasonConfig } from '@/effects'
 
 const route = useRoute()
 
 // show sidebar only for app routes (e.g. /app/*)
 const showSidebar = computed(() => route.path.startsWith('/app'))
+
+// Seasonal theme state
+const seasonalThemeEnabled = ref(false)
+const currentSeason = ref(getCurrentSeason())
+const seasonConfig = computed(() => getSeasonConfig(currentSeason.value))
+
+const handleSeasonalThemeChange = (event) => {
+  seasonalThemeEnabled.value = event.detail
+}
+
+const getParticleStyle = (index) => {
+  const effect = seasonConfig.value.effect
+  const positions = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95]
+  const position = positions[index % positions.length] || (index * 5) % 100
+  
+  return {
+    '--left': `${position}%`,
+    '--duration': `${effect.durations[index % effect.durations.length]}s`,
+    '--delay': `${effect.delays[index % effect.delays.length]}s`,
+    '--size': `${effect.sizes[index % effect.sizes.length]}px`,
+    '--animation': effect.animation,
+    animationName: effect.animation
+  }
+}
+
+onMounted(() => {
+  // Load saved preference
+  const saved = localStorage.getItem('seasonalTheme')
+  seasonalThemeEnabled.value = saved === 'true'
+  
+  // Listen for theme changes
+  window.addEventListener('seasonal-theme-changed', handleSeasonalThemeChange)
+  
+  // Inject seasonal animation styles
+  const styleId = 'seasonal-animations'
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style')
+    style.id = styleId
+    style.textContent = seasonConfig.value.animation
+    document.head.appendChild(style)
+  }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('seasonal-theme-changed', handleSeasonalThemeChange)
+})
 
 // Toast notification
 const { show, message, type, timeout, hideToast } = useToast()
@@ -26,6 +73,18 @@ const getToastColor = computed(() => {
 
 <template>
   <v-app>
+    <!-- Seasonal effect overlay (only when seasonal theme is enabled) -->
+    <div v-if="seasonalThemeEnabled" class="seasonal-container">
+      <div 
+        class="particle" 
+        v-for="n in seasonConfig.effect.particleCount" 
+        :key="n"
+        :style="getParticleStyle(n)"
+      >
+        {{ seasonConfig.effect.particle }}
+      </div>
+    </div>
+    
     <SideBar v-if="showSidebar" />
     <AppBar v-if="showSidebar" />
     <v-main class="pt-2">
@@ -197,5 +256,31 @@ nav a:first-of-type {
     padding: 1rem 0;
     margin-top: 1rem;
   }
+}
+
+/* Seasonal Effect */
+.seasonal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  top: -10px;
+  left: var(--left, 50%);
+  font-size: var(--size, 14px);
+  font-family: Arial, sans-serif;
+  opacity: 0.8;
+  animation-duration: var(--duration, 10s);
+  animation-delay: var(--delay, 0s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
 }
 </style>
