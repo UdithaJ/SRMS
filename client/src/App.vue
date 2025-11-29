@@ -4,9 +4,11 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 import SideBar from '@/components/SideBar.vue'
 import AppBar from '@/components/AppBar.vue'
 import { useToast } from '@/composables/useToast'
+import { useThemeStore } from '@/stores/theme'
 import { getCurrentSeason, getSeasonConfig } from '@/effects'
 
 const route = useRoute()
+const themeStore = useThemeStore()
 
 // show sidebar only for app routes (e.g. /app/*)
 const showSidebar = computed(() => route.path.startsWith('/app'))
@@ -35,7 +37,10 @@ const getParticleStyle = (index) => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // Load theme from store
+  await themeStore.loadTheme()
+  
   // Load saved preference
   const saved = localStorage.getItem('seasonalTheme')
   seasonalThemeEnabled.value = saved === 'true'
@@ -139,12 +144,11 @@ header {
 }
 
 .app-footer {
-  background: linear-gradient(145deg, #e8e8e8, #ffffff);
+  background: var(--footer-bg);
   border-top: none;
-  box-shadow: 
-    0 -4px 12px rgba(0, 0, 0, 0.05),
-    inset 0 2px 4px rgba(255, 255, 255, 0.9);
+  box-shadow: var(--footer-shadow);
   padding: 12px 24px;
+  transition: all 0.3s ease;
   
   .footer-content {
     display: flex;
@@ -153,7 +157,7 @@ header {
     gap: 24px;
     width: 100%;
     font-size: 13px;
-    color: #5a5a5a;
+    color: var(--footer-text);
     font-weight: 500;
   }
   
@@ -165,20 +169,14 @@ header {
   }
   
   .footer-icon {
-    color: #7a7a7a;
+    color: var(--footer-icon);
     opacity: 0.8;
   }
   
   .footer-divider {
     width: 1px;
     height: 20px;
-    background: linear-gradient(
-      to bottom,
-      transparent,
-      rgba(0, 0, 0, 0.15) 20%,
-      rgba(0, 0, 0, 0.15) 80%,
-      transparent
-    );
+    background: var(--footer-divider);
   }
   
   @media (max-width: 768px) {

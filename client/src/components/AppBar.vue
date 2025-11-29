@@ -22,6 +22,15 @@
       <v-spacer />
       
       <v-btn 
+        icon
+        class="theme-toggle-btn mr-2"
+        @click="toggleTheme"
+        :title="isDarkTheme ? 'Switch to Light Theme' : 'Switch to Dark Theme'"
+      >
+        <v-icon>{{ isDarkTheme ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent' }}</v-icon>
+      </v-btn>
+      
+      <v-btn 
         v-show="false"
         icon
         class="seasonal-btn mr-2"
@@ -48,15 +57,19 @@
 import { useDisplay } from 'vuetify'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { ref, onMounted } from 'vue'
+import { useThemeStore } from '@/stores/theme'
+import { ref, onMounted, computed } from 'vue'
 
 const display = useDisplay()
 const router = useRouter()
 const userStore = useUserStore()
+const themeStore = useThemeStore()
 
 const emit = defineEmits(['toggle-drawer'])
 
 const seasonalTheme = ref(false)
+
+const isDarkTheme = computed(() => themeStore.isDark)
 
 onMounted(() => {
   // Load saved preference from localStorage
@@ -70,6 +83,10 @@ const toggleSeasonalTheme = (value) => {
   seasonalTheme.value = value
   localStorage.setItem('seasonalTheme', value.toString())
   window.dispatchEvent(new CustomEvent('seasonal-theme-changed', { detail: value }))
+}
+
+const toggleTheme = () => {
+  themeStore.toggleTheme()
 }
 
 const toggleDrawer = () => {
@@ -88,13 +105,14 @@ const logout = () => {
 }
 
 .modern-app-bar {
-  background: linear-gradient(135deg, #2D2640 0%, #1F1B2E 100%) !important;
+  background: var(--app-bar-color) !important;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0 !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
               0 0 40px rgba(91, 147, 255, 0.1) !important;
   margin: 0 auto;
   max-width: calc(100% - 32px);
+  transition: background 0.3s ease;
   
   &::before {
     content: '';
@@ -178,6 +196,26 @@ const logout = () => {
       
       .v-icon {
         color: #5B93FF !important;
+      }
+    }
+  }
+  
+  .theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.3s ease;
+    
+    .v-icon {
+      color: rgba(255, 255, 255, 0.7) !important;
+      transition: all 0.3s ease;
+    }
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 0 15px rgba(255, 193, 7, 0.4);
+      
+      .v-icon {
+        color: #ffc107 !important;
+        transform: rotate(15deg);
       }
     }
   }

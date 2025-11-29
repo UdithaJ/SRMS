@@ -260,7 +260,7 @@ const visiblePages = computed(() => {
   flex: 0 0 auto;
   margin-top: 0 !important;
   .pagination-info {
-    color: $neomorphic-text;
+    color: var(--neomorphic-text);
     font-size: 14px;
     font-weight: 500;
   }
@@ -286,14 +286,14 @@ const visiblePages = computed(() => {
       &.page-number {
         font-weight: 500;
         font-size: 14px;
-        color: $neomorphic-text;
+        color: var(--neomorphic-text);
 
         &.active {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
+          background: var(--btn-primary-bg);
+          color: var(--btn-primary-text);
           box-shadow: 
-            2px 2px 4px $neomorphic-shadow-dark,
-            -2px -2px 4px $neomorphic-shadow-light,
+            2px 2px 4px var(--neomorphic-shadow-dark),
+            -2px -2px 4px var(--neomorphic-shadow-light),
             inset 1px 1px 2px rgba(255, 255, 255, 0.1);
         }
       }
@@ -302,7 +302,7 @@ const visiblePages = computed(() => {
 
   .page-numbers {
     .page-ellipsis {
-      color: $neomorphic-text;
+      color: var(--neomorphic-text);
       padding: 0 4px;
     }
   }

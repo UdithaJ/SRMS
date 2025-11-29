@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
+import { useThemeStore } from './stores/theme'
 
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
@@ -22,9 +23,14 @@ const vuetify = createVuetify({
 })
 
 // 3️⃣ Register plugins
+const pinia = createPinia()
 app.use(router)
-app.use(createPinia())
+app.use(pinia)
 app.use(vuetify)
 
-// 4️⃣ Mount the app
+// 4️⃣ Initialize theme immediately before mount
+const themeStore = useThemeStore()
+themeStore.loadTheme()
+
+// 5️⃣ Mount the app
 app.mount('#app')

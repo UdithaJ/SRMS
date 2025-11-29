@@ -1,13 +1,9 @@
-// Neumorphism color palette
-$neomorphic-bg: #e0e5ec;
-$neomorphic-shadow-dark: rgba(163, 177, 198, 0.6);
-$neomorphic-shadow-light: rgba(255, 255, 255, 0.9);
-$neomorphic-accent: #667eea;
-$neomorphic-text: #4a5568;
-$neomorphic-text-light: #718096;
+// Import theme files
+@import './themes/light.scss';
+@import './themes/dark.scss';
 
 .neomorphic-container {
-  background: linear-gradient(135deg, #e0e5ec 0%, #d5dae5 100%);
+  background: var(--neomorphic-container-bg);
   height: calc(100vh - 64px - 40px - 8px);
   max-height: calc(100vh - 64px - 40px - 8px);
   overflow: hidden;
@@ -19,11 +15,11 @@ $neomorphic-text-light: #718096;
 
 // Neumorphic Card
 .neomorphic-card {
-  background: $neomorphic-bg;
+  background: var(--neomorphic-bg);
   border-radius: 20px;
   box-shadow: 
-    8px 8px 16px $neomorphic-shadow-dark,
-    -8px -8px 16px $neomorphic-shadow-light;
+    8px 8px 16px var(--neomorphic-shadow-dark),
+    -8px -8px 16px var(--neomorphic-shadow-light);
   transition: all 0.3s ease;
 }
 
@@ -31,7 +27,7 @@ $neomorphic-text-light: #718096;
   flex-shrink: 0;
   
   .page-title {
-    color: $neomorphic-text;
+    color: var(--neomorphic-text);
     font-size: 20px;
     font-weight: 600;
     margin: 0;
@@ -44,43 +40,43 @@ $neomorphic-text-light: #718096;
 
 // Neumorphic Buttons
 .neomorphic-btn {
-  background: $neomorphic-bg;
+  background: var(--neomorphic-bg);
   border: none;
   border-radius: 12px;
   padding: 12px 24px;
-  color: $neomorphic-text;
+  color: var(--neomorphic-text);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 
-    4px 4px 8px $neomorphic-shadow-dark,
-    -4px -4px 8px $neomorphic-shadow-light;
+    4px 4px 8px var(--neomorphic-shadow-dark),
+    -4px -4px 8px var(--neomorphic-shadow-light);
   
   &:hover {
     box-shadow: 
-      2px 2px 4px $neomorphic-shadow-dark,
-      -2px -2px 4px $neomorphic-shadow-light;
+      2px 2px 4px var(--neomorphic-shadow-dark),
+      -2px -2px 4px var(--neomorphic-shadow-light);
   }
   
   &:active {
     box-shadow: 
-      inset 2px 2px 4px $neomorphic-shadow-dark,
-      inset -2px -2px 4px $neomorphic-shadow-light;
+      inset 2px 2px 4px var(--neomorphic-shadow-dark),
+      inset -2px -2px 4px var(--neomorphic-shadow-light);
   }
 }
 
 .neomorphic-btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   box-shadow: 
-    4px 4px 8px $neomorphic-shadow-dark,
-    -4px -4px 8px $neomorphic-shadow-light,
+    4px 4px 8px var(--neomorphic-shadow-dark),
+    -4px -4px 8px var(--neomorphic-shadow-light),
     inset 0 0 0 rgba(255, 255, 255, 0.2);
   
   &:hover {
     box-shadow: 
-      6px 6px 12px $neomorphic-shadow-dark,
-      -6px -6px 12px $neomorphic-shadow-light,
+      6px 6px 12px var(--neomorphic-shadow-dark),
+      -6px -6px 12px var(--neomorphic-shadow-light),
       inset 0 0 0 rgba(255, 255, 255, 0.2);
   }
 }
@@ -96,7 +92,7 @@ $neomorphic-text-light: #718096;
 }
 
 .neomorphic-btn-small {
-  background: $neomorphic-bg;
+  background: var(--neomorphic-bg);
   border: none;
   border-radius: 8px;
   width: 32px;
@@ -107,13 +103,13 @@ $neomorphic-text-light: #718096;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 
-    3px 3px 6px $neomorphic-shadow-dark,
-    -3px -3px 6px $neomorphic-shadow-light;
+    3px 3px 6px var(--neomorphic-shadow-dark),
+    -3px -3px 6px var(--neomorphic-shadow-light);
   
   &:hover {
     box-shadow: 
-      2px 2px 4px $neomorphic-shadow-dark,
-      -2px -2px 4px $neomorphic-shadow-light;
+      2px 2px 4px var(--neomorphic-shadow-dark),
+      -2px -2px 4px var(--neomorphic-shadow-light);
   }
 }
 
@@ -145,36 +141,36 @@ $neomorphic-text-light: #718096;
   }
   
   :deep(.v-data-table__thead) {
-    background: $neomorphic-bg;
+    background: var(--neomorphic-bg);
     position: sticky;
     top: 0;
     z-index: 2;
     
     th {
-      color: $neomorphic-text !important;
+      color: var(--neomorphic-text) !important;
       font-weight: 600 !important;
       font-size: 13px !important;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       border: none !important;
-      background: $neomorphic-bg !important;
+      background: var(--neomorphic-bg) !important;
     }
   }
   
   :deep(.v-data-table__tbody) {
-    background: $neomorphic-bg;
+    background: var(--neomorphic-bg);
   }
   
   .table-row {
     transition: all 0.2s ease;
     
     &:hover {
-      background: rgba(102, 126, 234, 0.05) !important;
+      background: var(--table-hover-bg) !important;
     }
   }
   
   .table-cell {
-    color: $neomorphic-text-light !important;
+    color: var(--neomorphic-text-light) !important;
     font-size: 14px !important;
     border: none !important;
     padding: 12px 16px !important;
@@ -182,8 +178,8 @@ $neomorphic-text-light: #718096;
 }
 
 .role-badge, .status-badge {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  color: $neomorphic-accent;
+  background: var(--badge-bg);
+  color: var(--badge-text);
   padding: 4px 12px;
   border-radius: 12px;
   font-size: 12px;
@@ -193,7 +189,7 @@ $neomorphic-text-light: #718096;
 
 // Modal Styles
 .neomorphic-modal {
-  background: $neomorphic-bg;
+  background: var(--neomorphic-bg);
   border-radius: 24px;
   overflow: hidden;
   display: flex;
@@ -202,11 +198,11 @@ $neomorphic-text-light: #718096;
 }
 
 .modal-header {
-  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+  border-bottom: 1px solid var(--modal-border);
   flex-shrink: 0;
   
   .modal-title {
-    color: $neomorphic-text;
+    color: var(--neomorphic-text);
     font-size: 20px;
     font-weight: 600;
     margin: 0;
@@ -214,14 +210,14 @@ $neomorphic-text-light: #718096;
 }
 
 .modal-content {
-  background: $neomorphic-bg;
+  background: var(--neomorphic-bg);
   overflow-y: auto;
   flex: 1 1 auto;
 }
 
 .modal-actions {
-  border-top: 1px solid rgba(102, 126, 234, 0.1);
-  background: $neomorphic-bg;
+  border-top: 1px solid var(--modal-border);
+  background: var(--neomorphic-bg);
   flex-shrink: 0;
 }
 
@@ -229,8 +225,8 @@ $neomorphic-text-light: #718096;
 .neomorphic-alert {
   border-radius: 16px !important;
   box-shadow: 
-    4px 4px 8px $neomorphic-shadow-dark,
-    -4px -4px 8px $neomorphic-shadow-light !important;
+    4px 4px 8px var(--neomorphic-shadow-dark),
+    -4px -4px 8px var(--neomorphic-shadow-light) !important;
 }
 
 .compact-table .v-data-table__td, .compact-table .v-data-table__th { 
@@ -245,16 +241,16 @@ $neomorphic-text-light: #718096;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(163, 177, 198, 0.2);
+  background: var(--scrollbar-track);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.6) 0%, rgba(118, 75, 162, 0.6) 100%);
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
   
   &:hover {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+    background: var(--scrollbar-thumb-hover);
   }
 }
 
@@ -262,18 +258,17 @@ $neomorphic-text-light: #718096;
 
 .neomorphic-modal, .modal-content {
   :deep(.v-field--variant-solo) {
-    background: $neomorphic-bg !important;
+    background: var(--neomorphic-bg) !important;
     
     .v-field__overlay {
-      background: $neomorphic-bg !important;
+      background: var(--neomorphic-bg) !important;
     }
   }
   
   :deep(.v-chip) {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%) !important;
-    color: $neomorphic-accent !important;
-    border: 1px solid rgba(102, 126, 234, 0.2) !important;
-    box-shadow: 
-      0 2px 4px rgba(163, 177, 198, 0.15) !important;
+    background: var(--chip-bg) !important;
+    color: var(--chip-text) !important;
+    border: 1px solid var(--chip-border) !important;
+    box-shadow: var(--chip-shadow) !important;
   }
 }

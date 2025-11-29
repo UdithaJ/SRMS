@@ -128,58 +128,55 @@ const forgotPassword = () => {
 </script>
 
 <style scoped lang="scss">
-$neomorphic-bg: #e0e5ec;
-$neomorphic-shadow-dark: rgba(163, 177, 198, 0.6);
-$neomorphic-shadow-light: rgba(255, 255, 255, 0.9);
-$neomorphic-accent: #667eea;
-$neomorphic-text: #4a5568;
-$neomorphic-text-light: #718096;
+@import '@/assets/neomorphic.scss';
 
 .login-wrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #e0e5ec 0%, #d5dae5 100%);
+  background: var(--neomorphic-container-bg);
+  transition: background 0.3s ease;
 }
 
 .login-card {
-  background: $neomorphic-bg;
+  background: var(--neomorphic-bg);
   border-radius: 24px;
   max-width: 640px;
   width: 100%;
   box-shadow: 
-    12px 12px 24px $neomorphic-shadow-dark,
-    -12px -12px 24px $neomorphic-shadow-light;
+    12px 12px 24px var(--neomorphic-shadow-dark),
+    -12px -12px 24px var(--neomorphic-shadow-light);
+  transition: all 0.3s ease;
   
   .login-avatar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background: var(--btn-primary-bg) !important;
     box-shadow: 
-      8px 8px 16px $neomorphic-shadow-dark,
-      -8px -8px 16px $neomorphic-shadow-light;
+      8px 8px 16px var(--neomorphic-shadow-dark),
+      -8px -8px 16px var(--neomorphic-shadow-light);
   }
   
   h3 {
-    color: $neomorphic-text;
+    color: var(--neomorphic-text);
     font-weight: 600;
     font-size: 24px;
   }
   
   .subtitle-2 {
-    color: $neomorphic-text-light;
+    color: var(--neomorphic-text-light);
     font-size: 14px;
   }
   
   :deep(.v-text-field) {
     .v-field {
-      background: $neomorphic-bg !important;
+      background: var(--neomorphic-bg) !important;
       border-radius: 12px !important;
       box-shadow: 
-        inset 3px 3px 6px $neomorphic-shadow-dark,
-        inset -3px -3px 6px $neomorphic-shadow-light !important;
+        inset 3px 3px 6px var(--neomorphic-shadow-dark),
+        inset -3px -3px 6px var(--neomorphic-shadow-light) !important;
       
       input {
-        color: $neomorphic-text !important;
+        color: var(--neomorphic-text) !important;
       }
       
       .v-field__outline {
@@ -188,23 +185,23 @@ $neomorphic-text-light: #718096;
     }
     
     .v-label {
-      color: $neomorphic-text-light !important;
+      color: var(--neomorphic-text-light) !important;
     }
     
     .v-field__append-inner {
       .v-icon {
-        color: $neomorphic-text-light !important;
+        color: var(--neomorphic-text-light) !important;
       }
     }
   }
   
   :deep(.v-btn) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
+    background: var(--btn-primary-bg) !important;
+    color: var(--btn-primary-text) !important;
     border-radius: 12px;
     box-shadow: 
-      6px 6px 12px $neomorphic-shadow-dark,
-      -6px -6px 12px $neomorphic-shadow-light;
+      6px 6px 12px var(--neomorphic-shadow-dark),
+      -6px -6px 12px var(--neomorphic-shadow-light);
     text-transform: none;
     font-weight: 600;
     font-size: 16px;
@@ -212,8 +209,8 @@ $neomorphic-text-light: #718096;
     
     &:hover {
       box-shadow: 
-        4px 4px 8px $neomorphic-shadow-dark,
-        -4px -4px 8px $neomorphic-shadow-light;
+        4px 4px 8px var(--neomorphic-shadow-dark),
+        -4px -4px 8px var(--neomorphic-shadow-light);
     }
     
     &:active {
@@ -226,12 +223,12 @@ $neomorphic-text-light: #718096;
   :deep(.v-alert) {
     border-radius: 12px;
     box-shadow: 
-      4px 4px 8px $neomorphic-shadow-dark,
-      -4px -4px 8px $neomorphic-shadow-light;
+      4px 4px 8px var(--neomorphic-shadow-dark),
+      -4px -4px 8px var(--neomorphic-shadow-light);
     border: none !important;
     
     &.v-alert--variant-tonal {
-      background: $neomorphic-bg !important;
+      background: var(--neomorphic-bg) !important;
     }
   }
 }

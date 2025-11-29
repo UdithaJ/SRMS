@@ -259,16 +259,10 @@ const handleChangePassword = async () => {
 <style scoped lang="scss">
 @import '@/assets/neomorphic.scss';
 
-$neomorphic-bg: #e0e5ec;
-$neomorphic-shadow-dark: rgba(163, 177, 198, 0.6);
-$neomorphic-shadow-light: rgba(255, 255, 255, 0.9);
-$neomorphic-accent: #667eea;
-$neomorphic-text: #4a5568;
-$neomorphic-text-light: #718096;
-
 .modern-sidebar {
-  background: linear-gradient(180deg, #2D2640 0%, #1F1B2E 50%, #171429 100%) !important;
+  background: var(--side-bar-color) !important;
   border-right: none !important;
+  transition: background 0.3s ease;
   
   &::before {
     content: '';

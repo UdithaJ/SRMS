@@ -1,0 +1,50 @@
+// Light Theme Variables
+.light-theme {
+  // Neomorphic colors
+  --neomorphic-bg: #e0e5ec;
+  --neomorphic-shadow-dark: rgba(163, 177, 198, 0.6);
+  --neomorphic-shadow-light: rgba(255, 255, 255, 0.9);
+  --neomorphic-accent: #667eea;
+  --neomorphic-text: #4a5568;
+  --neomorphic-text-light: #718096;
+  
+  // Background gradients
+  --neomorphic-container-bg: linear-gradient(135deg, #e0e5ec 0%, #d5dae5 100%);
+  --body-bg: linear-gradient(135deg, #e0f2fe, #fef3c7);
+  
+  // Button colors
+  --btn-primary-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --btn-primary-text: white;
+  
+  // Badge colors
+  --badge-bg: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  --badge-text: #667eea;
+  
+  // Table colors
+  --table-hover-bg: rgba(102, 126, 234, 0.05);
+  
+  // Modal colors
+  --modal-border: rgba(102, 126, 234, 0.1);
+  
+  // Scrollbar colors
+  --scrollbar-track: rgba(163, 177, 198, 0.2);
+  --scrollbar-thumb: linear-gradient(135deg, rgba(102, 126, 234, 0.6) 0%, rgba(118, 75, 162, 0.6) 100%);
+  --scrollbar-thumb-hover: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+  
+  // Footer colors
+  --footer-bg: linear-gradient(145deg, #e8e8e8, #ffffff);
+  --footer-text: #5a5a5a;
+  --footer-icon: #7a7a7a;
+  --footer-divider: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.15) 20%, rgba(0, 0, 0, 0.15) 80%, transparent);
+  --footer-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+  
+  // Chip colors
+  --chip-bg: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+  --chip-border: rgba(102, 126, 234, 0.2);
+  --chip-text: #667eea;
+  --chip-shadow: 0 2px 4px rgba(163, 177, 198, 0.15);
+  
+  // App Bar and Sidebar colors
+  --app-bar-color: linear-gradient(135deg, #2D2640 0%, #1F1B2E 100%);
+  --side-bar-color: linear-gradient(180deg, #2D2640 0%, #1F1B2E 100%);
+}

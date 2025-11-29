@@ -677,15 +677,15 @@ export default {
 @import '@/assets/neomorphic.scss';
 
 .assignee-profile {
-  background: $neomorphic-bg;
+  background: var(--neomorphic-bg);
   border-radius: 16px;
   padding: 16px;
   box-shadow: 
-    inset 3px 3px 6px $neomorphic-shadow-dark,
-    inset -3px -3px 6px $neomorphic-shadow-light;
+    inset 3px 3px 6px var(--neomorphic-shadow-dark),
+    inset -3px -3px 6px var(--neomorphic-shadow-light);
   
   .assignee-profile-header {
-    color: $neomorphic-text;
+    color: var(--neomorphic-text);
     font-weight: 600;
     font-size: 14px;
     margin-bottom: 12px;
@@ -707,22 +707,22 @@ export default {
         border-radius: 50%;
         object-fit: cover;
         box-shadow: 
-          4px 4px 8px $neomorphic-shadow-dark,
-          -4px -4px 8px $neomorphic-shadow-light;
-        border: 3px solid $neomorphic-bg;
+          4px 4px 8px var(--neomorphic-shadow-dark),
+          -4px -4px 8px var(--neomorphic-shadow-light);
+        border: 3px solid var(--neomorphic-bg);
       }
       
       .assignee-avatar-placeholder {
         width: 64px;
         height: 64px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--btn-primary-bg);
         display: flex;
         align-items: center;
         justify-content: center;
         box-shadow: 
-          4px 4px 8px $neomorphic-shadow-dark,
-          -4px -4px 8px $neomorphic-shadow-light;
+          4px 4px 8px var(--neomorphic-shadow-dark),
+          -4px -4px 8px var(--neomorphic-shadow-light);
       }
     }
     
@@ -730,14 +730,14 @@ export default {
       flex: 1;
       
       .assignee-name-text {
-        color: $neomorphic-text;
+        color: var(--neomorphic-text);
         font-weight: 600;
         font-size: 16px;
         margin-bottom: 4px;
       }
       
       .assignee-ref-text {
-        color: $neomorphic-text-light;
+        color: var(--neomorphic-text-light);
         font-size: 13px;
       }
     }

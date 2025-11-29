@@ -373,7 +373,7 @@ onMounted(() => {
 }
 
 .welcome-text {
-  color: $neomorphic-text-light;
+  color: var(--neomorphic-text-light);
   font-size: 14px;
   margin: 8px 0 0 0;
 }
@@ -391,14 +391,14 @@ onMounted(() => {
   }
   
   .stat-title {
-    color: $neomorphic-text;
+    color: var(--neomorphic-text);
     font-size: 16px;
     font-weight: 500;
     margin: 0 0 8px 0;
   }
   
   .stat-value {
-    color: $neomorphic-accent;
+    color: var(--neomorphic-accent);
     font-size: 32px;
     font-weight: 700;
     margin: 0;
@@ -411,7 +411,7 @@ onMounted(() => {
   flex-direction: column;
   
   .chart-title {
-    color: $neomorphic-text;
+    color: var(--neomorphic-text);
     font-size: 16px;
     font-weight: 600;
     margin: 0 0 16px 0;
