@@ -773,7 +773,8 @@ export default {
   .modal-actions {
     padding: 16px 24px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     border-top: 1px solid rgba(0, 0, 0, 0.06);
     
     .neomorphic-btn {

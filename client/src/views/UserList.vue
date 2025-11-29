@@ -31,6 +31,10 @@
       <template #[`item.userRoleLabel`]="{ value }">
         <span class="role-badge">{{ value }}</span>
       </template>
+      <template #[`item.sectionName`]="{ item }">
+        <span v-if="item.userRole === 'section staff'">{{ item.sectionName }}</span>
+        <v-icon v-else color="#667eea" size="20" title="All Sections">mdi-all-inclusive</v-icon>
+      </template>
     </DataList>
 
     <!-- Neumorphic Modal -->
