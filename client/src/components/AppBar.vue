@@ -103,9 +103,36 @@ const logout = () => {
     .system-slogan {
       font-size: 11px;
       font-weight: 400;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.9);
       letter-spacing: 1px;
       text-transform: uppercase;
+      position: relative;
+      background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(91, 147, 255, 1) 50%,
+        rgba(255, 255, 255, 0.5) 100%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: electricSweep 6s linear infinite;
+      
+      &::before {
+        content: 'Digitalizing Today for a Better Tomorrow';
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: linear-gradient(90deg, 
+          transparent 0%,
+          rgba(91, 147, 255, 0.8) 50%,
+          transparent 100%);
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: electricSweep 6s linear infinite;
+        filter: blur(2px);
+      }
     }
   }
   
@@ -153,6 +180,15 @@ const logout = () => {
         color: #ff6b6b !important;
       }
     }
+  }
+}
+
+@keyframes electricSweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
 </style>

@@ -37,7 +37,7 @@
             <div class="user-role">{{ userRoleLabel }}</div>
           </div>
           <v-btn icon size="small" variant="text" @click="pwdDialog = true" class="settings-btn">
-            <v-icon size="20" color="white">mdi-cog</v-icon>
+            <v-icon size="20" color="white">mdi-lock-reset</v-icon>
           </v-btn>
         </div>
       </div>
@@ -307,6 +307,12 @@ $neomorphic-text-light: #718096;
         color: #5B93FF !important;
       }
     }
+  }
+}
+
+.modern-sidebar.v-navigation-drawer--rail {
+  .collapse-toggle {
+    justify-content: center;
   }
 }
 
