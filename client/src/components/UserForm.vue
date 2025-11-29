@@ -3,28 +3,28 @@
     <v-form>
       <v-row>
         <v-col cols="12" sm="6">
-          <v-text-field label="First Name" v-model="firstName" density="comfortable" hide-details="auto"></v-text-field>
+          <v-text-field label="First Name" v-model="firstName" variant="solo" density="comfortable" hide-details="auto"></v-text-field>
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="Last Name" v-model="lastName" density="comfortable" hide-details="auto"></v-text-field>
+          <v-text-field label="Last Name" v-model="lastName" variant="solo" density="comfortable" hide-details="auto"></v-text-field>
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="User Name" v-model="userName" density="comfortable" hide-details="auto"></v-text-field>
+          <v-text-field label="User Name" v-model="userName" variant="solo" density="comfortable" hide-details="auto"></v-text-field>
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="Reference No" v-model="referenceNo" density="comfortable" hide-details="auto"></v-text-field>
+          <v-text-field label="Reference No" v-model="referenceNo" variant="solo" density="comfortable" hide-details="auto"></v-text-field>
         </v-col>
 
         <v-col cols="12" sm="6">
-          <v-select :items="roles" item-title="label" item-value="value" label="User Role" v-model="userRole" density="comfortable" hide-details="auto"></v-select>
+          <v-select :items="roles" item-title="label" item-value="value" label="User Role" v-model="userRole" variant="solo" density="comfortable" hide-details="auto"></v-select>
         </v-col>
 
         <v-col cols="12" sm="6" v-if="userRole === 'section staff'">
-          <v-select :items="sections" item-title="name" item-value="_id" label="Section" v-model="section" density="comfortable" hide-details="auto"></v-select>
+          <v-select :items="sections" item-title="name" item-value="_id" label="Section" v-model="section" variant="solo" density="comfortable" hide-details="auto"></v-select>
         </v-col>
 
         <v-col cols="12" sm="6">
-          <v-text-field label="Password" v-model="password" type="password" density="comfortable" hide-details="auto" :placeholder="isEditMode ? 'Leave blank to keep current password' : ''"></v-text-field>
+          <v-text-field label="Password" v-model="password" type="password" variant="solo" density="comfortable" hide-details="auto" :placeholder="isEditMode ? 'Leave blank to keep current password' : ''"></v-text-field>
         </v-col>
 
         <v-col cols="12" sm="6">
@@ -33,6 +33,7 @@
             accept="image/png, image/jpeg"
             label="Profile Image"
             prepend-icon="mdi-image"
+            variant="solo"
             density="comfortable"
             :error="!!imageError"
             :error-messages="imageError ? [imageError] : []"

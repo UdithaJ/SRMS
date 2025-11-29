@@ -57,6 +57,7 @@
                   v-model="filters.status"
                   item-title="title"
                   item-value="value"
+                  variant="solo"
                   clearable
                   multiple
                   chips
@@ -71,6 +72,7 @@
                   item-value="_id"
                   label="Section"
                   v-model="filters.section"
+                  variant="solo"
                   clearable
                   multiple
                   chips
@@ -85,6 +87,7 @@
                   item-value="_id"
                   label="Assignee"
                   v-model="filters.assignee"
+                  variant="solo"
                   clearable
                   multiple
                   chips
@@ -97,6 +100,7 @@
                   :items="acknowledgementItems"
                   label="Acknowledgement"
                   v-model="filters.acknowledgement"
+                  variant="solo"
                   clearable
                   multiple
                   chips
@@ -144,13 +148,13 @@
                 </div>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field label="First Name" v-model="modalInquiry.firstName" density="comfortable" hide-details="auto" required></v-text-field>
+                <v-text-field label="First Name" v-model="modalInquiry.firstName" variant="solo" density="comfortable" hide-details="auto" required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field label="Last Name" v-model="modalInquiry.lastName" density="comfortable" hide-details="auto" required></v-text-field>
+                <v-text-field label="Last Name" v-model="modalInquiry.lastName" variant="solo" density="comfortable" hide-details="auto" required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field label="NIC" v-model="modalInquiry.nic" density="comfortable" hide-details="auto" required></v-text-field>
+                <v-text-field label="NIC" v-model="modalInquiry.nic" variant="solo" density="comfortable" hide-details="auto" required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select
@@ -160,6 +164,7 @@
                   label="Section"
                   v-model="selectedSectionId"
                   @update:modelValue="onSectionChange"
+                  variant="solo"
                   density="comfortable"
                   hide-details="auto"
                   required
@@ -172,6 +177,7 @@
                   item-value="_id"
                   label="Requirement"
                   v-model="modalInquiry.requirement"
+                  variant="solo"
                   density="comfortable"
                   hide-details="auto"
                   :key="selectedSectionId"
@@ -197,6 +203,7 @@
                   item-value="_id"
                   label="Assignee"
                   v-model="modalInquiry.assignee"
+                  variant="solo"
                   density="comfortable"
                   hide-details="auto"
                   required
@@ -212,18 +219,20 @@
                   label="Acknowledgement"
                   v-model="modalInquiry.acknowledgement"
                   :disabled="!canAcknowledge"
+                  variant="solo"
                   density="comfortable"
                   hide-details="auto"
                 ></v-select>
               </v-col>
               <v-col cols="12">
-                <v-textarea label="Notes" v-model="modalInquiry.notes" density="comfortable" hide-details="auto"></v-textarea>
+                <v-textarea label="Notes" v-model="modalInquiry.notes" variant="solo" density="comfortable" hide-details="auto"></v-textarea>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select
                   :items="statusItems"
                   label="Status"
                   v-model="modalInquiry.status"
+                  variant="solo"
                   item-title="title"
                   item-value="value"
                   density="comfortable"

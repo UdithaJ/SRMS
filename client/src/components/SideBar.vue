@@ -121,6 +121,7 @@
               label="Current password"
               :append-icon="showCurr ? 'mdi-eye-off' : 'mdi-eye'"
               @click:append="showCurr = !showCurr"
+              variant="solo"
               class="mb-3"
               hide-details="auto"
               required
@@ -131,6 +132,7 @@
               label="New password"
               :append-icon="showNew ? 'mdi-eye-off' : 'mdi-eye'"
               @click:append="showNew = !showNew"
+              variant="solo"
               class="mb-3"
               hide-details="auto"
               required
@@ -139,6 +141,7 @@
               v-model="confirmPwd"
               :type="showNew ? 'text' : 'password'"
               label="Confirm new password"
+              variant="solo"
               class="mb-1"
               hide-details="auto"
               required

@@ -43,6 +43,7 @@
                   label="Section ID"
                   v-model="modalSection.sectionId"
                   :disabled="isEditMode"
+                  variant="solo"
                   density="comfortable"
                   hide-details="auto"
                   required
@@ -53,6 +54,7 @@
                 <v-text-field 
                   label="Name" 
                   v-model="modalSection.name" 
+                  variant="solo"
                   density="comfortable"
                   hide-details="auto"
                   required
@@ -98,6 +100,7 @@
                 <v-text-field 
                   label="Requirement Name" 
                   v-model="reqForm.name" 
+                  variant="solo"
                   density="comfortable"
                   hide-details="auto"
                   :disabled="reqLoading"

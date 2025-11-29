@@ -20,8 +20,8 @@
               v-model="form.userName"
               label="Username"
               :rules="[rules.required]"
-              outlined
-              dense
+              variant="solo"
+              density="comfortable"
               hide-details="auto"
               class="mb-3"
             />
@@ -33,8 +33,8 @@
               :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
               @click:append="showPassword = !showPassword"
               :rules="[rules.required]"
-              outlined
-              dense
+              variant="solo"
+              density="comfortable"
               hide-details="auto"
               class="mb-3"
             />
