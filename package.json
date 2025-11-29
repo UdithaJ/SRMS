@@ -1,5 +1,5 @@
 {
-  "name": "srms",
+  "name": "cims",
   "version": "1.0.0",
   "description": "Service Record Management System",
   "main": "main/index.js",
@@ -17,8 +17,8 @@
   "author": "",
   "license": "ISC",
   "build": {
-    "appId": "com.srms.app",
-    "productName": "SRMS",
+    "appId": "com.cims.app",
+    "productName": "CIMS",
     "directories": {
       "output": "dist"
     },
@@ -40,7 +40,10 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "runAfterFinish": true,
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "installerHeader": "build/installerHeader.bmp",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "installerHeaderIcon": "build/icon.ico"
     }
   },
   "dependencies": {
