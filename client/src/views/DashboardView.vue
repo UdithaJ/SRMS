@@ -177,8 +177,8 @@ const buildRatingGauge = () => {
         
         const { ctx, chartArea: { width, height } } = chart;
         const centerX = width / 2;
-        const centerY = height;
-        const radius = Math.min(width, height * 2) / 2 - 20;
+        const centerY = height - 50; // Move center up to leave space for bottom labels
+        const radius = Math.min(width, (height - 20) * 2) / 2 - 20;
         
 
         // Draw colored arc segments (speedometer bands) for 1-4 scale
@@ -200,15 +200,16 @@ const buildRatingGauge = () => {
           ctx.stroke();
         });
 
-        // Draw scale marks and numbers (1 to 4 from left to right)
-        ctx.fillStyle = '#424242';
+        // Draw scale marks and labels (Bad, Fair, Good, Very Good from left to right)
         ctx.strokeStyle = '#424242';
         ctx.lineWidth = 2;
+        
+        const labels = ['Bad', 'Fair', 'Good', 'Very Good'];
         
         for (let i = 0; i <= 3; i++) {
           const angle = Math.PI + (Math.PI * (i / 3));
           const markRadius = radius - 8;
-          const numberRadius = radius - 25;
+          const labelRadius = radius - 32;
           
           const markX = centerX + Math.cos(angle) * markRadius;
           const markY = centerY + Math.sin(angle) * markRadius;
@@ -221,13 +222,14 @@ const buildRatingGauge = () => {
           ctx.lineTo(innerX, innerY);
           ctx.stroke();
           
-          // Draw numbers at each tick (1 to 4)
-          const numX = centerX + Math.cos(angle) * numberRadius;
-          const numY = centerY + Math.sin(angle) * numberRadius;
-          ctx.font = '600 12px sans-serif';
+          // Draw labels at each tick
+          const labelX = centerX + Math.cos(angle) * labelRadius;
+          const labelY = centerY + Math.sin(angle) * labelRadius;
+          ctx.font = '600 10px sans-serif';
+          ctx.fillStyle = '#424242';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText((i + 1).toString(), numX, numY);
+          ctx.fillText(labels[i], labelX, labelY);
         }
 
         // Draw needle - rating is on 1-4 scale, normalize to 0-1 for angle
@@ -428,7 +430,8 @@ onMounted(() => {
   }
   
   .gauge-wrapper {
-    min-height: 200px;
+    min-height: 240px;
+    padding-bottom: 10px;
   }
 }
 </style>
