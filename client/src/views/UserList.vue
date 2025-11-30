@@ -44,7 +44,7 @@
           <h3 class="modal-title">{{ isEditMode ? 'Edit User' : 'Add User' }}</h3>
         </div>
         <div class="modal-content">
-          <UserForm ref="userFormRef" v-model="modalUser" :is-edit-mode="isEditMode" :sections="sections" :modal-message="modalMessage" :modal-error="modalError" @role-change="onRoleChange" />
+            <UserForm ref="userFormRef" v-model="modalUser" :is-edit-mode="isEditMode" :sections="sections" :modal-message="modalMessage" :modal-error="modalError" :all-user-names="users.map(u => u.userName)" @role-change="onRoleChange" />
         </div>
 
         <div class="modal-actions">

@@ -103,6 +103,7 @@ const firstName = computed({
   get: () => props.modelValue.firstName || '',
   set: (v) => emit('update:modelValue', { ...props.modelValue, firstName: v })
 })
+  const userNameExistsError = ref('')
 const lastName = computed({
   get: () => props.modelValue.lastName || '',
   set: (v) => emit('update:modelValue', { ...props.modelValue, lastName: v })
