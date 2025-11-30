@@ -211,10 +211,10 @@ const visiblePages = computed(() => {
     
     thead {
       tr {
-        background: var(--app-bar-color) !important;
+        background: var(--table-header-bg) !important;
         
         th {
-          color: white !important;
+          color: var(--neomorphic-text) !important;
           font-weight: 600 !important;
           text-transform: uppercase;
           font-size: 13px !important;

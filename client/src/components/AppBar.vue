@@ -10,7 +10,7 @@
       <v-app-bar-nav-icon 
         v-if="!display.mdAndUp"
         @click="toggleDrawer" 
-        color="white"
+        :color="isDarkTheme ? 'white' : '#1a1a2e'"
         class="ml-2"
       />
       
@@ -46,7 +46,7 @@
         class="logout-btn"
         @click="logout"
       >
-        <v-icon color="white" class="mr-2">mdi-logout</v-icon>
+        <v-icon class="mr-2 logout-icon">mdi-logout</v-icon>
         <span class="logout-text">Logout</span>
       </v-btn>
     </v-app-bar>
@@ -137,7 +137,7 @@ const logout = () => {
     .system-name {
       font-size: 24px;
       font-weight: 700;
-      color: white;
+      color: var(--app-bar-text);
       letter-spacing: 2px;
       text-shadow: 0 2px 8px rgba(91, 147, 255, 0.3);
       background: linear-gradient(135deg, #ffffff 0%, #5B93FF 100%);
@@ -149,7 +149,7 @@ const logout = () => {
     .system-slogan {
       font-size: 11px;
       font-weight: 400;
-      color: rgba(255, 255, 255, 0.9);
+      color: var(--app-bar-text);
       letter-spacing: 1px;
       text-transform: uppercase;
       position: relative;
@@ -187,7 +187,7 @@ const logout = () => {
     transition: all 0.2s;
     
     .v-icon {
-      color: rgba(255, 255, 255, 0.7) !important;
+      color: var(--app-bar-icon) !important;
     }
     
     &:hover {
@@ -205,7 +205,7 @@ const logout = () => {
     transition: all 0.3s ease;
     
     .v-icon {
-      color: rgba(255, 255, 255, 0.7) !important;
+      color: var(--app-bar-icon) !important;
       transition: all 0.3s ease;
     }
     
@@ -221,29 +221,31 @@ const logout = () => {
   }
   
   .logout-btn {
-    color: white !important;
-    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--app-bar-text) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
     transition: all 0.2s ease;
     text-transform: none;
     font-size: 14px;
     padding: 8px 16px;
     border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     
-    .v-icon {
-      color: rgba(255, 107, 107, 0.9) !important;
+    .logout-icon {
+      color: var(--app-bar-icon) !important;
     }
     
     .logout-text {
-      color: white;
+      color: var(--app-bar-text);
       font-weight: 500;
     }
     
     &:hover {
-      background: rgba(255, 107, 107, 0.15) !important;
-      box-shadow: 0 0 12px rgba(255, 107, 107, 0.3);
+      background: rgba(255, 255, 255, 0.15) !important;
+      box-shadow: 0 0 12px rgba(91, 147, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.25);
       
       .v-icon {
-        color: #ff6b6b !important;
+        color: #5B93FF !important;
       }
     }
   }

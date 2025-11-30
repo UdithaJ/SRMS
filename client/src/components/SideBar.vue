@@ -20,7 +20,7 @@
           @click="rail = !rail"
           class="toggle-btn"
         >
-          <v-icon size="20" color="white">
+          <v-icon size="20" :color="themeStore.isDark ? 'white' : '#1a1a2e'">
             {{ rail ? 'mdi-chevron-right' : 'mdi-chevron-left' }}
           </v-icon>
         </v-btn>
@@ -37,7 +37,7 @@
             <div class="user-role">{{ userRoleLabel }}</div>
           </div>
           <v-btn icon size="small" variant="text" @click="pwdDialog = true" class="settings-btn">
-            <v-icon size="20" color="white">mdi-lock-reset</v-icon>
+            <v-icon size="20" :color="themeStore.isDark ? 'white' : '#1a1a2e'">mdi-lock-reset</v-icon>
           </v-btn>
         </div>
       </div>
@@ -166,6 +166,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useUserStore } from '@/stores/user'
+import { useThemeStore } from '@/stores/theme'
 import { useToast } from '@/composables/useToast'
 import userImg from '@/assets/user.png'
 import { changePassword } from '@/api/auth'
@@ -177,6 +178,7 @@ const router = useRouter()
 const route = useRoute()
 const display = useDisplay()
 const userStore = useUserStore()
+const themeStore = useThemeStore()
 
 userStore.loadUser()
 
@@ -331,14 +333,14 @@ const handleChangePassword = async () => {
   }
   
   .user-name {
-    color: #FFFFFF;
+    color: var(--sidebar-text);
     font-size: 14px;
     font-weight: 600;
     line-height: 1.2;
   }
   
   .user-role {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--sidebar-icon);
     font-size: 12px;
     line-height: 1.2;
   }
@@ -348,11 +350,11 @@ const handleChangePassword = async () => {
     transition: all 0.2s;
     
     :deep(.v-icon) {
-      color: rgba(255, 255, 255, 0.7) !important;
+      color: var(--sidebar-icon) !important;
     }
     
     &:hover {
-      background: rgba(255, 255, 255, 0.08) !important;
+      background: rgba(91, 147, 255, 0.15) !important;
       box-shadow: 0 0 12px rgba(91, 147, 255, 0.3);
       
       :deep(.v-icon) {
@@ -389,7 +391,7 @@ const handleChangePassword = async () => {
 }
 
 .menu-label {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--sidebar-icon);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -398,13 +400,13 @@ const handleChangePassword = async () => {
 
 .nav-menu {
   .menu-item {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--sidebar-text);
     transition: all 0.2s ease;
     margin-bottom: 2px;
     
     :deep(.v-list-item__prepend) {
       .v-icon {
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--sidebar-icon);
         margin-right: 12px;
       }
     }
@@ -412,33 +414,33 @@ const handleChangePassword = async () => {
     :deep(.v-list-item-title) {
       font-size: 14px;
       font-weight: 400;
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--sidebar-text);
     }
     
     &:hover {
-      background: rgba(255, 255, 255, 0.05) !important;
-      color: #FFFFFF;
+      background: rgba(91, 147, 255, 0.1) !important;
+      color: var(--sidebar-text);
       
       :deep(.v-icon) {
         color: #5B93FF;
       }
       
       :deep(.v-list-item-title) {
-        color: #FFFFFF;
+        color: var(--sidebar-text);
       }
     }
     
     &.v-list-item--active {
       background: rgba(91, 147, 255, 0.15) !important;
       box-shadow: 0 0 16px rgba(91, 147, 255, 0.3);
-      color: #FFFFFF;
+      color: var(--sidebar-text);
       
       :deep(.v-icon) {
         color: #5B93FF;
       }
       
       :deep(.v-list-item-title) {
-        color: #FFFFFF;
+        color: var(--sidebar-text);
         font-weight: 500;
       }
     }

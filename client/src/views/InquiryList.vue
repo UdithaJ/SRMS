@@ -224,9 +224,6 @@
                   hide-details="auto"
                 ></v-select>
               </v-col>
-              <v-col cols="12">
-                <v-textarea label="Notes" v-model="modalInquiry.notes" variant="solo" density="comfortable" hide-details="auto"></v-textarea>
-              </v-col>
               <v-col cols="12" sm="6">
                 <v-select
                   :items="statusItems"
@@ -239,6 +236,9 @@
                   hide-details="auto"
                   required
                 ></v-select>
+              </v-col>
+              <v-col cols="12">
+                <v-textarea label="Notes" v-model="modalInquiry.notes" variant="solo" density="comfortable" hide-details="auto"></v-textarea>
               </v-col>
             </v-row>
             <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="neomorphic-alert mt-3" density="compact">

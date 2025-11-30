@@ -22,6 +22,7 @@
   
   // Table colors
   --table-hover-bg: rgba(139, 157, 255, 0.1);
+  --table-header-bg: linear-gradient(135deg, #1a1625 0%, #120f1a 100%);
   
   // Modal colors
   --modal-border: rgba(139, 157, 255, 0.15);
@@ -47,4 +48,8 @@
   // App Bar and Sidebar colors (slightly different for dark theme)
   --app-bar-color: linear-gradient(135deg, #1a1625 0%, #120f1a 100%);
   --side-bar-color: linear-gradient(180deg, #1a1625 0%, #120f1a 100%);
+  --app-bar-text: #ffffff;
+  --app-bar-icon: rgba(255, 255, 255, 0.7);
+  --sidebar-text: #ffffff;
+  --sidebar-icon: rgba(255, 255, 255, 0.7);
 }

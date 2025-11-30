@@ -245,24 +245,30 @@
   padding-bottom: 4px !important; 
 }
 
-// Scrollbar Styles
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: 4px;
-  
-  &:hover {
-    background: var(--scrollbar-thumb-hover);
+// Global Scrollbar Styles - Apply to all scrollable elements
+* {
+  &::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
   }
+
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbar-track) !important;
+    border-radius: 4px !important;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb) !important;
+    border-radius: 4px !important;
+    
+    &:hover {
+      background: var(--scrollbar-thumb-hover) !important;
+    }
+  }
+  
+  // Firefox scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 // Form Field Styles - Using Vuetify defaults (removed custom overrides)
