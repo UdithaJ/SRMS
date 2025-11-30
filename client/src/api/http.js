@@ -2,11 +2,12 @@ import axios from 'axios'
 import { apiCache, generateCacheKey } from '@/utils/cache'
 
 // Prefer env value when provided (Vite injects at build time)
-const envBase = import.meta?.env?.VITE_API_BASE_URL
-
-// In packaged Electron, we load via file:// — default to local server port
-const port = import.meta?.env?.VITE_API_PORT || 3000;
-const defaultBase = `http://127.0.0.1:3000`
+const envBase = import.meta.env.VITE_API_BASE_URL
+const envPort = import.meta.env.VITE_API_PORT
+console.error('API PORT:', envPort);
+// Use port from env if available, otherwise default to 3000
+const defaultPort = envPort || '3000'
+const defaultBase = `http://127.0.0.1:${defaultPort}`
 
 // Normalize and pick the base URL once
 const baseURL = (typeof envBase === 'string' && envBase.trim().length > 0)
