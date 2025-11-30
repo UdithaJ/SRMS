@@ -42,6 +42,7 @@
       </v-btn>
       
       <v-btn 
+        v-if="!isLoginPage"
         variant="text" 
         class="logout-btn"
         @click="logout"
@@ -70,6 +71,7 @@ const emit = defineEmits(['toggle-drawer'])
 const seasonalTheme = ref(false)
 
 const isDarkTheme = computed(() => themeStore.isDark)
+const isLoginPage = computed(() => router.currentRoute.value.name === 'login')
 
 onMounted(() => {
   // Load saved preference from localStorage

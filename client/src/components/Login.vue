@@ -1,56 +1,75 @@
 <template>
-  <v-container class="fill-height login-wrapper" fluid>
-    <v-row align="center" justify="center" class="ma-0 pa-0" style="width:100%">
-      <v-col cols="12" sm="10" md="6" lg="5" class="d-flex justify-center">
-        <v-card class="pa-8 elevation-12 login-card">
-          <v-row class="mb-4" align="center">
-            <v-col cols="3" class="d-flex align-center justify-center">
-              <v-avatar size="96" class="login-avatar">
-                <v-icon size="64" color="white">mdi-account-circle</v-icon>
-              </v-avatar>
-            </v-col>
-            <v-col cols="9">
-              <h3 class="mb-0">Welcome back</h3>
-              <div class="subtitle-2">Sign in to your account</div>
-            </v-col>
-          </v-row>
+  <div>
+    <AppBarLogin />
+    <v-container class="fill-height login-wrapper" fluid>
+      <v-row align="center" justify="center" class="ma-0 pa-0" style="width:100%">
+        <v-col cols="12" sm="10" md="6" lg="5" class="d-flex justify-center">
+          <v-card class="pa-8 elevation-12 login-card">
+            <v-row class="mb-4" align="center">
+              <v-col cols="3" class="d-flex align-center justify-center">
+                <v-avatar size="96" class="login-avatar">
+                  <v-icon size="64" color="white">mdi-account-circle</v-icon>
+                </v-avatar>
+              </v-col>
+              <v-col cols="9">
+                <h3 class="mb-0">Welcome back</h3>
+                <div class="subtitle-2">Sign in to your account</div>
+              </v-col>
+            </v-row>
 
-          <v-form ref="formRef" @submit.prevent="login" lazy-validation>
-            <v-text-field
-              v-model="form.userName"
-              label="Username"
-              :rules="[rules.required]"
-              variant="solo"
-              density="comfortable"
-              hide-details="auto"
-              class="mb-3"
-            />
 
-            <v-text-field
-              v-model="form.password"
-              :type="showPassword ? 'text' : 'password'"
-              label="Password"
-              :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-              @click:append="showPassword = !showPassword"
-              :rules="[rules.required]"
-              variant="solo"
-              density="comfortable"
-              hide-details="auto"
-              class="mb-3"
-            />
+            <v-form ref="formRef" @submit.prevent="login" lazy-validation>
+              <v-text-field
+                v-model="form.userName"
+                label="Username"
+                :rules="[rules.required]"
+                variant="solo"
+                density="comfortable"
+                hide-details="auto"
+                class="mb-3"
+              />
 
-            <v-btn :loading="loading" type="submit" class="mt-4" color="primary" large block>
-              Sign in
-            </v-btn>
-          </v-form>
+              <v-text-field
+                v-model="form.password"
+                :type="showPassword ? 'text' : 'password'"
+                label="Password"
+                :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                @click:append="showPassword = !showPassword"
+                :rules="[rules.required]"
+                variant="solo"
+                density="comfortable"
+                hide-details="auto"
+                class="mb-3"
+              />
 
-          <v-alert v-if="message" :type="messageType" class="mt-4" dense border="left">
-            {{ message }}
-          </v-alert>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+              <v-btn :loading="loading" type="submit" class="mt-4" color="primary" large block>
+                Sign in
+              </v-btn>
+
+              <div class="d-flex justify-end mt-2">
+                <v-btn variant="text" color="primary" @click="showForgotModal = true" style="text-transform:none; font-size:14px;">
+                  Forgot Password?
+                </v-btn>
+              </div>
+            </v-form>
+
+            <v-dialog v-model="showForgotModal" max-width="400">
+              <v-card>
+                <v-card-title class="headline">Reset Password</v-card-title>
+                <v-card-text>
+                  <div class="mb-2">Please contact your administrator to reset your password.</div>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
+
+            <v-alert v-if="message" :type="messageType" class="mt-4" dense border="left">
+              {{ message }}
+            </v-alert>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script setup>
@@ -58,6 +77,7 @@ import { ref, reactive, onBeforeMount } from 'vue'
 import { http } from '@/api/http'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
+import AppBarLogin from './AppBarLogin.vue'
 
 const formRef = ref(null)
 const form = reactive({ userName: '', password: '' })
@@ -66,6 +86,8 @@ const showPassword = ref(false)
 const loading = ref(false)
 const message = ref('')
 const messageType = ref('')
+const showForgotModal = ref(false)
+const forgotEmail = ref('')
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -121,9 +143,14 @@ const login = async () => {
 }
 
 const forgotPassword = () => {
-  // placeholder — can open a dialog or route to forgot password
+  showForgotModal.value = true
+}
+
+const submitForgotPassword = () => {
+  // Here you can implement actual password reset logic or API call
+  showForgotModal.value = false
   messageType.value = 'info'
-  message.value = 'Please contact your administrator to reset your password.'
+  message.value = 'If your email is registered, you will receive password reset instructions.'
 }
 </script>
 
