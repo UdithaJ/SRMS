@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   userName: { type: String, required: true, unique: true },
-  userRole: { type: String, required: true, unique: true },
+  userRole: { type: String, required: true },
   section: { type: mongoose.Schema.Types.ObjectId, ref: 'Section', required: false },
   referenceNo: { type: String, required: true, unique: true },
   password: { type: String, required: true },

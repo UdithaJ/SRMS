@@ -1,30 +1,38 @@
 <template>
   <div>
-    <v-form>
+    <v-form ref="formRef" v-model="formValid">
       <v-row>
         <v-col cols="12" sm="6">
-          <v-text-field label="First Name" v-model="firstName" variant="solo" density="comfortable" hide-details="auto"></v-text-field>
+          <v-text-field label="First Name" v-model="firstName" :rules="[rules.required]" variant="solo" density="comfortable" hide-details="auto"></v-text-field>
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="Last Name" v-model="lastName" variant="solo" density="comfortable" hide-details="auto"></v-text-field>
+          <v-text-field label="Last Name" v-model="lastName" :rules="[rules.required]" variant="solo" density="comfortable" hide-details="auto"></v-text-field>
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="User Name" v-model="userName" variant="solo" density="comfortable" hide-details="auto"></v-text-field>
+          <v-text-field
+            label="User Name"
+            v-model="userName"
+            :rules="[rules.required, rules.userName]"
+            :error-messages="userNameExistsError ? [userNameExistsError] : []"
+            variant="solo"
+            density="comfortable"
+            hide-details="auto"
+          ></v-text-field>        
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="Reference No" v-model="referenceNo" variant="solo" density="comfortable" hide-details="auto"></v-text-field>
+          <v-text-field label="Reference No" v-model="referenceNo" :rules="[rules.required]" variant="solo" density="comfortable" hide-details="auto"></v-text-field>
         </v-col>
 
         <v-col cols="12" sm="6">
-          <v-select :items="roles" item-title="label" item-value="value" label="User Role" v-model="userRole" variant="solo" density="comfortable" hide-details="auto"></v-select>
+          <v-select :items="roles" item-title="label" item-value="value" label="User Role" v-model="userRole" :rules="[rules.required]" variant="solo" density="comfortable" hide-details="auto"></v-select>
         </v-col>
 
         <v-col cols="12" sm="6" v-if="userRole === 'section staff'">
-          <v-select :items="sections" item-title="name" item-value="_id" label="Section" v-model="section" variant="solo" density="comfortable" hide-details="auto"></v-select>
+          <v-select :items="sections" item-title="name" item-value="_id" label="Section" v-model="section" :rules="[rules.required]" variant="solo" density="comfortable" hide-details="auto"></v-select>
         </v-col>
 
         <v-col cols="12" sm="6">
-          <v-text-field label="Password" v-model="password" type="password" variant="solo" density="comfortable" hide-details="auto" :placeholder="isEditMode ? 'Leave blank to keep current password' : ''"></v-text-field>
+          <v-text-field label="Password" v-model="password" :rules="[isEditMode ? rules.optional : rules.required]" type="password" variant="solo" density="comfortable" hide-details="auto" :placeholder="isEditMode ? 'Leave blank to keep current password' : ''"></v-text-field>
         </v-col>
 
         <v-col cols="12" sm="6">
@@ -59,7 +67,16 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, defineExpose } from 'vue'
+const formRef = ref(null)
+defineExpose({ formRef })
+// Vuetify validation rules
+const rules = {
+  required: v => !!v || 'Required',
+  optional: v => true,
+  userName: validateUserName
+}
+const formValid = ref(false)
 import userImg from '@/assets/user.png'
 
 const props = defineProps({
@@ -67,7 +84,9 @@ const props = defineProps({
   isEditMode: { type: Boolean, default: false },
   sections: { type: Array, default: () => [] },
   modalMessage: { type: String, default: '' },
-  modalError: { type: Boolean, default: false }
+  modalError: { type: Boolean, default: false },
+  allUserNames: { type: Array, default: () => [] }
+
 })
 
 const emit = defineEmits(['update:modelValue','role-change'])
@@ -161,6 +180,19 @@ function onProfileFileChange(files) {
     if (base64) profileImage.value = base64
   }
   reader.readAsDataURL(file)
+}
+
+function validateUserName(v) {
+  if (!v) return 'Required'
+  // Only check if not edit mode or username changed
+  if (!props.isEditMode || v !== props.modelValue.userName) {
+    if (props.allUserNames.includes(v)) {
+      userNameExistsError.value = 'User Name is already taken'
+      return userNameExistsError.value
+    }
+  }
+  userNameExistsError.value = ''
+  return true
 }
 </script>
 
