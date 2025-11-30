@@ -69,7 +69,10 @@
 <script setup>
 import { ref, computed, watch, defineExpose } from 'vue'
 const formRef = ref(null)
-defineExpose({ formRef })
+  function validate() {
+    return formRef.value?.validate();
+  }
+  defineExpose({ formRef, validate })
 // Vuetify validation rules
 const rules = {
   required: v => !!v || 'Required',

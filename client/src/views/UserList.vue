@@ -44,15 +44,15 @@
           <h3 class="modal-title">{{ isEditMode ? 'Edit User' : 'Add User' }}</h3>
         </div>
         <div class="modal-content">
+            <!-- Only keep UserForm inside v-form for validation to work -->
             <UserForm ref="userFormRef" v-model="modalUser" :is-edit-mode="isEditMode" :sections="sections" :modal-message="modalMessage" :modal-error="modalError" :all-user-names="users.map(u => u.userName)" @role-change="onRoleChange" />
-        </div>
-
-        <div class="modal-actions">
-          <button class="neomorphic-btn mr-3" type="button" @click="closeModal" :disabled="modalLoading">Cancel</button>
-          <button class="neomorphic-btn neomorphic-btn-primary" @click="handleUserSubmit" :disabled="modalLoading">
-            <v-progress-circular v-if="modalLoading" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
-            {{ isEditMode ? 'Save' : 'Add' }}
-          </button>
+            <div class="modal-actions">
+              <button class="neomorphic-btn mr-3" type="button" @click="closeModal" :disabled="modalLoading">Cancel</button>
+              <button class="neomorphic-btn neomorphic-btn-primary" @click="handleUserSubmit" :disabled="modalLoading">
+                <v-progress-circular v-if="modalLoading" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
+                {{ isEditMode ? 'Save' : 'Add' }}
+              </button>
+            </div>
         </div>
       </div>
     </v-dialog>
@@ -64,9 +64,8 @@ const userFormRef = ref(null)
 
 const handleUserSubmit = async () => {
   let valid = true
-  if (userFormRef.value && userFormRef.value.formRef) {
-    const result = await userFormRef.value.formRef.validate()
-    // Vuetify v-form.validate() returns an object { valid: boolean } in v3, or boolean in v2
+  if (userFormRef.value && userFormRef.value.validate) {
+    const result = await userFormRef.value.validate()
     valid = typeof result === 'object' ? result.valid : result
   }
   if (!valid) return
