@@ -207,6 +207,8 @@
                   density="comfortable"
                   hide-details="auto"
                   required
+                  :menu-props="{ closeOnContentClick: false }"
+                  :value="modalInquiry.assignee || ''"
                 ></v-select>
               </v-col>
               <v-col cols="12" sm="6">
@@ -555,7 +557,7 @@ export default {
       selectedSectionId.value = sections.value[0]?._id || ''
       modalInquiry.value = {
         _id: '', firstName: '', lastName: '', requirement: filteredRequirements.value[0]?._id || '',
-        nic: '', rating: null, assignee: users.value[0]?._id || '', acknowledgement: '', notes: '', status: 1
+        nic: '', rating: null, assignee: '', acknowledgement: '', notes: '', status: 1
       }
       modalMessage.value = ''
       showModal.value = true
@@ -573,7 +575,10 @@ export default {
       selectedSectionId.value = sectionId
       const section = sections.value.find(s => s._id === sectionId)
       const requirements = section?.requirements || []
-      const assigneeId = typeof inquiry.assignee === 'string' ? inquiry.assignee : inquiry.assignee?._id || users.value[0]?._id
+      let assigneeId = ''
+      if (inquiry.assignee) {
+        assigneeId = typeof inquiry.assignee === 'string' ? inquiry.assignee : inquiry.assignee?._id || ''
+      }
       modalInquiry.value = {
         _id: inquiry._id,
         firstName: inquiry.firstName,

@@ -196,9 +196,13 @@ router.get('/:id', async (req, res) => {
 // UPDATE Inquiry
 router.put('/:id', async (req, res) => {
   try {
+    const updateData = { ...req.body };
+    if (updateData.assignee === '') {
+      updateData.assignee = undefined;
+    }
     const updatedInquiry = await Inquiry.findByIdAndUpdate(
       req.params.id,
-      { ...req.body },
+      updateData,
       { new: true }
     )
     .populate({
