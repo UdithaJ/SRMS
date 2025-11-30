@@ -10,7 +10,7 @@ const inquirySchema = new mongoose.Schema(
     nic: { type: String, required: true },
     visitedDate: { type: Date, default: Date.now },
     rating: { type: Number, min: 1, max: 5 },
-    assignee: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    assignee: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     acknowledgement: { type: String },
     notes: { type: String },
     status: { type: String, default: 'Pending' }

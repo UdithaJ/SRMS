@@ -36,13 +36,14 @@
           <h3 class="modal-title">{{ isEditMode ? 'Edit Section' : 'Add Section' }}</h3>
         </div>
         <div class="modal-content">
-          <v-form @submit.prevent="isEditMode ? updateSection() : addSection()">
+          <v-form ref="sectionFormRef" v-model="sectionFormValid" @submit.prevent="handleSectionSubmit">
             <v-row>
               <v-col cols="12">
                 <v-text-field
                   label="Section ID"
                   v-model="modalSection.sectionId"
                   :disabled="isEditMode"
+                  :rules="sectionIdRules"
                   variant="solo"
                   density="comfortable"
                   hide-details="auto"
@@ -54,6 +55,7 @@
                 <v-text-field 
                   label="Name" 
                   v-model="modalSection.name" 
+                  :rules="sectionNameRules"
                   variant="solo"
                   density="comfortable"
                   hide-details="auto"
@@ -65,6 +67,13 @@
             <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="neomorphic-alert mt-2">
               {{ modalMessage }}
             </v-alert>
+            <div class="modal-actions d-flex justify-end mt-4">
+              <button class="neomorphic-btn mr-3" @click="closeModal" :disabled="modalLoading">Cancel</button>
+              <button class="neomorphic-btn neomorphic-btn-primary" type="submit" :disabled="modalLoading">
+                <v-progress-circular v-if="modalLoading" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
+                {{ isEditMode ? 'Save' : 'Add' }}
+              </button>
+            </div>
           </v-form>
 
           <!-- Requirements section (edit mode only) -->
@@ -119,14 +128,6 @@
               {{ reqMessage }}
             </v-alert>
           </div>
-        </div>
-
-        <div class="modal-actions d-flex justify-end">
-          <button class="neomorphic-btn mr-3" @click="closeModal" :disabled="modalLoading">Cancel</button>
-          <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateSection() : addSection()" :disabled="modalLoading">
-            <v-progress-circular v-if="modalLoading" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
-            {{ isEditMode ? 'Save' : 'Add' }}
-          </button>
         </div>
       </div>
     </v-dialog>
@@ -370,6 +371,39 @@ export default {
 
     onMounted(fetchSections);
 
+    // Validation rules
+    const sectionFormRef = ref(null);
+    const sectionFormValid = ref(false);
+    const sectionIdRules = [
+      v => !!v || 'Section ID is required',
+      v => (v && v.length >= 2) || 'Section ID must be at least 2 characters',
+    ];
+    const sectionNameRules = [
+      v => !!v || 'Name is required',
+      v => (v && v.length >= 2) || 'Name must be at least 2 characters',
+    ];
+
+    // Submission handler with validation
+    const handleSectionSubmit = async () => {
+      let valid = false;
+      if (sectionFormRef.value) {
+        const result = await sectionFormRef.value.validate();
+        valid = typeof result === 'object' ? result.valid : result;
+      }
+      if (!valid) {
+        modalError.value = true;
+        modalMessage.value = 'Please fix validation errors before submitting.';
+        return;
+      }
+      modalError.value = false;
+      modalMessage.value = '';
+      if (isEditMode.value) {
+        await updateSection();
+      } else {
+        await addSection();
+      }
+    };
+
     return {
       tableHeaders,
       reqHeaders,
@@ -387,6 +421,11 @@ export default {
       addSection,
       updateSection,
       closeModal,
+      sectionFormRef,
+      sectionFormValid,
+      sectionIdRules,
+      sectionNameRules,
+      handleSectionSubmit,
 
       // req
       requirements,

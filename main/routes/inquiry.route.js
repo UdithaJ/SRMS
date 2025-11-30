@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
       nic,
       requirement,
       rating,
-      assignee,
+      assignee: assignee === '' ? undefined : assignee,
       acknowledgement,
       notes,
       status

@@ -128,7 +128,7 @@
           <h3 class="modal-title">{{ isEditMode ? 'Edit Inquiry' : 'Add Inquiry' }}</h3>
         </div>
         <div class="modal-content">
-          <v-form @submit.prevent="isEditMode ? updateInquiry() : addInquiry()">
+          <v-form ref="inquiryFormRef" v-model="inquiryFormValid" @submit.prevent="handleInquirySubmit">
             <v-row>
               <v-col cols="12" v-if="isEditMode && assigneeInfo">
                 <div class="assignee-profile">
@@ -148,13 +148,13 @@
                 </div>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field label="First Name" v-model="modalInquiry.firstName" variant="solo" density="comfortable" hide-details="auto" required></v-text-field>
+                <v-text-field label="First Name" v-model="modalInquiry.firstName" :rules="firstNameRules" variant="solo" density="comfortable" hide-details="auto" required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field label="Last Name" v-model="modalInquiry.lastName" variant="solo" density="comfortable" hide-details="auto" required></v-text-field>
+                <v-text-field label="Last Name" v-model="modalInquiry.lastName" :rules="lastNameRules" variant="solo" density="comfortable" hide-details="auto" required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-text-field label="NIC" v-model="modalInquiry.nic" variant="solo" density="comfortable" hide-details="auto" required></v-text-field>
+                <v-text-field label="NIC" v-model="modalInquiry.nic" :rules="nicRules" variant="solo" density="comfortable" hide-details="auto" required></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select
@@ -198,7 +198,7 @@
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select
-                  :items="usersWithFullName"
+                  :items="[{ fullName: 'None', _id: '' }, ...usersWithFullName]"
                   item-title="fullName"
                   item-value="_id"
                   label="Assignee"
@@ -229,6 +229,7 @@
                   :items="statusItems"
                   label="Status"
                   v-model="modalInquiry.status"
+                  :rules="statusRules"
                   variant="solo"
                   item-title="title"
                   item-value="value"
@@ -244,15 +245,14 @@
             <v-alert v-if="modalMessage" :type="modalError ? 'error' : 'success'" class="neomorphic-alert mt-3" density="compact">
               {{ modalMessage }}
             </v-alert>
+            <div class="modal-actions d-flex justify-end mt-4">
+              <button class="neomorphic-btn mr-3" @click="closeModal" :disabled="modalLoading">Cancel</button>
+              <button class="neomorphic-btn neomorphic-btn-primary" type="submit" :disabled="modalLoading">
+                <v-progress-circular v-if="modalLoading" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
+                {{ isEditMode ? 'Save' : 'Add' }}
+              </button>
+            </div>
           </v-form>
-        </div>
-
-        <div class="modal-actions">
-          <button class="neomorphic-btn mr-3" @click="closeModal" :disabled="modalLoading">Cancel</button>
-          <button class="neomorphic-btn neomorphic-btn-primary" @click="isEditMode ? updateInquiry() : addInquiry()" :disabled="modalLoading">
-            <v-progress-circular v-if="modalLoading" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
-            {{ isEditMode ? 'Save' : 'Add' }}
-          </button>
         </div>
       </div>
     </v-dialog>
@@ -324,6 +324,25 @@ export default {
       'Checked and Completed',
       'Checked and Instruction Given',
       'Checked and Need to Follow Up'
+    ];
+
+        // Validation rules
+    const inquiryFormRef = ref(null);
+    const inquiryFormValid = ref(false);
+    const firstNameRules = [
+      v => !!v || 'First Name is required',
+      v => (v && v.length >= 3) || 'First Name must be at least 3 characters',
+    ];
+    const lastNameRules = [
+      v => !!v || 'Last Name is required',
+      v => (v && v.length >= 3) || 'Last Name must be at least 3 characters',
+    ];
+    const nicRules = [
+      v => !!v || 'NIC is required',
+      v => (v && v.length >= 10) || 'NIC must be at least 10 characters',
+    ];
+    const statusRules = [
+      v => !!v || 'Status is required',
     ];
 
     // current user store to check role for acknowledgement permission
@@ -573,6 +592,27 @@ export default {
       showModal.value = true
     }
 
+       // Submission handler with validation
+    const handleInquirySubmit  = async () => {
+      let valid = false;
+      if (inquiryFormRef.value) {
+        const result = await inquiryFormRef.value.validate();
+        valid = typeof result === 'object' ? result.valid : result;
+      }
+      if (!valid) {
+        modalError.value = true;
+        modalMessage.value = 'Please fix validation errors before submitting.';
+        return;
+      }
+      modalError.value = false;
+      modalMessage.value = '';
+      if (isEditMode.value) {
+        await updateInquiry();
+      } else {
+        await addInquiry();
+      }
+    };
+
     const addInquiry = async () => {
       try {
         modalLoading.value = true
@@ -667,7 +707,14 @@ export default {
       assigneeInfo,
       modalLoading,
       pagination,
-      handlePageChange
+      handlePageChange,
+      inquiryFormRef,
+      inquiryFormValid,
+      firstNameRules,
+      lastNameRules,
+      nicRules,
+      statusRules,
+      handleInquirySubmit,
     }
   }
 }
