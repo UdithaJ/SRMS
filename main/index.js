@@ -54,13 +54,14 @@ const createWindow = () => {
     },
   });
 
+  win.maximize(); // Open window maximized
+
   // win.webContents.openDevTools();
 
   // Load Vue dev server in development
   if (process.env.NODE_ENV === 'development') {
     win.loadURL('http://localhost:5173');
   } else {
-    
     // Remove the menu bar
     Menu.setApplicationMenu(null);
 

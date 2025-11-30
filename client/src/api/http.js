@@ -5,7 +5,7 @@ import { apiCache, generateCacheKey } from '@/utils/cache'
 const envBase = import.meta?.env?.VITE_API_BASE_URL
 
 // In packaged Electron, we load via file:// — default to local server port
-const defaultBase = 'http://127.0.0.1:3000'
+const defaultBase = 'http://127.0.0.1:8090'
 
 // Normalize and pick the base URL once
 const baseURL = (typeof envBase === 'string' && envBase.trim().length > 0)
