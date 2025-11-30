@@ -33,11 +33,11 @@
   --scrollbar-thumb-hover: #7BA9FF;
   
   // Footer colors
-  --footer-bg: linear-gradient(145deg, #e8e8e8, #ffffff);
-  --footer-text: #5a5a5a;
-  --footer-icon: #7a7a7a;
-  --footer-divider: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.15) 20%, rgba(0, 0, 0, 0.15) 80%, transparent);
-  --footer-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+  --footer-bg: var(--app-bar-color);
+  --footer-text: #ffffff;
+  --footer-icon: #ffffff;
+  --footer-divider: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.15) 20%, rgba(255, 255, 255, 0.15) 80%, transparent);
+  --footer-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
   
   // Chip colors
   --chip-bg: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
@@ -46,8 +46,8 @@
   --chip-shadow: 0 2px 4px rgba(163, 177, 198, 0.15);
   
   // App Bar and Sidebar colors
-  --app-bar-color: linear-gradient(135deg, #0a3370 0%, #4c85db 100%);
-  --side-bar-color: linear-gradient(180deg, #0c2e61 0%, #4884dd 100%);
+  --app-bar-color: linear-gradient(135deg, #05295f 0%, #195fc7 100%);
+  --side-bar-color: linear-gradient(180deg, #05295f 0%, #195fc7 100%);
   --app-bar-text: #ffffff;
   --app-bar-icon: rgba(255, 255, 255, 0.9);
   --sidebar-text: #ffffff;
