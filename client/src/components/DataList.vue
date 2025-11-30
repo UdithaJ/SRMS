@@ -214,12 +214,12 @@ const visiblePages = computed(() => {
         background: var(--table-header-bg) !important;
         
         th {
-          color: var(--neomorphic-text) !important;
+          color: var(--table-header-text) !important;
           font-weight: 600 !important;
           text-transform: uppercase;
           font-size: 13px !important;
           letter-spacing: 0.5px;
-          padding: 16px 12px !important;
+          padding: 12px 12px !important;
           border-bottom: none !important;
           text-align: left;
         }

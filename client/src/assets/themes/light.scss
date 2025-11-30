@@ -22,7 +22,8 @@
   
   // Table colors
   --table-hover-bg: rgba(102, 126, 234, 0.05);
-  --table-header-bg: linear-gradient(135deg, #708cdf 0%, #e8ecf4 100%);
+  --table-header-bg: var(--app-bar-color);
+  --table-header-text: #ffffff;
   
   // Modal colors
   --modal-border: rgba(102, 126, 234, 0.1);
@@ -46,8 +47,8 @@
   --chip-shadow: 0 2px 4px rgba(163, 177, 198, 0.15);
   
   // App Bar and Sidebar colors
-  --app-bar-color: linear-gradient(135deg, #05295f 0%, #195fc7 100%);
-  --side-bar-color: linear-gradient(180deg, #05295f 0%, #195fc7 100%);
+  --app-bar-color: linear-gradient(135deg, #0a2042 0%, #174994 100%);
+  --side-bar-color: linear-gradient(180deg, #0a2042 0%, #174994 100%);
   --app-bar-text: #ffffff;
   --app-bar-icon: rgba(255, 255, 255, 0.9);
   --sidebar-text: #ffffff;
