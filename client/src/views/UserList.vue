@@ -48,7 +48,7 @@
         </div>
 
         <div class="modal-actions">
-          <button class="neomorphic-btn mr-3" @click="closeModal" :disabled="modalLoading">Cancel</button>
+          <button class="neomorphic-btn mr-3" type="button" @click="closeModal" :disabled="modalLoading">Cancel</button>
           <button class="neomorphic-btn neomorphic-btn-primary" @click="handleUserSubmit" :disabled="modalLoading">
             <v-progress-circular v-if="modalLoading" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
             {{ isEditMode ? 'Save' : 'Add' }}
