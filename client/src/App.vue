@@ -1,4 +1,6 @@
 <script setup>
+// Get app version from Vite env (.env)
+const appVersion = import.meta.env.VITE_APP_VERSION || 'dev';
 import { RouterView, useRoute } from 'vue-router'
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import SideBar from '@/components/SideBar.vue'
@@ -105,6 +107,10 @@ const getToastColor = computed(() => {
         <div class="footer-right">
           <v-icon size="small" class="footer-icon">mdi-map-marker</v-icon>
           <span>DS - Madurawala</span>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-version">
+          <span>Version {{ appVersion }}</span>
         </div>
       </div>
     </v-footer>

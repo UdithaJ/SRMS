@@ -22,7 +22,7 @@
   
   // Table colors
   --table-hover-bg: rgba(102, 126, 234, 0.05);
-  --table-header-bg: var(--app-bar-color);
+  --table-header-bg: rgba(28, 96, 199, 0.7); // very light blur color
   --table-header-text: #ffffff;
   
   // Modal colors
@@ -39,6 +39,9 @@
   --footer-icon: #ffffff;
   --footer-divider: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.15) 20%, rgba(255, 255, 255, 0.15) 80%, transparent);
   --footer-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+
+  // Dashboard gauge value color
+  --dashboard-gauge-value-color: #212121;
   
   // Chip colors
   --chip-bg: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);

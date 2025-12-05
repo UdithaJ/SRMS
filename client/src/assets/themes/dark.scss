@@ -39,6 +39,9 @@
   --footer-icon: #909090;
   --footer-divider: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.1) 80%, transparent);
   --footer-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.02);
+
+  // Dashboard gauge value color
+  --dashboard-gauge-value-color: #39dde3;
   
   // Chip colors
   --chip-bg: linear-gradient(135deg, rgba(139, 157, 255, 0.2) 0%, rgba(159, 122, 186, 0.2) 100%);

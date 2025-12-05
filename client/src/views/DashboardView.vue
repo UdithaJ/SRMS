@@ -81,7 +81,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useThemeStore } from '@/stores/theme';
+// Theme store for detecting theme changes
+const themeStore = useThemeStore();
+const { isDark } = storeToRefs(themeStore);
 import { http } from '@/api/http';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
@@ -206,6 +211,13 @@ const buildRatingGauge = () => {
         
         const labels = ['Poor', 'Fair', 'Good', 'Very Good'];
         
+               // Use CSS variable for gauge value color based on theme
+        let gaugeValueColor = getComputedStyle(document.documentElement).getPropertyValue('--dashboard-gauge-value-color')?.trim();
+        if (!gaugeValueColor) {
+          // fallback to accent if variable not set
+          gaugeValueColor = getComputedStyle(document.documentElement).getPropertyValue('--neomorphic-accent')?.trim() || '#39dde3';
+        }
+
         for (let i = 0; i <= 3; i++) {
           const angle = Math.PI + (Math.PI * (i / 3));
           const markRadius = radius - 8;
@@ -226,7 +238,7 @@ const buildRatingGauge = () => {
           const labelX = centerX + Math.cos(angle) * labelRadius;
           const labelY = centerY + Math.sin(angle) * labelRadius;
           ctx.font = '600 10px sans-serif';
-          ctx.fillStyle = '#424242';
+          ctx.fillStyle = gaugeValueColor;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(labels[i], labelX, labelY);
@@ -280,13 +292,13 @@ const buildRatingGauge = () => {
 
         // Display rating value
         ctx.font = '700 20px sans-serif';
-        ctx.fillStyle = '#212121';
+        ctx.fillStyle = gaugeValueColor;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
         ctx.fillText(rating.toFixed(1), centerX, centerY + 15);
         
         ctx.font = '400 12px sans-serif';
-        ctx.fillStyle = '#666';
+        ctx.fillStyle = gaugeValueColor;
         ctx.fillText('out of 4', centerX, centerY + 38);
       }
     }]
@@ -361,6 +373,10 @@ const buildInquiryChart = () => {
 
 onMounted(() => {
   fetchDashboardData();
+  // Watch for theme changes and redraw the gauge immediately
+  watch(isDark, () => {
+    buildRatingGauge();
+  });
 });
 </script>
 
